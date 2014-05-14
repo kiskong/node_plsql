@@ -127,6 +127,7 @@ describe('header', function () {
 			{
 				text: 'Location: index.html\nContent-type: text/html',
 				header: {
+					'contentType': 'text/html',
 					'redirectLocation': 'index.html'
 				},
 				other: {},
