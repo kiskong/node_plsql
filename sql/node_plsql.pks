@@ -1,6 +1,6 @@
 CREATE OR REPLACE
-PACKAGE plsql_server_util
+PACKAGE node_plsql
 IS
 	PROCEDURE get_page(page OUT NOCOPY CLOB);
-END plsql_server_util;
+END node_plsql;
 /

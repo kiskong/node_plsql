@@ -1,12 +1,12 @@
 -- create user
-CREATE USER plsql_server IDENTIFIED BY plsql_server;
+CREATE USER node_plsql IDENTIFIED BY node_plsql;
 
 -- assign privileges
-GRANT create session TO plsql_server;
-GRANT unlimited tablespace TO plsql_server;
-GRANT create table TO plsql_server;
-GRANT create view TO plsql_server;
-GRANT create sequence TO plsql_server;
-GRANT create procedure TO plsql_server;
-GRANT execute on dbms_lob TO plsql_server;
-GRANT execute on dbms_output TO plsql_server;
+GRANT create session TO node_plsql;
+GRANT unlimited tablespace TO node_plsql;
+GRANT create table TO node_plsql;
+GRANT create view TO node_plsql;
+GRANT create sequence TO node_plsql;
+GRANT create procedure TO node_plsql;
+GRANT execute on dbms_lob TO node_plsql;
+GRANT execute on dbms_output TO node_plsql;

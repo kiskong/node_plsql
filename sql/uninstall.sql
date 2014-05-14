@@ -1,2 +1,2 @@
 -- drop user
-DROP USER plsql_server CASCADE;
+DROP USER node_plsql CASCADE;

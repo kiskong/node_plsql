@@ -69,6 +69,32 @@ bool OracleObject::disconnect()
 }
 
 ///////////////////////////////////////////////////////////////////////////
+bool OracleObject::execute(const std::string& sql)
+{
+	if (itsConfig.isDebug)
+	{
+		std::cout << "OracleObject::execute(" << sql << ") - BEGIN" << std::flush << std::endl;
+	}
+
+	// Prepare statement
+	ocip::Statement statement(*connection);
+	if (!statement.prepare(sql))
+	{
+		REPORT_ERROR(statement.status(), "oci_statement_prepare");
+		return false;
+	}
+
+	// Execute statement
+	if (!statement.execute(1))
+	{
+		REPORT_ERROR(statement.status(), "oci_statement_execute");
+		return false;
+	}
+
+	return true;
+}
+
+///////////////////////////////////////////////////////////////////////////
 //
 // The gateway is no longer:
 // * setting up the owa.ip_address record based on the client IP address (does not work with IPv6 addresses anyway)
@@ -224,7 +250,7 @@ bool OracleObject::requestPage(std::wstring* page)
 	}
 
 	// Prepare statement
-	if (!statement.prepare("BEGIN plsql_server_util.get_page(:page); END;"))
+	if (!statement.prepare("BEGIN node_plsql.get_page(:page); END;"))
 	if (status != OCI_SUCCESS)
 	{
 		REPORT_ERROR(statement.status(), "oci_statement_prepare");

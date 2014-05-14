@@ -2,12 +2,12 @@
 @create_user.sql
 
 -- change schema
-ALTER SESSION SET CURRENT_SCHEMA=plsql_server;
+ALTER SESSION SET CURRENT_SCHEMA=node_plsql;
 
 -- install code
-@plsql_server_util.pks
+@node_plsql.pks
 show errors
-@plsql_server_util.pkb
+@node_plsql.pkb
 show errors
 
 -- install demo

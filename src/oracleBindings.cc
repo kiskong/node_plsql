@@ -31,6 +31,8 @@ private:
 	static v8::Handle<v8::Value> connect(const v8::Arguments& args);
 	static v8::Handle<v8::Value> disconnect(const v8::Arguments& args);
 
+	static v8::Handle<v8::Value> execute(const v8::Arguments& args);
+
 	static v8::Handle<v8::Value> request(const v8::Arguments& args);
 
 	// Helper
@@ -76,6 +78,7 @@ void OracleBindings::Init(Handle<Object> target)
 	tpl->PrototypeTemplate()->Set(String::NewSymbol("cleanup"),				FunctionTemplate::New(cleanup)->GetFunction());
 	tpl->PrototypeTemplate()->Set(String::NewSymbol("connect"),				FunctionTemplate::New(connect)->GetFunction());
 	tpl->PrototypeTemplate()->Set(String::NewSymbol("disconnect"),			FunctionTemplate::New(disconnect)->GetFunction());
+	tpl->PrototypeTemplate()->Set(String::NewSymbol("execute"),				FunctionTemplate::New(execute)->GetFunction());
 	tpl->PrototypeTemplate()->Set(String::NewSymbol("request"),				FunctionTemplate::New(request)->GetFunction());
 
 	Persistent<Function> constructor = Persistent<Function>::New(tpl->GetFunction());
@@ -150,6 +153,30 @@ Handle<Value> OracleBindings::disconnect(const Arguments& args)
 
 	// Disconnect
 	if (!obj->itsOracleObject->disconnect())
+	{
+		nodeUtilities::ThrowError(obj->itsOracleObject->getOracleError().what());
+		return scope.Close(Undefined());
+	}
+
+	return scope.Close(Undefined());
+}
+
+///////////////////////////////////////////////////////////////////////////
+Handle<Value> OracleBindings::execute(const Arguments& args)
+{
+	HandleScope scope;
+	OracleBindings* obj = getObject(args);
+
+	// Get the sql statement
+	std::string sql = nodeUtilities::getArgString(args, 0);
+	if (sql.empty())
+	{
+		nodeUtilities::ThrowError("The sql statement is not allowed to be empty!");
+		return scope.Close(Undefined());
+	}
+
+	// Execute the sql statement
+	if (!obj->itsOracleObject->execute(sql))
 	{
 		nodeUtilities::ThrowError(obj->itsOracleObject->getOracleError().what());
 		return scope.Close(Undefined());

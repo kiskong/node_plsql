@@ -1,5 +1,5 @@
 CREATE OR REPLACE
-PACKAGE BODY plsql_server_util
+PACKAGE BODY node_plsql
 IS
 
 PROCEDURE get_page(page OUT NOCOPY CLOB)
@@ -60,5 +60,5 @@ BEGIN
 	dbms_lob.freetemporary(lob_loc=>pageLOB);
 END get_page;
 
-END plsql_server_util;
+END node_plsql;
 /

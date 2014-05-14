@@ -17,6 +17,10 @@ public:
 	bool connect();
 	bool disconnect();
 
+	// Execute
+	bool execute(const std::string& sql);
+
+	// Request
 	bool requestInit(const propertyListType& cgi);
 	bool requestRun(const std::string& procedure, const propertyListType& parameters);
 	bool requestPage(std::wstring* page);
