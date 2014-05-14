@@ -1,0 +1,55 @@
+{
+  "name": "plsql_listener",
+  "description": "PL/SQL Node Listener",
+  "keywords": [
+    "plsql",
+    "pl/sql",
+    "node",
+    "listener",
+    "apex",
+    "mod_plsql",
+    "ohs",
+    "database",
+    "db",
+    "oracle"
+  ],
+  "homepage": "https://github.com/joeferner/node-oracle",
+  "license": "MIT",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "maintainers": [
+    {
+      "name": "Dieter Oberkofler",
+      "email": "dieter.oberkofler@gmail.com"
+    }
+  ],
+  "bugs": {
+    "url": "https://github.com/doberkofler/node-plsql_listener/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/doberkofler/node-plsql_listener.git"
+  },
+  "scripts": {
+    "test": "node Makefile.js test"
+  },
+  "dependencies": {
+    "underscore": "^1.6.0",
+    "express": "^4.1.1",
+    "compression": "^1.0.2",
+    "serve-static": "^1.1.0",
+    "morgan": "^1.0.0",
+    "tough-cookie": "^0.12.1",
+    "debug": "^0.8.1"
+  },
+  "devDependencies": {
+    "shelljs": "^0.3.0",
+    "shelljs-nodecli": "^0.1.1",
+    "mocha": "^1.18.2",
+    "chai": "^1.9.1",
+    "istanbul": "^0.2.8"
+  },
+  "main": "./index.js"
+}

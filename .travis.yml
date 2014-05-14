@@ -1,0 +1,14 @@
+language: node_js
+node_js:
+    - "0.10"
+
+env:
+    - USE_ORACLE_DUMMY=1
+
+script:
+    - node-gyp rebuild --debug
+    - "npm test"
+
+install:
+    - npm install --ignore-scripts
+    - npm install node-gyp --global
