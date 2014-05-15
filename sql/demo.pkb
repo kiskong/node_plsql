@@ -66,6 +66,7 @@ BEGIN
 	owa_util.http_header_close;
 
 	openPage('PLSQL-SERVER - Cookies');
+	htp.p('<table>');
 	htp.p('<tr><th>name</th><th>value</th></tr>');
 	FOR i IN 1 .. num_vals LOOP
 		htp.p('<tr><td>'||names(i)||'</td><td>'||vals(i)||'</td></tr>');
