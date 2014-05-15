@@ -1,6 +1,6 @@
 /* jshint node: true */
 
-var listener = require('../lib/listener').createListener;
+var node_plsql = require('../lib/node_plsql');
 
 var config = {
 	server: {
@@ -20,5 +20,5 @@ var config = {
 	}]
 };
 
-// Create a PL/SQL listener
-listener(config);
+// Start the NODE.JS PL/SQL Server
+node_plsql.start(config);
