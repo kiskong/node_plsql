@@ -5,7 +5,7 @@
 
 
 /* jshint node: true */
-/* global target, exec:false, echo:false, find:false, cat:false, rm:false, mv:false */
+/* global target, exec:false, echo:false, find:false */
 
 //------------------------------------------------------------------------------
 // Requirements
@@ -80,6 +80,7 @@ target.test = function () {
 	'use strict';
 
 	nodeCLI.exec('istanbul', 'cover', MOCHA, '-- -c', TEST_FILES);
+	nodeCLI.exec(NODE, MOCHA, TEST_FILES);
 	//nodeCLI.exec('istanbul', 'check-coverage', '--statement 99 --branch 98 --function 99 --lines 99');
 	//nodeCLI.exec('mocha-phantomjs', '-R dot', 'tests/tests.htm');
 };

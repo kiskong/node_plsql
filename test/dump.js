@@ -1,5 +1,5 @@
 /**
- * @fileoverview Test for the module dump
+ * @fileoverview Test for the module "dump.js"
  * @author doberkofler
  */
 

@@ -1,5 +1,5 @@
 /**
- * @fileoverview Test for the module header
+ * @fileoverview Test for the module "header.js"
  * @author doberkofler
  */
 

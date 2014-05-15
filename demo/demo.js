@@ -5,7 +5,10 @@ var listener = require('../lib/listener').createListener;
 var config = {
 	server: {
 		port: 8999,
-		static_dir: __dirname + '/static'
+		static: [{
+			mountPath: '/',
+			physicalDirectory: __dirname + '/static'
+		}]
 	},
 	services: [{
 		route: 'demo',
