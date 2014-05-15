@@ -13,7 +13,7 @@
     "db",
     "oracle"
   ],
-  "homepage": "https://github.com/joeferner/node-oracle",
+  "homepage": "https://github.com/doberkofler/node_plsql",
   "license": "MIT",
   "version": "0.0.1",
   "engines": {
@@ -22,15 +22,15 @@
   "maintainers": [
     {
       "name": "Dieter Oberkofler",
-      "email": "dieter.oberkofler@gmail.com"
+      "email": "doberkofler.github@gmail.com"
     }
   ],
   "bugs": {
-    "url": "https://github.com/doberkofler/node-plsql_listener/issues"
+    "url": "https://github.com/doberkofler/node_plsql/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/doberkofler/node-plsql_listener.git"
+    "url": "git://github.com/doberkofler/node_plsql.git"
   },
   "scripts": {
     "test": "node Makefile.js test"
