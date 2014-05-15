@@ -12,8 +12,8 @@ var config = {
 	},
 	services: [{
 		route: 'demo',
-		oracleUsername: 'plsql_server',
-		oraclePassword: 'plsql_server',
+		oracleUsername: 'node_plsql',
+		oraclePassword: 'node_plsql',
 		oracleHostname: 'localhost',
 		oraclePort: 1521,
 		oracleDatabase: 'TEST'

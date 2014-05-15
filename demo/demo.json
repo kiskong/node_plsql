@@ -1,0 +1,21 @@
+{
+    "server": {
+        "port": 8999,
+        "static": [
+            {
+                "mountPath": "/",
+                "physicalDirectory": "./static"
+            }
+        ]
+    },
+    "services": [
+        {
+            "route": "demo",
+            "oracleUsername": "node_plsql",
+            "oraclePassword": "node_plsql",
+            "oracleHostname": "localhost",
+            "oraclePort": 1521,
+            "oracleDatabase": "TEST"
+        }
+    ]
+}

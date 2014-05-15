@@ -1,11 +1,13 @@
 {
-  "name": "plsql_listener",
-  "description": "PL/SQL Node Listener",
+  "name": "node_plsql",
+  "description": "The Node.js PL/SQL Gateway for Oracle",
   "keywords": [
     "plsql",
     "pl/sql",
     "node",
+    "nodejs",
     "listener",
+    "server",
     "apex",
     "mod_plsql",
     "ohs",
@@ -38,12 +40,13 @@
   "dependencies": {
     "underscore": "^1.6.0",
     "express": "^4.1.1",
+    "cookie-parser": "^1.1.0",
     "compression": "^1.0.2",
     "serve-static": "^1.1.0",
     "morgan": "^1.0.0",
     "tough-cookie": "^0.12.1",
     "debug": "^0.8.1",
-    "cookie-parser": "^1.1.0"
+    "nopt": "^2.2.1"
   },
   "devDependencies": {
     "shelljs": "^0.3.0",
