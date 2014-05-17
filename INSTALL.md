@@ -97,7 +97,7 @@ node bin\node_plsql.js --config=demo\demo.json
 MacOS/Linux:
 
 ```bash
-node bin\node_plsql.js --config=demo\demo.json
+node bin/node_plsql.js --config=demo/demo.json
 ```
 
 8. Connect to the node_plsql server
