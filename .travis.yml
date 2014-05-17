@@ -6,18 +6,15 @@ env:
     - USE_ORACLE_DUMMY=1
 
 script:
-    - node-gyp rebuild --debug
     - "npm run lint"
     - "npm run test"
 
 install:
-    - npm install --ignore-scripts
-    - npm install node-gyp --global
-    - node-gyp --version
     - npm install jshint --global
     - jshint --version
     - npm install jsonlint --global
     - jsonlint --version
+    - npm install
 
 notifications:
   email:

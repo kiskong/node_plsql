@@ -37,6 +37,20 @@
     "type": "git",
     "url": "git://github.com/doberkofler/node_plsql.git"
   },
+  "files": [
+    "bin",
+    "demo",
+    "lib",
+    "sql",
+    "src",
+    "test",
+    ".jshintrc",
+    "binding.gyp",
+    "build_environment.cmd",
+    "build_environment.sh",
+    "Makefile.js",
+    "package.json"
+  ],
   "scripts": {
     "lint": "node Makefile.js lint",
     "test": "node Makefile.js test"
