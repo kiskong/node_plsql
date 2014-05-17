@@ -11,14 +11,6 @@ You first need to download and install the [Oracle instant client](http://www.or
 
 1. Set up the following environment variables
 
-MacOS/Linux:
-
-```bash
-export OCI_LIB_DIR=<directory of Oracle instant client>
-export OCI_INCLUDE_DIR=<directory of Oracle instant client>/sdk/include
-export NLS_LANG=AMERICAN_AMERICA.UTF8
-```
-
 Windows:
 
 ```bat
@@ -26,6 +18,14 @@ set OCI_LIB_DIR=<directory of Oracle instant client>\sdk\lib\msvc
 set OCI_INCLUDE_DIR=<directory of Oracle instant client>\sdk\include
 export NLS_LANG=AMERICAN_AMERICA.UTF8
 PATH=...;<directory of Oracle instant client>
+```
+
+MacOS/Linux:
+
+```bash
+export OCI_LIB_DIR=<directory of Oracle instant client>
+export OCI_INCLUDE_DIR=<directory of Oracle instant client>/sdk/include
+export NLS_LANG=AMERICAN_AMERICA.UTF8
 ```
 
 2. Create the following symbolic links
@@ -68,10 +68,38 @@ export DYLD_LIBRARY_PATH=$OCI_LIB_DIR
 
 Linux:
 
-Add the shared object files to the ld cache:
+```
+export LD_LIBRARY_PATH=$OCI_LIB_DIR
+```
+
+4. Install the node_plsql server
 
 ```
-# Replace /opt/instantclient_12_1/ with wherever you extracted the Basic Lite files to
-echo '/opt/instantclient_12_1/' | sudo tee -a /etc/ld.so.conf.d/oracle_instant_client.conf
-sudo ldconfig
+npm install node_plsql
 ```
+
+5. Configure the node_plsql server
+
+Change the demo.json configuration file in the demo directory as needed.
+
+6. Install the PL/SQL sample application
+
+Execute the SQL*Plus script install.sql in the directory demo while connected as a user with administrative privileges.
+
+7. Start the node_plsql server
+
+Windows:
+
+```bat
+node bin\node_plsql.js --config=demo\demo.json
+```
+
+MacOS/Linux:
+
+```bash
+node bin\node_plsql.js --config=demo\demo.json
+```
+
+8. Connect to the node_plsql server
+
+Open a browser and use the following URL: http://localhost:8999/demo/demo.pageIndex
