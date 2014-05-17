@@ -16,7 +16,6 @@ var nodeCLI = require('shelljs-nodecli');
 //var path = require('path');
 //var os = require('os');
 
-
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
@@ -42,13 +41,13 @@ function fileType(extension) {
 var NODE = 'node',
 	NODE_MODULES = './node_modules/',
 	MOCHA = NODE_MODULES + 'mocha/bin/_mocha',
-	ESLINT = NODE + ' eslint.js',
+	JSHINT = 'jshint',
+	JSONLINT = 'jsonlint',
 
 	// Files
-	JS_FILES = find('lib/').filter(fileType('js')).join(' '),
-	/*JSON_FILES = find('conf/').filter(fileType('json')).join(' ') + ' .eslintrc',*/
-	TEST_FILES = find('test/').filter(fileType('js')).join(' ');
-
+	TEST_FILES = find('test/').filter(fileType('js')).join(' '),
+	JS_FILES = find('lib/').filter(fileType('js')).join(' ') + ' ' + find('./Makefile.js').filter(fileType('js')).join(' ') + ' ' + TEST_FILES,
+	JSON_FILES = 'demo/demo.json' + ' ' + 'package.json';
 
 //------------------------------------------------------------------------------
 // Tasks
@@ -64,16 +63,11 @@ target.all = function () {
 target.lint = function () {
 	'use strict';
 
-	/*
 	echo('Validating JSON Files');
-	nodeCLI.exec('jsonlint', '-q -c', JSON_FILES);
-	*/
+	exec(JSONLINT + ' -q -c ' + JSON_FILES);
 
 	echo('Validating JavaScript files');
-	exec(ESLINT + JS_FILES);
-
-	echo('Validating JavaScript test files');
-	exec(ESLINT + TEST_FILES);
+	exec(JSHINT + ' ' + JS_FILES);
 };
 
 target.test = function () {

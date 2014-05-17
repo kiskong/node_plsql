@@ -12,3 +12,5 @@ script:
 install:
     - npm install --ignore-scripts
     - npm install node-gyp --global
+    - npm install jshint --global
+    - npm install jsonlint --global
