@@ -2,8 +2,8 @@
 
 You first need to download and install the [Oracle instant client](http://www.oracle.com/technetwork/database/features/instant-client/index-097480.html) with the following components:
 
-1. Instant Client Package - Basic or Basic Lite: All files required to run OCI, OCCI, and JDBC-OCI applications
-2. Instant Client Package - SDK: Additional header files and an example makefile for developing Oracle applications with Instant Client
+* Instant Client Package - Basic or Basic Lite: All files required to run OCI, OCCI, and JDBC-OCI applications
+* Instant Client Package - SDK: Additional header files and an example makefile for developing Oracle applications with Instant Client
 
 **It is reccomended to use the latest version (12.1) of the Oracle instant client**
 **Please make sure you download the correct packages for your system architecture, such as 64 bit vs 32 bit**
@@ -46,13 +46,13 @@ ln -s libclntsh.so.12.1 libclntsh.so
 
 `libaio` library is required on Linux systems:
 
-* On Unbuntu/Debian
+On Unbuntu/Debian
 
 ```
 sudo apt-get install libaio1
 ```
 
-* On Fedora/CentOS/RHEL
+On Fedora/CentOS/RHEL
 
 ```
 sudo yum install libaio
