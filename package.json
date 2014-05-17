@@ -45,11 +45,17 @@
     "src",
     "test",
     ".jshintrc",
+    "AUTHORS",
     "binding.gyp",
     "build_environment.cmd",
     "build_environment.sh",
+    "CHANGELOG.md",
+    "INSTALL.md",
+    "LICENSE",
     "Makefile.js",
-    "package.json"
+    "package.json",
+    "README.md",
+    "RELEASE-GOALS.md"
   ],
   "scripts": {
     "lint": "node Makefile.js lint",
