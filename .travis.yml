@@ -14,3 +14,7 @@ install:
     - npm install node-gyp --global
     - npm install jshint --global
     - npm install jsonlint --global
+
+notifications:
+  email:
+    - doberkofler.github@gmail.com
