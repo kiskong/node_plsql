@@ -7,14 +7,17 @@ env:
 
 script:
     - node-gyp rebuild --debug
-    - "npm lint"
-    - "npm test"
+    - "npm run lint"
+    - "npm run test"
 
 install:
     - npm install --ignore-scripts
     - npm install node-gyp --global
+    - node-gyp --version
     - npm install jshint --global
+    - jshint --version
     - npm install jsonlint --global
+    - jsonlint --version
 
 notifications:
   email:
