@@ -11,9 +11,7 @@ script:
 
 install:
     - npm install jshint --global
-    - jshint --version
     - npm install jsonlint --global
-    - jsonlint --version
     - npm install
 
 notifications:
