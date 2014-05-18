@@ -358,9 +358,9 @@ std::string OracleBindings::getConfig(const Arguments& args, Config* config)
 	{
 		return "Object must contain a property 'port' of type number!";
 	}
-	if (!nodeUtilities::isObjString(object, "database"))
+	if (!nodeUtilities::isObjString(object, "service"))
 	{
-		return "Object must contain a property 'database' of type string!";
+		return "Object must contain a property 'service' of type string!";
 	}
 	if (!nodeUtilities::isObjBoolean(object, "debug"))
 	{
@@ -373,7 +373,7 @@ std::string OracleBindings::getConfig(const Arguments& args, Config* config)
 	config->isSYSDBA	= nodeUtilities::getObjBoolean(object,	"sysdba");
 	config->itsHostname	= nodeUtilities::getObjString(object,	"hostname");
 	config->itsPort		= nodeUtilities::getObjInteger(object,	"port");
-	config->itsDatabase	= nodeUtilities::getObjString(object,	"database");
+	config->itsService	= nodeUtilities::getObjString(object,	"service");
 	config->isDebug		= nodeUtilities::getObjBoolean(object,	"debug");
 
 	return "";

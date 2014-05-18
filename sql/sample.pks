@@ -1,5 +1,5 @@
 CREATE OR REPLACE
-PACKAGE demo IS
+PACKAGE sample IS
 
 PROCEDURE pageIndex;
 PROCEDURE pageSimple(text IN VARCHAR2 DEFAULT NULL);
@@ -10,5 +10,5 @@ PROCEDURE pageRedirect;
 PROCEDURE pageLocation;
 PROCEDURE pageOther;
 
-END demo;
+END sample;
 /

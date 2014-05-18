@@ -47,7 +47,7 @@ var NODE = 'node',
 	// Files
 	TEST_FILES = find('test/').filter(fileType('js')).join(' '),
 	JS_FILES = find('lib/').filter(fileType('js')).join(' ') + ' ' + find('./Makefile.js').filter(fileType('js')).join(' ') + ' ' + TEST_FILES,
-	JSON_FILES = 'demo/demo.json' + ' ' + 'package.json';
+	JSON_FILES = 'package.json';
 
 //------------------------------------------------------------------------------
 // Tasks

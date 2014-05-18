@@ -14,7 +14,7 @@ public:
 	bool		isSYSDBA;
 	std::string itsHostname;
 	int			itsPort;
-	std::string itsDatabase;
+	std::string itsService;
 	bool		isDebug;
 };
 

@@ -74,26 +74,32 @@ export LD_LIBRARY_PATH=$OCI_LIB_DIR
 npm install node_plsql --global
 ```
 
-## Configure the node_plsql server
-
-Change the demo.json configuration file in the demo directory as needed.
-
 ## Install the PL/SQL sample application
 
 Execute the SQL*Plus script install.sql in the directory sql while connected as a user with administrative privileges.
+
+## Configure the node_plsql server
+
+Create a sample configuration file using the --init command line parameter
+
+```
+node_plsql --init=sample.json
+```
+
+and then change the configuration parameters as needed.
 
 ## Start the node_plsql server
 
 Windows:
 ```bat
-node bin\node_plsql.js --config=demo\demo.json
+node bin\node_plsql.js --config=sample.json
 ```
 
 MacOS/Linux:
 ```bash
-node bin/node_plsql.js --config=demo/demo.json
+node bin/node_plsql.js --config=sample.json
 ```
 
 ## Connect to the node_plsql server
 
-Open a browser and use the following [URL](http://localhost:8999/demo/demo.pageIndex).
+Open a browser and use the following [URL](http://localhost:8999/sample/sample.pageIndex).

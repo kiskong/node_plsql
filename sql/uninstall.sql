@@ -1,2 +1,5 @@
+-- set the username
+define SAMPLE_USER=sample
+
 -- drop user
-DROP USER node_plsql CASCADE;
+DROP USER &&SAMPLE_USER CASCADE;

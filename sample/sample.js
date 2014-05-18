@@ -11,12 +11,12 @@ var config = {
 		}]
 	},
 	services: [{
-		route: 'demo',
-		oracleUsername: 'node_plsql',
-		oraclePassword: 'node_plsql',
+		route: 'sample',
+		oracleUsername: 'sample',
+		oraclePassword: 'sample',
 		oracleHostname: 'localhost',
 		oraclePort: 1521,
-		oracleDatabase: 'TEST'
+		oracleService: 'ORCL'
 	}]
 };
 

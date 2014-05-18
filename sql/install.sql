@@ -1,11 +1,24 @@
+-- set the username
+define SAMPLE_USER=sample
+
 -- create user
-@create_user.sql
+CREATE USER &&SAMPLE_USER IDENTIFIED BY &&SAMPLE_USER;
+
+-- assign privileges
+GRANT create session TO &&SAMPLE_USER;
+GRANT unlimited tablespace TO &&SAMPLE_USER;
+GRANT create table TO &&SAMPLE_USER;
+GRANT create view TO &&SAMPLE_USER;
+GRANT create sequence TO &&SAMPLE_USER;
+GRANT create procedure TO &&SAMPLE_USER;
+GRANT execute on dbms_lob TO &&SAMPLE_USER;
+GRANT execute on dbms_output TO &&SAMPLE_USER;
 
 -- change schema
-ALTER SESSION SET CURRENT_SCHEMA=node_plsql;
+ALTER SESSION SET CURRENT_SCHEMA=&&SAMPLE_USER;
 
 -- install demo
-@demo.pks
+@sample.pks
 show errors
-@demo.pkb
+@sample.pkb
 show errors

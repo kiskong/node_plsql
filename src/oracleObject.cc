@@ -359,6 +359,6 @@ void OracleObject::reportError(int oracleStatus, const std::string& message, con
 std::string OracleObject::getConnectString() const
 {
 	std::ostringstream connectionString;
-	connectionString << itsConfig.itsHostname << ":" << itsConfig.itsPort << "/" << itsConfig.itsDatabase;
+	connectionString << itsConfig.itsHostname << ":" << itsConfig.itsPort << "/" << itsConfig.itsService;
 	return connectionString.str();
 }

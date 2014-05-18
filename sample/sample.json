@@ -1,0 +1,31 @@
+{
+    // Server configuration (used for the entire server)
+    "server": {
+        // The server port to listen at
+        "port": 8999,
+        // The mapping for servicing static files
+        "static": [
+            {
+                "mountPath": "/",
+                "physicalDirectory": "D:/MyDev/doberkofler/node_plsql/static"
+            }
+        ]
+    },
+    // Service configuration (used for each individual connection)
+    "services": [
+        {
+            // The route to be intercepted for this service
+            "route": "sample",
+            // The Oracle username
+            "oracleUsername": "sample",
+            // The Oracle password
+            "oraclePassword": "sample",
+            // The Oracle host name or IP address
+            "oracleHostname": "localhost",
+            // The Oracle port
+            "oraclePort": 1521,
+            // The Oracle service name or SID
+            "oracleService": "ORCL"
+        }
+    ]
+}

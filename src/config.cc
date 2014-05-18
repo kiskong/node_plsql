@@ -10,7 +10,7 @@ void Config::debug() const
 	std::cout << "SYSDBA:   " << isSYSDBA << std::endl;
 	std::cout << "Hostname: " << itsHostname << std::endl;
 	std::cout << "Port:     " << itsPort << std::endl;
-	std::cout << "Database: " << itsDatabase << std::endl;
+	std::cout << "Service:  " << itsService << std::endl;
 	std::cout << "Debug:    " << isDebug << std::endl;
 	std::cout << std::flush;
 }
