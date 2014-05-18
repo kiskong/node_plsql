@@ -7,11 +7,11 @@ You first need to download and install the [Oracle instant client](http://www.or
 * Instant Client Package - Basic or Basic Lite: All files required to run OCI, OCCI, and JDBC-OCI applications
 * Instant Client Package - SDK: Additional header files and an example makefile for developing Oracle applications with Instant Client
 
-**It is reccomended to use the latest version (12.1) of the Oracle instant client**
+**Notes:**
 
-**Please make sure you download the correct packages for your system architecture, such as 64 bit vs 32 bit**
-
-**Unzip the files 1 and 2 into the same directory, such as /opt/instantclient_12_1 or c:\instantclient_12_1_x64**
+*It is reccomended to use the latest version (12.1) of the Oracle instant client.
+*Please make sure you download the correct packages for your system architecture, such as 64 bit vs 32 bit.
+*Unzip the files 1 and 2 into the same directory, such as /opt/instantclient_12_1 or c:\instantclient_12_1_x64.
 
 ### Set up the following environment variables
 
