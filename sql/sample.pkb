@@ -13,6 +13,7 @@ BEGIN
 	htp.p('<li><a href="!sample.pageFlexible?p1=v1'||CHR(38)||'p2=v2'||CHR(38)||'p3=v3">Flexible parameter passing</a></li>');
 	htp.p('<li><a href="sample.pageCGI">CGI</a></li>');
 	htp.p('<li><a href="sample.pageCookie">Cookies</a></li>');
+	htp.p('<li><a href="sample.pageBlocking">Blocking</a></li>');
 	htp.p('<li><a href="sample.pageRedirect">Redirect</a></li>');
 	htp.p('<li><a href="sample.pageLocation">Change location</a></li>');
 	htp.p('</ul>');
@@ -74,6 +75,68 @@ BEGIN
 	htp.p('</table>');
 	closePage();
 END pageCookie;
+
+PROCEDURE pageBlocking(secs IN NUMBER DEFAULT 60)
+IS
+	MINUTES		CONSTANT	PLS_INTEGER	:=	TRUNC(secs / 60, 0);
+	SECONDS		CONSTANT	PLS_INTEGER	:=	secs - MINUTES * 60;
+BEGIN
+	openPage('PLSQL-SERVER - Blocking');
+
+	htp.p('<div id="countdown"></div>');
+
+	htp.p('<script>
+    var interval;
+    var minutes = '||MINUTES||';
+    var seconds = '||SECONDS||';
+
+    window.onload = function() {
+        countdown("countdown");
+        self.top.location.replace("sample.pageDoesBlock");
+    }
+
+    function show(el) {
+        if (minutes > 0) {
+            var minute_text = minutes + (minutes > 1 ? " minutes" : " minute");
+        } else {
+            var minute_text = "";
+        }
+        var second_text = seconds > 1 ? "seconds" : "second";
+        el.innerHTML = minute_text + " " + seconds + " " + second_text + " remaining";
+    }
+
+    function countdown(element) {
+        var el = document.getElementById(element);
+        show(el);
+        interval = setInterval(function() {
+            if (seconds == 0) {
+                if(minutes == 0) {
+                    el.innerHTML = "done";
+                    clearInterval(interval);
+                    return;
+                } else {
+                    minutes--;
+                    seconds = 60;
+                }
+            }
+            show(el);
+            seconds--;
+        }, 1000);
+    }
+</script>');
+
+	closePage();
+END pageBlocking;
+
+PROCEDURE pageDoesBlock(secs IN NUMBER DEFAULT 60)
+IS
+BEGIN
+	dbms_lock.sleep(secs);
+
+	openPage('PLSQL-SERVER - Blocking');
+	htp.p('<p>This page has been blocking for "'||secs||'" seconds.</p>');
+	closePage();
+END pageDoesBlock;
 
 PROCEDURE pageRedirect
 IS

@@ -13,6 +13,7 @@ GRANT create sequence TO &&SAMPLE_USER;
 GRANT create procedure TO &&SAMPLE_USER;
 GRANT execute on dbms_lob TO &&SAMPLE_USER;
 GRANT execute on dbms_output TO &&SAMPLE_USER;
+GRANT execute on dbms_lock TO &&SAMPLE_USER;
 
 -- change schema
 ALTER SESSION SET CURRENT_SCHEMA=&&SAMPLE_USER;
