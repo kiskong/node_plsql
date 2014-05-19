@@ -45,17 +45,9 @@ private:
 
 	// Function exported to node
 	static v8::Handle<v8::Value> New(const v8::Arguments& args);
-	
-	static v8::Handle<v8::Value> prepareSync(const v8::Arguments& args);
-	static v8::Handle<v8::Value> cleanupSync(const v8::Arguments& args);
-
-	static v8::Handle<v8::Value> connectSync(const v8::Arguments& args);
-	static v8::Handle<v8::Value> disconnectSync(const v8::Arguments& args);
-
 	static v8::Handle<v8::Value> executeSync(const v8::Arguments& args);
-
-	static v8::Handle<v8::Value> requestSync(const v8::Arguments& args);
 	static v8::Handle<v8::Value> request(const v8::Arguments& args);
+
 	static void doRequest(uv_work_t* req);
 	static void doRequestAfter(uv_work_t* req, int status);
 
@@ -98,12 +90,7 @@ void OracleBindings::Init(Handle<Object> target)
 	tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
 	// Prototype
-	tpl->PrototypeTemplate()->Set(String::NewSymbol("prepareSync"),		FunctionTemplate::New(prepareSync)->GetFunction());
-	tpl->PrototypeTemplate()->Set(String::NewSymbol("cleanupSync"),		FunctionTemplate::New(cleanupSync)->GetFunction());
-	tpl->PrototypeTemplate()->Set(String::NewSymbol("connectSync"),		FunctionTemplate::New(connectSync)->GetFunction());
-	tpl->PrototypeTemplate()->Set(String::NewSymbol("disconnectSync"),	FunctionTemplate::New(disconnectSync)->GetFunction());
 	tpl->PrototypeTemplate()->Set(String::NewSymbol("executeSync"),		FunctionTemplate::New(executeSync)->GetFunction());
-	tpl->PrototypeTemplate()->Set(String::NewSymbol("requestSync"),		FunctionTemplate::New(requestSync)->GetFunction());
 	tpl->PrototypeTemplate()->Set(String::NewSymbol("request"),			FunctionTemplate::New(request)->GetFunction());
 
 	Persistent<Function> constructor = Persistent<Function>::New(tpl->GetFunction());
@@ -124,7 +111,7 @@ Handle<Value> OracleBindings::New(const Arguments& args)
 		return scope.Close(Undefined());
 	}
 
-	if (config.isDebug)
+	if (config.m_debug)
 	{
 		config.debug();
 	}
@@ -134,56 +121,6 @@ Handle<Value> OracleBindings::New(const Arguments& args)
 	obj->Wrap(args.This());
 
 	return args.This();
-}
-
-///////////////////////////////////////////////////////////////////////////
-Handle<Value> OracleBindings::prepareSync(const Arguments& args)
-{
-	HandleScope scope;
-	//OracleBindings* obj = getObject(args);
-
-	return scope.Close(Undefined());
-}
-
-///////////////////////////////////////////////////////////////////////////
-Handle<Value> OracleBindings::cleanupSync(const Arguments& args)
-{
-	HandleScope scope;
-	//OracleBindings* obj = getObject(args);
-
-	return scope.Close(Undefined());
-}
-
-///////////////////////////////////////////////////////////////////////////
-Handle<Value> OracleBindings::connectSync(const Arguments& args)
-{
-	HandleScope scope;
-	OracleBindings* obj = getObject(args);
-
-	// Connect with Oracle server
-	if (!obj->itsOracleObject->connect())
-	{
-		nodeUtilities::ThrowError(obj->itsOracleObject->getOracleError().what());
-		return scope.Close(Undefined());
-	}
-
-	return scope.Close(Undefined());
-}
-
-///////////////////////////////////////////////////////////////////////////
-Handle<Value> OracleBindings::disconnectSync(const Arguments& args)
-{
-	HandleScope scope;
-	OracleBindings* obj = getObject(args);
-
-	// Disconnect
-	if (!obj->itsOracleObject->disconnect())
-	{
-		nodeUtilities::ThrowError(obj->itsOracleObject->getOracleError().what());
-		return scope.Close(Undefined());
-	}
-
-	return scope.Close(Undefined());
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -208,48 +145,6 @@ Handle<Value> OracleBindings::executeSync(const Arguments& args)
 	}
 
 	return scope.Close(Undefined());
-}
-
-///////////////////////////////////////////////////////////////////////////
-Handle<Value> OracleBindings::requestSync(const Arguments& args)
-{
-	HandleScope scope;
-	OracleBindings* obj = getObject(args);
-
-	// Check and decode the arguments
-	std::string procedure;
-	propertyListType parameters;
-	propertyListType cgi;
-	std::string error = requestParseArguments(args, &procedure, &parameters, &cgi);
-	if (!error.empty())
-	{
-		nodeUtilities::ThrowTypeError("OracleBindings::requestSync: " + error);
-		return scope.Close(Undefined());
-	}
-
-	// Allocate the request type
-	RequestHandle rh;
-
-	// Initialize the request type
-	rh.oracleObject	=	obj->itsOracleObject;
-	rh.procedure	=	procedure;
-	rh.parameters	=	parameters;
-	rh.cgi			=	cgi;
-
-	// Invoke actual worker used in the Async variant
-	uv_work_t req;
-	req.data = &rh;
-	OracleBindings::doRequest(&req);
-
-	// Process the errors
-	if (!rh.error.empty())
-	{
-		nodeUtilities::ThrowError(rh.error);
-		return scope.Close(Undefined());
-	}
-
-	// Return the page contents
-	return scope.Close(String::New(reinterpret_cast<const uint16_t*>(rh.page.c_str())));
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -297,20 +192,7 @@ void OracleBindings::doRequest(uv_work_t* req)
 {
 	RequestHandle* rh = static_cast<RequestHandle*>(req->data);
 
-	// 1. Initialize the request
-	if (!rh->oracleObject->requestInit(rh->cgi))
-	{
-		rh->error = rh->oracleObject->getOracleError().what();
-	}
-
-	// 2. Invoke the procedure
-	if (!rh->oracleObject->requestRun(rh->procedure, rh->parameters))
-	{
-		rh->error = rh->oracleObject->getOracleError().what();
-	}
-
-	// 3. Retrieve the page content
-	if (!rh->oracleObject->requestPage(&rh->page))
+	if (!rh->oracleObject->request(rh->cgi, rh->procedure, rh->parameters, &rh->page))
 	{
 		rh->error = rh->oracleObject->getOracleError().what();
 	}
@@ -481,21 +363,9 @@ std::string OracleBindings::getConfig(const Arguments& args, Config* config)
 	{
 		return "Object must contain a property 'password' of type string!";
 	}
-	if (!nodeUtilities::isObjBoolean(object, "sysdba"))
+	if (!nodeUtilities::isObjString(object, "database"))
 	{
-		return "Object must contain a property 'sysdba' of type boolean!";
-	}
-	if (!nodeUtilities::isObjString(object, "hostname"))
-	{
-		return "Object must contain a property 'hostname' of type string!";
-	}
-	if (!nodeUtilities::isObjInteger(object, "port"))
-	{
-		return "Object must contain a property 'port' of type number!";
-	}
-	if (!nodeUtilities::isObjString(object, "service"))
-	{
-		return "Object must contain a property 'service' of type string!";
+		return "Object must contain a property 'database' of type string!";
 	}
 	if (!nodeUtilities::isObjBoolean(object, "debug"))
 	{
@@ -503,13 +373,10 @@ std::string OracleBindings::getConfig(const Arguments& args, Config* config)
 	}
 
 	// Get the properties
-	config->itsUsername	= nodeUtilities::getObjString(object,	"username");
-	config->itsPassword	= nodeUtilities::getObjString(object,	"password");
-	config->isSYSDBA	= nodeUtilities::getObjBoolean(object,	"sysdba");
-	config->itsHostname	= nodeUtilities::getObjString(object,	"hostname");
-	config->itsPort		= nodeUtilities::getObjInteger(object,	"port");
-	config->itsService	= nodeUtilities::getObjString(object,	"service");
-	config->isDebug		= nodeUtilities::getObjBoolean(object,	"debug");
+	config->m_username	= nodeUtilities::getObjString(object,	"username");
+	config->m_password	= nodeUtilities::getObjString(object,	"password");
+	config->m_database	= nodeUtilities::getObjString(object,	"database");
+	config->m_debug		= nodeUtilities::getObjBoolean(object,	"debug");
 
 	return "";
 }

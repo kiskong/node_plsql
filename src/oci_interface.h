@@ -35,6 +35,11 @@ sword oci_handle_free(ub4 type, dvoid** hndlp);
 
 ///////////////////////////////////////////////////////////////////////////
 sword oci_connect_environment_create(OCIEnv** envhpp, ub4 mode, ub2 charset, ub2 ncharset);
+sword oci_connect_pool_create(OCIEnv* envhp, OCIError* errhp, OCICPool* poolhp, OraText** poolName, sb4* poolNameLen, const std::string& username, const std::string& password, const std::string& server, int connMin, int connMax, int connIncr);
+sword oci_connect_pool_destroy(OCICPool* poolhp, OCIError* errhp);
+sword oci_logon(OCIEnv* envhp, OCIError* errhp, OCISvcCtx** svchp, const std::string& username, const std::string& password, const std::string& server);
+sword oci_logon(OCIEnv* envhp, OCIError* errhp, OCISvcCtx** svchp, const std::string& username, const std::string& password, OraText* poolName, sb4 poolNameLen);
+sword oci_logoff(OCISvcCtx* svchp, OCIError* errhp);
 
 ///////////////////////////////////////////////////////////////////////////
 sword oci_attribute_set(dvoid* trgthndlp, ub4 trghndltyp, dvoid* attributep, ub4 size, ub4 attrtype, OCIError* errhp);

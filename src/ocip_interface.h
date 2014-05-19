@@ -2,6 +2,7 @@
 #define OCIP_INTERFACE__H
 
 #include "oci_interface.h"
+#include "oracleError.h"
 
 namespace ocip
 {
@@ -26,23 +27,15 @@ class Parameter;
 class ParameterArray;
 
 ///////////////////////////////////////////////////////////////////////////
-class Connection
+class Environment
 {
 public:
-	Connection(int mode = OCI_DEFAULT);
-	~Connection();
-
-	bool connect(const std::string& username, const std::string& password, const std::string& server, bool isSYSDBA);
-	bool disconnect();
-
-	int status() const {return static_cast<int>(m_oracle_status);}
-	bool isConnected() const {return m_isConnected;}
+	Environment(int mode = OCI_DEFAULT);
+	~Environment();
 
 	OCIEnv* hEnv() const {return m_envhp;}
-	OCIError* hError() const {return m_errhp;}
-	OCISvcCtx* hSvcCtx() const {return m_svchp;}
-	OCIServer* hServer() const {return m_srvhp;}
-	OCISession* hSession() const {return m_usrhp;}
+
+	static oracleError reportError(int oracleStatus, OCIError* errhp, const std::string& message, const std::string& file, int line, bool debug);
 
 private:
 	void create();
@@ -50,13 +43,84 @@ private:
 
 	sb4					m_mode;
 	OCIEnv*				m_envhp;
+
+	// Disable copy/assign
+	Environment(const Environment&);
+	Environment &operator=(const Environment&);
+};
+
+///////////////////////////////////////////////////////////////////////////
+class ConnectionPool
+{
+public:
+	ConnectionPool(Environment* environment);
+	~ConnectionPool();
+
+	bool create(const std::string& username, const std::string& password, const std::string& server, int connMin, int connMax, int connIncr);
+	bool destroy();
+
+	OCIEnv* hEnv() const {return m_envhp;}
+	OCIError* hError() const {return m_errhp;}
+	OCICPool* poolhp() const {return m_poolhp;}
+	OraText* poolName() const {return m_poolName;}
+	sb4	poolNameLen() const {return m_poolNameLen;}
+
+	bool hasPool() const {return m_hasPool;}
+
+	oracleError reportError(const std::string& message, const std::string& file, int line, bool debug)
+	{
+		return Environment::reportError(m_oracle_status, m_errhp, message, file, line, debug);
+	}
+
+private:
+	OCIEnv*				m_envhp;
 	OCIError*			m_errhp;
-	OCISvcCtx*			m_svchp;
-	OCIServer*			m_srvhp;
-	OCISession*			m_usrhp;
+	OCICPool*			m_poolhp;
+	OraText*			m_poolName;
+	sb4					m_poolNameLen;
+	bool				m_hasPool;
 
 	sword				m_oracle_status;
-	bool				m_isConnected;
+
+	// Disable copy/assign
+	ConnectionPool(const ConnectionPool&);
+	ConnectionPool &operator=(const ConnectionPool&);
+};
+
+///////////////////////////////////////////////////////////////////////////
+class Connection
+{
+public:
+	Connection(Environment* environment);
+	Connection(ConnectionPool* connectionPool);
+	~Connection();
+
+	bool connect(const std::string& username, const std::string& password, const std::string& server);
+	bool disconnect();
+
+	bool hasPool() const {return m_poolhp != 0;}
+	bool isConnected() const {return m_isLoggedOn;}
+
+	OCIEnv* hEnv() const {return m_envhp;}
+	OCIError* hError() const {return m_errhp;}
+	OCISvcCtx* hSvcCtx() const {return m_svchp;}
+
+	oracleError reportError(const std::string& message, const std::string& file, int line, bool debug)
+	{
+		return Environment::reportError(m_oracle_status, m_errhp, message, file, line, debug);
+	}
+
+private:
+	OCIEnv*				m_envhp;
+	OCIError*			m_errhp;
+	OCICPool*			m_poolhp;
+	OraText*			m_poolName;
+	sb4					m_poolNameLen;
+	bool				m_hasPool;
+	OCISvcCtx*			m_svchp;
+	bool				m_isLoggedOn;
+
+	sword				m_oracle_status;
 
 	// Disable copy/assign
 	Connection(const Connection&);
@@ -67,20 +131,24 @@ private:
 class Statement
 {
 public:
-	Statement(Connection& connection);
+	Statement(Connection* connection);
 	~Statement();
 
 	bool prepare(const std::string& sql);
 	bool execute(int iterations);
 	bool bind(OCIBind** bindpp, const std::string& placeholder, ub2 dty, dvoid* valuep, sb4 value_sz, sb2* indp = 0, ub4 maxarr_len = 0, ub4* curelen = 0);
-	int status() const {return static_cast<int>(m_oracle_status);}
-	OCIStmt* hStmt() const {return m_stmtp;}
-	OCIError* hError() const {return m_connection.hError();}
-
 	void addParameter(Parameter* parameter);
 
+	OCIStmt* hStmt() const {return m_stmtp;}
+	OCIError* hError() const {return m_connection->hError();}
+
+	oracleError reportError(const std::string& message, const std::string& file, int line, bool debug)
+	{
+		return Environment::reportError(m_oracle_status, m_connection->hError(), message, file, line, debug);
+	}
+
 private:
-	Connection&			m_connection;
+	Connection*			m_connection;
 	OCIStmt*			m_stmtp;
 	sword				m_oracle_status;
 

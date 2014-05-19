@@ -14,9 +14,7 @@ var config = {
 		route: 'sample',
 		oracleUsername: 'sample',
 		oraclePassword: 'sample',
-		oracleHostname: 'localhost',
-		oraclePort: 1521,
-		oracleService: 'ORCL'
+		oracleDatabase: ''
 	}]
 };
 

@@ -2,7 +2,6 @@
 #define ORACLEOBJECT__H
 
 #include "config.h"
-#include "oracleError.h"
 #include "ocip_interface.h"
 
 ///////////////////////////////////////////////////////////////////////////
@@ -13,32 +12,28 @@ public:
 	OracleObject(const Config& config);
 	~OracleObject();
 
-	// Connect and disconnect
-	bool connect();
-	bool disconnect();
-
-	// Execute
+	// Execute SQL
 	bool execute(const std::string& sql);
 
-	// Request
-	bool requestInit(const propertyListType& cgi);
-	bool requestRun(const std::string& procedure, const propertyListType& parameters);
-	bool requestPage(std::wstring* page);
+	// Request page
+	bool request(const propertyListType& cgi, const std::string& procedure, const propertyListType& parameters, std::wstring* page);
 
 	// Status
-	oracleError getOracleError() const {return itsOracleError;}
+	oracleError getOracleError() const {return m_OracleError;}
 
 private:
-	Config				itsConfig;
-	ocip::Connection*	connection;
-	oracleError			itsOracleError;
+	Config					m_Config;
+	ocip::Environment*		m_environment;
+	ocip::ConnectionPool*	m_connectionPool;
+	oracleError				m_OracleError;
+
+	// Request steps
+	bool requestInit(ocip::Connection* connection, const propertyListType& cgi);
+	bool requestRun(ocip::Connection* connection, const std::string& procedure, const propertyListType& parameters);
+	bool requestPage(ocip::Connection* connection, std::wstring* page);
 
 	// Error handling
-	std::string getErrorMessage();
-	void reportError(int oracleStatus, const std::string& message, const std::string& file, int line);
-
-	// Utilities
-	std::string getConnectString() const;
+	void reportError(int oracleStatus, OCIError* errhp, const std::string& message, const std::string& file, int line);
 
 	// Disable copy
 	OracleObject(const OracleObject&);

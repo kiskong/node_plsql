@@ -97,6 +97,99 @@ sword oci_connect_environment_create(OCIEnv** envhpp, ub4 mode, ub2 charset, ub2
 }
 
 ///////////////////////////////////////////////////////////////////////////
+sword oci_connect_pool_create(OCIEnv* envhp, OCIError* errhp, OCICPool* poolhp, OraText** poolName, sb4* poolNameLen, const std::string& username, const std::string& password, const std::string& server, int connMin, int connMax, int connIncr)
+{
+	assert(connMin > 0);
+	assert(connMax > connMin);
+	assert(connIncr > 0);
+
+	oci_text	o_username(username);
+	oci_text	o_password(password);
+	oci_text	o_server(server);
+
+	sword status = OCIConnectionPoolCreate(
+		envhp,					// envhp        (IN) A pointer to the environment where the connection pool is to be created.
+		errhp,					// errhp    (IN/OUT) An error handle you can pass to OCIErrorGet() for diagnostic information in the event of an error.
+		poolhp,					// poolhp       (IN) An allocated pool handle.
+		poolName,				// poolName    (OUT) The name of the connection pool connected to.
+		poolNameLen,			// poolNameLen (OUT) The length of the string pointed to by poolName.
+		o_server.text(),		// dblink       (IN) Specifies the database (server) to connect to.
+		o_server.size(),		// dblinkLen    (IN) The length of the string pointed to by dblink.
+		(ub4)connMin,			// connMin      (IN) Specifies the minimum number of connections in the connection pool. Valid values are 0 and above.
+		(ub4)connMax,			// connMax      (IN) Specifies the maximum number of connections that can be opened to the database. Once this value is reached, no more connections are opened. Valid values are 1 and above.
+		(ub4)connIncr,			// connIncr     (IN) Allows the application to set the next increment for connections to be opened to the database if the current number of connections are less than connMax. Valid values are 0 and above.
+		o_username.text(),		// poolUsername (IN) Connection pooling requires an implicit primary session and this attribute provides a username for that session.
+		o_username.size(),		// poolUserLen  (IN) The length of poolUsername.
+		o_password.text(),		// poolPassword (IN) The password for the username poolUsername.
+		o_password.size(),		// poolPassLen  (IN) The length of poolPassword.
+		OCI_DEFAULT				// mode         (IN) The modes supported are
+		);
+
+	return status;
+}
+
+///////////////////////////////////////////////////////////////////////////
+sword oci_connect_pool_destroy(OCICPool* poolhp, OCIError* errhp)
+{
+	return OCIConnectionPoolDestroy(
+		poolhp,					// poolhp       (IN) A pool handle for which a pool has been created.
+		errhp,					// errhp    (IN/OUT) An error handle you can pass to OCIErrorGet() for diagnostic information in the event of an error.
+		OCI_DEFAULT				// mode         (IN) Currently, this function will support only the OCI_DEFAULT mode.
+		);
+}
+
+///////////////////////////////////////////////////////////////////////////
+sword oci_logon(OCIEnv* envhp, OCIError* errhp, OCISvcCtx** svchp, const std::string& username, const std::string& password, const std::string& server)
+{
+	oci_text	o_username(username);
+	oci_text	o_password(password);
+	oci_text	o_server(server);
+
+	return OCILogon2(
+		envhp,					// envhp        (IN) A pointer to the environment where the connection pool is to be created.
+		errhp,					// errhp    (IN/OUT) An error handle you can pass to OCIErrorGet() for diagnostic information in the event of an error.
+		svchp,					// svchp    (IN/OUT) Address of an OCI service context pointer. This is filled with a server and session handle.
+		o_username.text(),		// username     (IN) The user name used to authenticate the session. Must be in the encoding specified by the charset parameter of a previous call to OCIEnvNlsCreate().
+		o_username.size(),		// uname_len    (IN) The length of username, in number of bytes, regardless of the encoding.
+		o_password.text(),		// password     (IN) The user's password. For connection pooling, if this parameter is NULL then OCILogon2() assumes that the logon is for a proxy user. It implicitly creates a proxy connection in such a case, using the pool user to authenticate the proxy user. Must be in the encoding specified by the charset parameter of a previous call to OCIEnvNlsCreate().
+		o_password.size(),		// passwd_len   (IN) The length of password, in number of bytes, regardless of the encoding.
+		o_server.text(),		// dbname       (IN) For the default case, this indicates the connect string to use to connect to the Oracle Database.
+		o_server.size(),		// dbname_len   (IN) The length of dbname. For session pooling and connection pooling, this value is returned by the OCISessionPoolCreate() or OCIConnectionPoolCreate() call respectively.
+		OCI_DEFAULT				// mode         (IN) The values accepted are: OCI_DEFAULT, OCI_LOGON2_CPOOL, OCI_LOGON2_SPOOL, OCI_LOGON2_STMTCACHE, OCI_LOGON2_PROXY
+		);
+}
+
+///////////////////////////////////////////////////////////////////////////
+sword oci_logon(OCIEnv* envhp, OCIError* errhp, OCISvcCtx** svchp, const std::string& username, const std::string& password, OraText* poolName, sb4 poolNameLen)
+{
+	oci_text	o_username(username);
+	oci_text	o_password(password);
+
+	return OCILogon2(
+		envhp,					// envhp        (IN) A pointer to the environment where the connection pool is to be created.
+		errhp,					// errhp    (IN/OUT) An error handle you can pass to OCIErrorGet() for diagnostic information in the event of an error.
+		svchp,					// svchp    (IN/OUT) Address of an OCI service context pointer. This is filled with a server and session handle.
+		o_username.text(),		// username     (IN) The user name used to authenticate the session. Must be in the encoding specified by the charset parameter of a previous call to OCIEnvNlsCreate().
+		o_username.size(),		// uname_len    (IN) The length of username, in number of bytes, regardless of the encoding.
+		o_password.text(),		// password     (IN) The user's password. For connection pooling, if this parameter is NULL then OCILogon2() assumes that the logon is for a proxy user. It implicitly creates a proxy connection in such a case, using the pool user to authenticate the proxy user. Must be in the encoding specified by the charset parameter of a previous call to OCIEnvNlsCreate().
+		o_password.size(),		// passwd_len   (IN) The length of password, in number of bytes, regardless of the encoding.
+		poolName,				// dbname       (IN) For the default case, this indicates the connect string to use to connect to the Oracle Database.
+		poolNameLen,			// dbname_len   (IN) The length of dbname. For session pooling and connection pooling, this value is returned by the OCISessionPoolCreate() or OCIConnectionPoolCreate() call respectively.
+		OCI_LOGON2_CPOOL		// mode         (IN) The values accepted are: OCI_DEFAULT, OCI_LOGON2_CPOOL, OCI_LOGON2_SPOOL, OCI_LOGON2_STMTCACHE, OCI_LOGON2_PROXY
+		);
+}
+
+
+///////////////////////////////////////////////////////////////////////////
+sword oci_logoff(OCISvcCtx* svchp, OCIError* errhp)
+{
+	return OCILogoff(
+		svchp,					// svchp        (IN) The service context handle that was used in the call to OCILogon() or OCILogon2().
+		errhp					// errhp    (IN/OUT) An error handle you can pass to OCIErrorGet() for diagnostic information in the event of an error.
+		);
+}
+
+///////////////////////////////////////////////////////////////////////////
 sword oci_attribute_set(dvoid* trgthndlp, ub4 trghndltyp, dvoid* attributep, ub4 size, ub4 attrtype, OCIError* errhp)
 {
 	return OCIAttrSet(
@@ -403,114 +496,3 @@ sword oci_clob_write(OCISvcCtx* svchp, OCIError* errhp, OCILobLocator *locp, ub4
 		SQLCS_IMPLICIT			// csfrm        (IN) The character set form of the buffer data. The csfrm parameter must be consistent with the type of the LOB.
 		);
 }
-
-#if 0
-
-///////////////////////////////////////////////////////////////////////////
-sword db_connect(const oci_text& username, const oci_text& password, const oci_text& server, ub4 mode /*= OCI_DEFAULT*/)
-{
-	sword status = 0;
-
-	/* initialize and create environment */
-	status = oci_connect_environment_create(&envhp, OCI_THREADED, OCI_UTF16ID, OCI_UTF16ID);
-	CHECKERR(status);
-
-	// Allocate a service handle:
-	status = OCIHandleAlloc((dvoid*)envhp, (dvoid**)&svchp, OCI_HTYPE_SVCCTX, 0, 0);
-	CHECKERR(status);
-
-	// Allocate an error handle:
-	status = OCIHandleAlloc((dvoid*)envhp, (dvoid**)&errhp, OCI_HTYPE_ERROR, 0, 0);
-	CHECKERR(status);
-
-	// Allocate a server handle:
-	status = OCIHandleAlloc((dvoid*)envhp, (dvoid**)&srvhp, OCI_HTYPE_SERVER, 0, 0);
-	CHECKERR(status);
-
-	// Allocate a authentication handle:
-	status = OCIHandleAlloc((dvoid*)envhp, (dvoid**)&authp, OCI_HTYPE_SESSION, 0, 0);
-	CHECKERR(status);
-
-	/* Creates an access path to a data source for OCI operations */
-	status = OCIServerAttach(
-		srvhp,									// srvhp    (IN/OUT) An uninitialized server handle, which gets initialized by this call. Passing in an initialized server handle causes an error.
-		errhp,									// errhp    (IN/OUT) An error handle you can pass to OCIErrorGet() for diagnostic information in the event of an error.
-		server.text(),							// dblink       (IN) Specifies the database server to use. This parameter points to a character string which specifies a connect string or a service point. If the connect string is NULL, then this call attaches to the default host. The string itself could be in UTF-16 or not, depending on mode or the setting in application's environment handle. The length of dblink is specified in dblink_len. The dblink pointer may be freed by the caller on return.
-		server.size(),							// dblink_len   (IN) The length of the string pointed to by dblink. For a valid connect string name or alias, dblink_len must be nonzero. Its value is in number of bytes.
-		OCI_DEFAULT								// mode         (IN) Specifies the various modes of operation.
-		);
-	CHECKERR(status);
-
-	/* set attribute server context in the service context */
-	status = OCIAttrSet((dvoid *)svchp, OCI_HTYPE_SVCCTX, (dvoid *)srvhp, (ub4)0, OCI_ATTR_SERVER, (OCIError *)errhp);
-	CHECKERR(status);
-
-	status = OCIAttrSet((dvoid *)authp, (ub4)OCI_HTYPE_SESSION, (dvoid*)username.text(), (sb4)username.size(), (ub4)OCI_ATTR_USERNAME, errhp);
-	CHECKERR(status);
-
-	status = OCIAttrSet((dvoid *)authp, (ub4)OCI_HTYPE_SESSION, (dvoid*)password.text(), (sb4)password.size(), (ub4)OCI_ATTR_PASSWORD, errhp);
-	CHECKERR(status);
-
-	status = OCISessionBegin(svchp, errhp, authp, OCI_CRED_RDBMS, (ub4)mode);
-	CHECKERR(status);
-
-	status = OCIAttrSet((dvoid *)svchp, (ub4)OCI_HTYPE_SVCCTX, (dvoid *)authp, (ub4)0, (ub4)OCI_ATTR_SESSION, errhp);
-	CHECKERR(status);
-
-	logged_on = true;
-
-	return status;
-}
-
-///////////////////////////////////////////////////////////////////////////
-sword db_disconnect()
-{
-	sword status = 0;
-
-	if (connected())
-	{
-		status = OCILogoff(svchp, errhp);
-		CHECKERR(status);
-	}
-
-	if (envhp)
-	{
-		status = OCIHandleFree(
-			(dvoid*) envhp,						// hndlp        (IN) A handle allocated by OCIHandleAlloc().
-			(ub4) OCI_HTYPE_ENV					// type         (IN) Specifies the type of storage to be freed.
-			);
-		CHECKERR(status);
-	}
-
-	logged_on = false;
-
-	return status;
-}
-
-///////////////////////////////////////////////////////////////////////////
-sword db_execute(const oci_text& sql, bool report_error)
-{
-	sword status = 0;
-
-	/* allocate the statement handles for select and update */
-	OCIStmt* stmtp = 0;
-	status = oci_statement_allocate(&stmtp);
-	CHECKERR(status);
-
-	/* Prepare the execute stored procedure statement */
-	status = oci_statement_prepare(stmtp, sql);
-	CHECKERR(status);
-
-	/* Execute statement */
-	status = oci_statement_execute(stmtp, 1);
-	if (report_error)
-		CHECKERR(status);
-
-	/* Free the statement handles */
-	status = oci_statement_free(stmtp);
-	CHECKERR(status);
-
-	return status;
-}
-
-#endif // 0

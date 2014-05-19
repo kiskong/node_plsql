@@ -3,91 +3,123 @@
 #include "oracleObject.h"
 
 ///////////////////////////////////////////////////////////////////////////
-#define REPORT_ERROR(oracleStatus, message) reportError((oracleStatus), (message), __FILE__, __LINE__);
-
-///////////////////////////////////////////////////////////////////////////
 OracleObject::OracleObject(const Config& config)
-	:	itsConfig(config)
-	,	connection(0)
+	:	m_Config(config)
+	,	m_environment(0)
+	,	m_connectionPool(0)
 {
-	if (itsConfig.isDebug)
+	if (m_Config.m_debug)
 	{
 		std::cout << "OracleObject::OracleObject" << std::endl;
 	}
 
-	connection = new ocip::Connection(OCI_THREADED);
-	assert(connection);
+	// Create the Oracle enviroment
+	m_environment = new ocip::Environment(OCI_THREADED);
+	assert(m_environment);
+
+	// Create the connection pool
+	m_connectionPool = new ocip::ConnectionPool(m_environment);
+	assert(m_connectionPool);
+
+	// Create the connection pool
+	if (!m_connectionPool->create(m_Config.m_username, m_Config.m_password, m_Config.m_database, m_Config.m_conMin, m_Config.m_conMax, m_Config.m_conIncr))
+	{
+		m_connectionPool->reportError("create connection pool", __FILE__, __LINE__, m_Config.m_debug);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////
 OracleObject::~OracleObject()
 {
-	if (itsConfig.isDebug)
+	if (m_Config.m_debug)
 	{
 		std::cout << "OracleObject::~OracleObject" << std::endl;
 	}
 
-	if (connection)
-	{
-		delete connection;
-		connection = 0;
-	}
-}
+	// Destroy the connection pool
+	m_connectionPool->destroy();
+	delete m_connectionPool;
+	m_connectionPool = 0;
 
-///////////////////////////////////////////////////////////////////////////
-bool OracleObject::connect()
-{
-	if (itsConfig.isDebug)
-	{
-		std::cout << "OracleObject::connect" << std::endl << std::flush;
-	}
-
-	if (!connection->connect(itsConfig.itsUsername, itsConfig.itsPassword, getConnectString(), false))
-	{
-		REPORT_ERROR(connection->status(), "connect");
-		return false;
-	}
-
-	return true;
-}
-
-///////////////////////////////////////////////////////////////////////////
-bool OracleObject::disconnect()
-{
-	if (itsConfig.isDebug)
-	{
-		std::cout << "OracleObject::disconnect" << std::endl;
-	}
-
-	if (!connection->disconnect())
-	{
-		REPORT_ERROR(connection->status(), "disconnect");
-		return false;
-	}
-
-	return true;
+	// Destroy the connection object
+	delete m_environment;
+	m_environment = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////
 bool OracleObject::execute(const std::string& sql)
 {
-	if (itsConfig.isDebug)
+	if (m_Config.m_debug)
 	{
 		std::cout << "OracleObject::execute(" << sql << ") - BEGIN" << std::flush << std::endl;
 	}
 
+	// Connect using the connection pool
+	ocip::Connection connection(m_connectionPool);
+	if (!connection.connect(m_Config.m_username, m_Config.m_password, m_Config.m_database))
+	{
+		connection.reportError("connect using the connection pool", __FILE__, __LINE__, m_Config.m_debug);
+		return false;
+	}
+
 	// Prepare statement
-	ocip::Statement statement(*connection);
+	ocip::Statement statement(&connection);
 	if (!statement.prepare(sql))
 	{
-		REPORT_ERROR(statement.status(), "oci_statement_prepare");
+		statement.reportError("oci_statement_prepare", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
 	// Execute statement
 	if (!statement.execute(1))
 	{
-		REPORT_ERROR(statement.status(), "oci_statement_execute");
+		statement.reportError("oci_statement_execute", __FILE__, __LINE__, m_Config.m_debug);
+		return false;
+	}
+
+	// Disconnect from the connection pool
+	if (!connection.disconnect())
+	{
+		connection.reportError("disconnect from the connection pool", __FILE__, __LINE__, m_Config.m_debug);
+		return false;
+	}
+
+	return true;
+}
+
+///////////////////////////////////////////////////////////////////////////
+bool OracleObject::request(const propertyListType& cgi, const std::string& procedure, const propertyListType& parameters, std::wstring* page)
+{
+	// Connect using the connection pool
+	ocip::Connection connection(m_connectionPool);
+	if (!connection.connect(m_Config.m_username, m_Config.m_password, m_Config.m_database))
+	{
+		connection.reportError("connect using the connection pool", __FILE__, __LINE__, m_Config.m_debug);
+		return false;
+	}
+
+	// 1. Initialize the request
+	if (!requestInit(&connection, cgi))
+	{
+		return false;
+	}
+
+	// 2. Invoke the procedure
+	if (!requestRun(&connection, procedure, parameters))
+	{
+		return false;
+	}
+
+	// 3. Retrieve the page content
+	if (!requestPage(&connection, page))
+	{
+		return false;
+	}
+
+	// Disconnect from the connection pool
+	if (!connection.disconnect())
+	{
+		connection.reportError("disconnect from the connection pool", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
@@ -106,12 +138,12 @@ bool OracleObject::execute(const std::string& sql)
 // For UTF8 Unicode, it's 3 bytes per character, meaning the limit should be 85.
 // For the newer AL32UTF8 Unicode, it's 4 bytes per character, and the limit should be 63.
 //
-bool OracleObject::requestInit(const propertyListType& cgi)
+bool OracleObject::requestInit(ocip::Connection* connection, const propertyListType& cgi)
 {
 	propertyListConstIteratorType it;
 	int i = 0;
 
-	if (itsConfig.isDebug)
+	if (m_Config.m_debug)
 	{
 		std::cout << "OracleObject::requestInit - BEGIN" << std::endl;
 		for (it = cgi.begin(), i = 0; it != cgi.end(); ++it, ++i)
@@ -129,10 +161,10 @@ bool OracleObject::requestInit(const propertyListType& cgi)
 	convert(cgi, &names, &values);
 
 	// Prepare statement
-	ocip::Statement statement(*connection);
+	ocip::Statement statement(connection);
 	if (!statement.prepare("BEGIN owa.init_cgi_env(:c, :n, :v); htp.init; htp.htbuf_len := 63; END;"))
 	{
-		REPORT_ERROR(statement.status(), "oci_statement_prepare");
+		statement.reportError("oci_statement_prepare", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
@@ -154,7 +186,7 @@ bool OracleObject::requestInit(const propertyListType& cgi)
 	// Execute statement
 	if (!statement.execute(1))
 	{
-		REPORT_ERROR(statement.status(), "oci_statement_execute");
+		statement.reportError("oci_statement_execute", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
@@ -162,9 +194,9 @@ bool OracleObject::requestInit(const propertyListType& cgi)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-bool OracleObject::requestRun(const std::string& procedure, const propertyListType& parameters)
+bool OracleObject::requestRun(ocip::Connection* connection, const std::string& procedure, const propertyListType& parameters)
 {
-	if (itsConfig.isDebug)
+	if (m_Config.m_debug)
 	{
 		std::cout << "OracleObject::requestRun(" << procedure << ") - BEGIN" << std::flush << std::endl;
 	}
@@ -191,10 +223,10 @@ bool OracleObject::requestRun(const std::string& procedure, const propertyListTy
 	}
 
 	// Prepare statement
-	ocip::Statement statement(*connection);
+	ocip::Statement statement(connection);
 	if (!statement.prepare(sql))
 	{
-		REPORT_ERROR(statement.status(), "oci_statement_prepare");
+		statement.reportError("oci_statement_prepare", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
@@ -220,7 +252,7 @@ bool OracleObject::requestRun(const std::string& procedure, const propertyListTy
 	// Execute statement
 	if (!statement.execute(1))
 	{
-		REPORT_ERROR(statement.status(), "oci_statement_execute");
+		statement.reportError("oci_statement_execute", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
@@ -228,9 +260,9 @@ bool OracleObject::requestRun(const std::string& procedure, const propertyListTy
 }
 
 ///////////////////////////////////////////////////////////////////////////
-bool OracleObject::requestPage(std::wstring* page)
+bool OracleObject::requestPage(ocip::Connection* connection, std::wstring* page)
 {
-	if (itsConfig.isDebug)
+	if (m_Config.m_debug)
 	{
 		std::cout << "OracleObject::requestPage - BEGIN" << std::flush << std::endl;
 	}
@@ -239,35 +271,34 @@ bool OracleObject::requestPage(std::wstring* page)
 	OCILobLocator* locp = 0;
 	OCIBind* bindp = 0;
 
-	ocip::Statement statement(*connection);
+	ocip::Statement statement(connection);
 
 	// Allocate lob descriptor
 	status = oci_lob_descriptor_allocate(connection->hEnv(), &locp);
 	if (status != OCI_SUCCESS)
 	{
-		REPORT_ERROR(status, "oci_lob_descriptor_allocate");
+		ocip::Environment::reportError(status, 0, "oci_lob_descriptor_allocate", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
 	// Prepare statement
 	if (!statement.prepare("BEGIN node_plsql.get_page(:page); END;"))
-	if (status != OCI_SUCCESS)
 	{
-		REPORT_ERROR(statement.status(), "oci_statement_prepare");
+		statement.reportError("oci_statement_prepare", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
 	// Bind CLOB descriptor
 	if (!statement.bind(&bindp, "page", SQLT_CLOB, &locp, sizeof(OCILobLocator*)))
 	{
-		REPORT_ERROR(statement.status(), "oci_bind_by_name");
+		statement.reportError("oci_bind_by_name", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
 	// Execute statement
 	if (!statement.execute(1))
 	{
-		REPORT_ERROR(statement.status(), "oci_statement_execute");
+		statement.reportError("oci_statement_execute", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
@@ -275,7 +306,7 @@ bool OracleObject::requestPage(std::wstring* page)
 	status = oci_open_lob(connection->hSvcCtx(), connection->hError(), locp);
 	if (status != OCI_SUCCESS)
 	{
-		REPORT_ERROR(status, "oci_open_lob");
+		ocip::Environment::reportError(status, connection->hError(), "oci_open_lob", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
@@ -284,7 +315,7 @@ bool OracleObject::requestPage(std::wstring* page)
 	status = oci_lob_gen_length(connection->hSvcCtx(), connection->hError(), locp, &lob_length);
 	if (status != OCI_SUCCESS)
 	{
-		REPORT_ERROR(status, "oci_lob_gen_length");
+		ocip::Environment::reportError(status, connection->hError(), "oci_lob_gen_length", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
@@ -297,7 +328,7 @@ bool OracleObject::requestPage(std::wstring* page)
 	status = oci_clob_read(connection->hSvcCtx(), connection->hError(), locp, &amt, 1, reinterpret_cast<void*>(lob_buffer), buflen, OCI_UTF16ID);
 	if (status != OCI_SUCCESS)
 	{
-		REPORT_ERROR(status, "oci_clob_read");
+		ocip::Environment::reportError(status, connection->hError(), "oci_clob_read", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
@@ -314,7 +345,7 @@ bool OracleObject::requestPage(std::wstring* page)
 	status = oci_close_lob(connection->hSvcCtx(), connection->hError(), locp);
 	if (status != OCI_SUCCESS)
 	{
-		REPORT_ERROR(status, "oci_close_lob");
+		ocip::Environment::reportError(status, connection->hError(), "oci_close_lob", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
@@ -322,43 +353,9 @@ bool OracleObject::requestPage(std::wstring* page)
 	status = oci_lob_descriptor_free(locp);
 	if (status != OCI_SUCCESS)
 	{
-		REPORT_ERROR(status, "oci_lob_descriptor_free");
+		ocip::Environment::reportError(status, connection->hError(), "oci_lob_descriptor_free", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
 	return true;
-}
-
-///////////////////////////////////////////////////////////////////////////
-void OracleObject::reportError(int oracleStatus, const std::string& message, const std::string& file, int line)
-{
-	if (itsConfig.isDebug)
-	{
-		std::cerr << "ORACLE ERROR in " << file << "(" << line << "): " << message << std::endl << "Oracle status code: " << oracleStatus << std::flush << std::endl;
-	}
-
-	std::string	oracleErrorMessage;
-	int oracleErrorCode = 0;
-
-	// Try to retrive the oracle error code and message
-	if (connection->hError())
-	{
-		/*sword status =*/ oci_error_get(connection->hError(), &oracleErrorMessage, &oracleErrorCode);
-
-		if (itsConfig.isDebug)
-		{
-			std::cerr << "Oracle error code: " << oracleErrorMessage << std::endl << "Oracle error message: " << oracleErrorCode << std::flush << std::endl;
-		}
-	}
-
-	// Set the error status
-	itsOracleError = oracleError(message, oracleStatus, oracleErrorCode, oracleErrorMessage, file, line);
-}
-
-///////////////////////////////////////////////////////////////////////////
-std::string OracleObject::getConnectString() const
-{
-	std::ostringstream connectionString;
-	connectionString << itsConfig.itsHostname << ":" << itsConfig.itsPort << "/" << itsConfig.itsService;
-	return connectionString.str();
 }

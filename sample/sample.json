@@ -20,12 +20,8 @@
             "oracleUsername": "sample",
             // The Oracle password
             "oraclePassword": "sample",
-            // The Oracle host name or IP address
-            "oracleHostname": "localhost",
-            // The Oracle port
-            "oraclePort": 1521,
-            // The Oracle service name or SID
-            "oracleService": "ORCL"
+            // The Oracle database name
+            "oracleDatabase": ""
         }
     ]
 }

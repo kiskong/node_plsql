@@ -5,12 +5,12 @@
 ///////////////////////////////////////////////////////////////////////////
 void Config::debug() const
 {
-	std::cout << "Username: " << itsUsername << std::endl;
-	std::cout << "Password: " << itsPassword << std::endl;
-	std::cout << "SYSDBA:   " << isSYSDBA << std::endl;
-	std::cout << "Hostname: " << itsHostname << std::endl;
-	std::cout << "Port:     " << itsPort << std::endl;
-	std::cout << "Service:  " << itsService << std::endl;
-	std::cout << "Debug:    " << isDebug << std::endl;
+	std::cout << "Con Min:  " << m_conMin << std::endl;
+	std::cout << "Con Max:  " << m_conMax << std::endl;
+	std::cout << "Con Inc:  " << m_conIncr << std::endl;
+	std::cout << "Username: " << m_username << std::endl;
+	std::cout << "Password: " << m_password << std::endl;
+	std::cout << "Database: " << m_database << std::endl;
+	std::cout << "Debug:    " << m_debug << std::endl;
 	std::cout << std::flush;
 }
