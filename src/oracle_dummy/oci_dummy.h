@@ -53,17 +53,38 @@ typedef struct {int d;} OCIStmt;
 typedef struct {int d;} OCISvcCtx;
 typedef struct {int d;} OCITrans;
 
-#define OCI_HTYPE_FIRST          1
-#define OCI_HTYPE_ENV            1
-#define OCI_HTYPE_ERROR          2
-#define OCI_HTYPE_SVCCTX         3
-#define OCI_HTYPE_STMT           4
-#define OCI_HTYPE_BIND           5
-#define OCI_HTYPE_DEFINE         6
-#define OCI_HTYPE_DESCRIBE       7
-#define OCI_HTYPE_SERVER         8
-#define OCI_HTYPE_SESSION        9
-#define OCI_HTYPE_AUTHINFO       OCI_HTYPE_SESSION
+#define OCI_HTYPE_FIRST          1             /* start value of handle type */
+#define OCI_HTYPE_ENV            1                     /* environment handle */
+#define OCI_HTYPE_ERROR          2                           /* error handle */
+#define OCI_HTYPE_SVCCTX         3                         /* service handle */
+#define OCI_HTYPE_STMT           4                       /* statement handle */
+#define OCI_HTYPE_BIND           5                            /* bind handle */
+#define OCI_HTYPE_DEFINE         6                          /* define handle */
+#define OCI_HTYPE_DESCRIBE       7                        /* describe handle */
+#define OCI_HTYPE_SERVER         8                          /* server handle */
+#define OCI_HTYPE_SESSION        9                  /* authentication handle */
+#define OCI_HTYPE_AUTHINFO      OCI_HTYPE_SESSION  /* SessionGet auth handle */
+#define OCI_HTYPE_TRANS         10                     /* transaction handle */
+#define OCI_HTYPE_COMPLEXOBJECT 11        /* complex object retrieval handle */
+#define OCI_HTYPE_SECURITY      12                        /* security handle */
+#define OCI_HTYPE_SUBSCRIPTION  13                    /* subscription handle */
+#define OCI_HTYPE_DIRPATH_CTX   14                    /* direct path context */
+#define OCI_HTYPE_DIRPATH_COLUMN_ARRAY 15        /* direct path column array */
+#define OCI_HTYPE_DIRPATH_STREAM       16              /* direct path stream */
+#define OCI_HTYPE_PROC                 17                  /* process handle */
+#define OCI_HTYPE_DIRPATH_FN_CTX       18    /* direct path function context */
+#define OCI_HTYPE_DIRPATH_FN_COL_ARRAY 19          /* dp object column array */
+#define OCI_HTYPE_XADSESSION    20                  /* access driver session */
+#define OCI_HTYPE_XADTABLE      21                    /* access driver table */
+#define OCI_HTYPE_XADFIELD      22                    /* access driver field */
+#define OCI_HTYPE_XADGRANULE    23                  /* access driver granule */
+#define OCI_HTYPE_XADRECORD     24                   /* access driver record */
+#define OCI_HTYPE_XADIO         25                      /* access driver I/O */
+#define OCI_HTYPE_CPOOL         26                 /* connection pool handle */
+#define OCI_HTYPE_SPOOL         27                    /* session pool handle */
+#define OCI_HTYPE_ADMIN         28                           /* admin handle */
+#define OCI_HTYPE_EVENT         29                        /* HA event handle */
+#define OCI_HTYPE_LAST          29            /* last value of a handle type */
 
 // Error Return Values
 #define OCI_SUCCESS 0
@@ -130,6 +151,21 @@ typedef struct {int d;} OCITrans;
 #define OCI_ATTR_USERNAME 0
 #define OCI_ATTR_PASSWORD 0
 
+/*------------------------Attach Modes---------------------------------------*/
+#define OCI_FASTPATH         0x0010              /* Attach in fast path mode */
+#define OCI_ATCH_RESERVED_1  0x0020                              /* reserved */
+#define OCI_ATCH_RESERVED_2  0x0080                              /* reserved */
+#define OCI_ATCH_RESERVED_3  0x0100                              /* reserved */
+#define OCI_CPOOL            0x0200  /* Attach using server handle from pool */
+#define OCI_ATCH_RESERVED_4  0x0400                              /* reserved */
+#define OCI_ATCH_RESERVED_5  0x2000                              /* reserved */
+#define OCI_ATCH_ENABLE_BEQ  0x4000        /* Allow bequeath connect strings */
+#define OCI_ATCH_RESERVED_6  0x8000                              /* reserved */
+#define OCI_ATCH_RESERVED_7  0x10000                              /* reserved */
+#define OCI_ATCH_RESERVED_8  0x20000                             /* reserved */
+#define OCI_SRVATCH_RESERVED5 0x01000000                         /* reserved */
+#define OCI_SRVATCH_RESERVED6 0x02000000                         /* reserved */
+
 // more
 #define OCI_DEFAULT 0
 #define OCI_SYSDBA 0
@@ -146,6 +182,11 @@ typedef struct {int d;} OCITrans;
 #define OCI_ATTR_NOCACHE 0
 #define OCI_DURATION_SESSION 0
 #define OCI_TEMP_CLOB 0
+
+#define OCI_LOGON2_SPOOL       0x0001     /* Use session pool */
+#define OCI_LOGON2_CPOOL       OCI_CPOOL  /* Use connection pool */
+#define OCI_LOGON2_STMTCACHE   0x0004     /* Use Stmt Caching */
+#define OCI_LOGON2_PROXY       0x0008     /* Proxy authentiaction */
 
 // functions
 typedef sb4 (*OCICallbackLobRead)(void  *ctxp, const void  *bufp, ub4 len, ub1 piece);
@@ -234,5 +275,22 @@ inline sword   OCISessionBegin  (OCISvcCtx *svchp, OCIError *errhp, OCISession *
 
 inline sword   OCISessionEnd   (OCISvcCtx *svchp, OCIError *errhp, OCISession *usrhp, 
                          ub4 mode) {return OCI_SUCCESS;}
+inline sword OCIConnectionPoolCreate(OCIEnv *envhp, OCIError *errhp, OCICPool *poolhp,
+                              OraText **poolName, sb4 *poolNameLen,  
+                              const OraText *dblink, sb4 dblinkLen,
+                              ub4 connMin, ub4 connMax, ub4 connIncr,
+                              const OraText *poolUserName, sb4 poolUserLen,
+                              const OraText *poolPassword, sb4 poolPassLen,
+                              ub4 mode) {return OCI_SUCCESS;}
+
+inline sword OCIConnectionPoolDestroy(OCICPool *poolhp,
+                               OCIError *errhp, ub4 mode) {return OCI_SUCCESS;}
+inline sword   OCILogon2 (OCIEnv *envhp, OCIError *errhp, OCISvcCtx **svchp,
+                  const OraText *username, ub4 uname_len,
+                  const OraText *password, ub4 passwd_len,
+                  const OraText *dbname, ub4 dbname_len,
+                  ub4 mode) {return OCI_SUCCESS;}
+
+inline sword   OCILogoff (OCISvcCtx *svchp, OCIError *errhp) {return OCI_SUCCESS;}
 
 #endif // OCI_ORACLE_DUMMY_H
