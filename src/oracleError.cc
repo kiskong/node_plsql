@@ -30,7 +30,7 @@ const std::string oracleError::what() const
 {
 	std::ostringstream s;
 
-	s	<< "Oracle eror when: " << itsMessage << std::endl
+	s	<< "Oracle error when: " << itsMessage << std::endl
 		<< "Source location: " << itsFile << "(" << itsLine << ")" << std::endl
 		<< "Oracle status code: " << itsOracleStatus << std::endl
 		<< "Oracle error code: " << itsOracleErrorCode << std::endl
