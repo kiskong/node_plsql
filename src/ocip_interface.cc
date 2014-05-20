@@ -92,8 +92,6 @@ ConnectionPool::ConnectionPool(Environment* environment)
 	,	m_hasPool(false)
 	,	m_oracle_status(0)
 {
-	sword status = 0;
-
 	// Allocate an error handle:
 	m_oracle_status = oci_handle_allocate(m_envhp, OCI_HTYPE_ERROR, reinterpret_cast<dvoid**>(&m_errhp));
 	assert(m_oracle_status == OCI_SUCCESS);
