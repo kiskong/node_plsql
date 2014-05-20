@@ -7,11 +7,18 @@ You first need to download and install the [Oracle instant client](http://www.or
 * Instant Client Package - Basic or Basic Lite: All files required to run OCI, OCCI, and JDBC-OCI applications
 * Instant Client Package - SDK: Additional header files and an example makefile for developing Oracle applications with Instant Client
 
-**Notes:**
+### Notes
 
-*It is reccomended to use the latest version (12.1) of the Oracle instant client.
-*Please make sure you download the correct packages for your system architecture, such as 64 bit vs 32 bit.
-*Unzip the files 1 and 2 into the same directory, such as /opt/instantclient_12_1 or c:\instantclient_12_1_x64.
+* It is reccomended to use the latest version (12.1) of the Oracle instant client.
+* Please make sure you download the correct packages for your system architecture, such as 64 bit vs 32 bit.
+* Unzip the files 1 and 2 into the same directory, such as /opt/instantclient_12_1 or c:\instantclient_12_1_x64.
+
+### Workarounds
+
+* The Oracle Bug 17481818 (GETTING A CONNECTION FROM OCI CONNECTION POOL IS SLOW ON WINDOWS PLATFORMS) affects Oracle Clients 11.2.0.3, 11.2.0.4 and 12.1.0.1 and
+drammaticaly slows down the connection to the Database when more than one naming method is used in NAMES.DIRECTORY_PATH in the SQLNET.ORA configuration file.
+The reccomended workaround is to only use one adapter in NAMES.DIRECTORY_PATH in sqlnet.ora.
+NAMES.DIRECTORY_PATH=(TNSNAMES)
 
 ### Set up the following environment variables
 

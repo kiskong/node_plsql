@@ -24,7 +24,7 @@ OracleObject::OracleObject(const Config& config)
 	// Create the connection pool
 	if (!m_connectionPool->create(m_Config.m_username, m_Config.m_password, m_Config.m_database, m_Config.m_conMin, m_Config.m_conMax, m_Config.m_conIncr))
 	{
-		m_connectionPool->reportError("create connection pool", __FILE__, __LINE__, m_Config.m_debug);
+		m_OracleError = m_connectionPool->reportError("create connection pool", __FILE__, __LINE__, m_Config.m_debug);
 	}
 }
 
@@ -58,7 +58,7 @@ bool OracleObject::execute(const std::string& sql)
 	ocip::Connection connection(m_connectionPool);
 	if (!connection.connect(m_Config.m_username, m_Config.m_password, m_Config.m_database))
 	{
-		connection.reportError("connect using the connection pool", __FILE__, __LINE__, m_Config.m_debug);
+		m_OracleError = connection.reportError("connect using the connection pool", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
@@ -66,21 +66,21 @@ bool OracleObject::execute(const std::string& sql)
 	ocip::Statement statement(&connection);
 	if (!statement.prepare(sql))
 	{
-		statement.reportError("oci_statement_prepare", __FILE__, __LINE__, m_Config.m_debug);
+		m_OracleError = statement.reportError("oci_statement_prepare", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
 	// Execute statement
 	if (!statement.execute(1))
 	{
-		statement.reportError("oci_statement_execute", __FILE__, __LINE__, m_Config.m_debug);
+		m_OracleError = statement.reportError("oci_statement_execute", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
 	// Disconnect from the connection pool
 	if (!connection.disconnect())
 	{
-		connection.reportError("disconnect from the connection pool", __FILE__, __LINE__, m_Config.m_debug);
+		m_OracleError = connection.reportError("disconnect from the connection pool", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
@@ -164,7 +164,7 @@ bool OracleObject::requestInit(ocip::Connection* connection, const propertyListT
 	ocip::Statement statement(connection);
 	if (!statement.prepare("BEGIN owa.init_cgi_env(:c, :n, :v); htp.init; htp.htbuf_len := 63; END;"))
 	{
-		statement.reportError("oci_statement_prepare", __FILE__, __LINE__, m_Config.m_debug);
+		m_OracleError = statement.reportError("oci_statement_prepare", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
@@ -186,7 +186,7 @@ bool OracleObject::requestInit(ocip::Connection* connection, const propertyListT
 	// Execute statement
 	if (!statement.execute(1))
 	{
-		statement.reportError("oci_statement_execute", __FILE__, __LINE__, m_Config.m_debug);
+		m_OracleError = statement.reportError("oci_statement_execute", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
@@ -226,7 +226,7 @@ bool OracleObject::requestRun(ocip::Connection* connection, const std::string& p
 	ocip::Statement statement(connection);
 	if (!statement.prepare(sql))
 	{
-		statement.reportError("oci_statement_prepare", __FILE__, __LINE__, m_Config.m_debug);
+		m_OracleError = statement.reportError("oci_statement_prepare", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
@@ -252,7 +252,7 @@ bool OracleObject::requestRun(ocip::Connection* connection, const std::string& p
 	// Execute statement
 	if (!statement.execute(1))
 	{
-		statement.reportError("oci_statement_execute", __FILE__, __LINE__, m_Config.m_debug);
+		m_OracleError = statement.reportError("oci_statement_execute", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
@@ -277,28 +277,28 @@ bool OracleObject::requestPage(ocip::Connection* connection, std::wstring* page)
 	status = oci_lob_descriptor_allocate(connection->hEnv(), &locp);
 	if (status != OCI_SUCCESS)
 	{
-		ocip::Environment::reportError(status, 0, "oci_lob_descriptor_allocate", __FILE__, __LINE__, m_Config.m_debug);
+		m_OracleError = ocip::Environment::reportError(status, 0, "oci_lob_descriptor_allocate", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
 	// Prepare statement
 	if (!statement.prepare("BEGIN node_plsql.get_page(:page); END;"))
 	{
-		statement.reportError("oci_statement_prepare", __FILE__, __LINE__, m_Config.m_debug);
+		m_OracleError = statement.reportError("oci_statement_prepare", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
 	// Bind CLOB descriptor
 	if (!statement.bind(&bindp, "page", SQLT_CLOB, &locp, sizeof(OCILobLocator*)))
 	{
-		statement.reportError("oci_bind_by_name", __FILE__, __LINE__, m_Config.m_debug);
+		m_OracleError = statement.reportError("oci_bind_by_name", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
 	// Execute statement
 	if (!statement.execute(1))
 	{
-		statement.reportError("oci_statement_execute", __FILE__, __LINE__, m_Config.m_debug);
+		m_OracleError = statement.reportError("oci_statement_execute", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
@@ -306,7 +306,7 @@ bool OracleObject::requestPage(ocip::Connection* connection, std::wstring* page)
 	status = oci_open_lob(connection->hSvcCtx(), connection->hError(), locp);
 	if (status != OCI_SUCCESS)
 	{
-		ocip::Environment::reportError(status, connection->hError(), "oci_open_lob", __FILE__, __LINE__, m_Config.m_debug);
+		m_OracleError = ocip::Environment::reportError(status, connection->hError(), "oci_open_lob", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
@@ -315,7 +315,7 @@ bool OracleObject::requestPage(ocip::Connection* connection, std::wstring* page)
 	status = oci_lob_gen_length(connection->hSvcCtx(), connection->hError(), locp, &lob_length);
 	if (status != OCI_SUCCESS)
 	{
-		ocip::Environment::reportError(status, connection->hError(), "oci_lob_gen_length", __FILE__, __LINE__, m_Config.m_debug);
+		m_OracleError = ocip::Environment::reportError(status, connection->hError(), "oci_lob_gen_length", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
@@ -328,7 +328,7 @@ bool OracleObject::requestPage(ocip::Connection* connection, std::wstring* page)
 	status = oci_clob_read(connection->hSvcCtx(), connection->hError(), locp, &amt, 1, reinterpret_cast<void*>(lob_buffer), buflen, OCI_UTF16ID);
 	if (status != OCI_SUCCESS)
 	{
-		ocip::Environment::reportError(status, connection->hError(), "oci_clob_read", __FILE__, __LINE__, m_Config.m_debug);
+		m_OracleError = ocip::Environment::reportError(status, connection->hError(), "oci_clob_read", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
@@ -345,7 +345,7 @@ bool OracleObject::requestPage(ocip::Connection* connection, std::wstring* page)
 	status = oci_close_lob(connection->hSvcCtx(), connection->hError(), locp);
 	if (status != OCI_SUCCESS)
 	{
-		ocip::Environment::reportError(status, connection->hError(), "oci_close_lob", __FILE__, __LINE__, m_Config.m_debug);
+		m_OracleError = ocip::Environment::reportError(status, connection->hError(), "oci_close_lob", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
@@ -353,7 +353,7 @@ bool OracleObject::requestPage(ocip::Connection* connection, std::wstring* page)
 	status = oci_lob_descriptor_free(locp);
 	if (status != OCI_SUCCESS)
 	{
-		ocip::Environment::reportError(status, connection->hError(), "oci_lob_descriptor_free", __FILE__, __LINE__, m_Config.m_debug);
+		m_OracleError = ocip::Environment::reportError(status, connection->hError(), "oci_lob_descriptor_free", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
