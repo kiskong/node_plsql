@@ -421,16 +421,21 @@ std::string OracleBindings::getConfig(const Arguments& args, Config* config)
 	{
 		return "Object must contain a property 'database' of type string!";
 	}
-	if (!nodeUtilities::isObjBoolean(object, "debug"))
+	if (!nodeUtilities::isObjBoolean(object, "oracleConnectionPool"))
 	{
-		return "Object must contain a property 'debug' of type boolean!";
+		return "Object must contain a property 'oracleConnectionPool' of type boolean!";
+	}
+	if (!nodeUtilities::isObjBoolean(object, "oracleDebug"))
+	{
+		return "Object must contain a property 'oracleDebug' of type boolean!";
 	}
 
 	// Get the properties
 	config->m_username	= nodeUtilities::getObjString(object,	"username");
 	config->m_password	= nodeUtilities::getObjString(object,	"password");
 	config->m_database	= nodeUtilities::getObjString(object,	"database");
-	config->m_debug		= nodeUtilities::getObjBoolean(object,	"debug");
+	config->m_conPool	= nodeUtilities::getObjBoolean(object,	"oracleConnectionPool");
+	config->m_debug		= nodeUtilities::getObjBoolean(object,	"oracleDebug");
 
 	return "";
 }

@@ -5,6 +5,8 @@ var node_plsql = require('../lib/node_plsql');
 var config = {
 	server: {
 		port: 8999,
+		oracleConnectionPool: true,
+		oracleDebug: false,
 		static: [{
 			mountPath: '/',
 			physicalDirectory: __dirname + '/static'

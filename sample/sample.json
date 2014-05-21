@@ -3,11 +3,15 @@
     "server": {
         // The server port to listen at
         "port": 8999,
+        // Use an Oracle connection pool
+        "oracleConnectionPool": true,
+        // Enable debugging the low-level Oracle interface
+        "oracleDebug": false,
         // The mapping for servicing static files
         "static": [
             {
                 "mountPath": "/",
-                "physicalDirectory": "D:/MyDev/doberkofler/node_plsql/static"
+                "physicalDirectory": "./static"
             }
         ]
     },
