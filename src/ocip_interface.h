@@ -56,7 +56,7 @@ public:
 	ConnectionPool(Environment* environment);
 	~ConnectionPool();
 
-	bool create(const std::string& username, const std::string& password, const std::string& server, int connMin, int connMax, int connIncr);
+	bool create(const std::string& username, const std::string& password, const std::string& database, int connMin, int connMax, int connIncr);
 	bool destroy();
 
 	OCIEnv* hEnv() const {return m_envhp;}
@@ -96,6 +96,10 @@ public:
 	~Connection();
 
 	bool connect(const std::string& username, const std::string& password, const std::string& server);
+	bool connect(const std::string& username, const std::string& password)
+	{
+		return connect(username, password, "");
+	}
 	bool disconnect();
 
 	bool hasPool() const {return m_poolhp != 0;}

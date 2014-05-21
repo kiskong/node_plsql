@@ -12,13 +12,17 @@ public:
 	OracleObject(const Config& config);
 	~OracleObject();
 
+	// Create
+	bool create();
+	bool destroy();
+
 	// Execute SQL
-	bool execute(const std::string& sql);
+	bool execute(const std::string& username, const std::string& password, const std::string& sql);
 
 	// Request page
-	bool request(const propertyListType& cgi, const std::string& procedure, const propertyListType& parameters, std::wstring* page);
+	bool request(const std::string& username, const std::string& password, const propertyListType& cgi, const std::string& procedure, const propertyListType& parameters, std::wstring* page);
 
-	// Status
+	// Return error object
 	oracleError getOracleError() const {return m_OracleError;}
 
 private:

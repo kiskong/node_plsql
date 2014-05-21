@@ -17,6 +17,8 @@ public:
 
 	// Input parameter
 	OracleObject*					oracleObject;
+	std::string						username;
+	std::string						password;
 	std::string						procedure;
 	propertyListType				parameters;
 	propertyListType				cgi;
@@ -45,6 +47,8 @@ private:
 
 	// Function exported to node
 	static v8::Handle<v8::Value> New(const v8::Arguments& args);
+	static v8::Handle<v8::Value> create(const v8::Arguments& args);
+	static v8::Handle<v8::Value> destroy(const v8::Arguments& args);
 	static v8::Handle<v8::Value> executeSync(const v8::Arguments& args);
 	static v8::Handle<v8::Value> request(const v8::Arguments& args);
 
@@ -52,7 +56,7 @@ private:
 	static void doRequestAfter(uv_work_t* req, int status);
 
 	// Helper
-	static std::string requestParseArguments(const v8::Arguments& args, std::string* procedure, propertyListType* parameters, propertyListType* cgi, v8::Local<v8::Function>* cb = 0);
+	static std::string requestParseArguments(const v8::Arguments& args, std::string* username, std::string* password, std::string* procedure, propertyListType* parameters, propertyListType* cgi, v8::Local<v8::Function>* cb);
 	static std::string getConfig(const v8::Arguments& args, Config* config);
 	static inline OracleBindings* getObject(const v8::Arguments& args);
 };
@@ -90,6 +94,8 @@ void OracleBindings::Init(Handle<Object> target)
 	tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
 	// Prototype
+	tpl->PrototypeTemplate()->Set(String::NewSymbol("create"),			FunctionTemplate::New(create)->GetFunction());
+	tpl->PrototypeTemplate()->Set(String::NewSymbol("destroy"),			FunctionTemplate::New(destroy)->GetFunction());
 	tpl->PrototypeTemplate()->Set(String::NewSymbol("executeSync"),		FunctionTemplate::New(executeSync)->GetFunction());
 	tpl->PrototypeTemplate()->Set(String::NewSymbol("request"),			FunctionTemplate::New(request)->GetFunction());
 
@@ -113,6 +119,7 @@ Handle<Value> OracleBindings::New(const Arguments& args)
 
 	if (config.m_debug)
 	{
+
 		config.debug();
 	}
 
@@ -124,13 +131,61 @@ Handle<Value> OracleBindings::New(const Arguments& args)
 }
 
 ///////////////////////////////////////////////////////////////////////////
+Handle<Value> OracleBindings::create(const Arguments& args)
+{
+	HandleScope scope;
+	OracleBindings* obj = getObject(args);
+
+	if (!obj->itsOracleObject->create())
+	{
+		nodeUtilities::ThrowError(obj->itsOracleObject->getOracleError().what());
+		return scope.Close(Undefined());
+	}
+
+	return scope.Close(Undefined());
+}
+
+///////////////////////////////////////////////////////////////////////////
+Handle<Value> OracleBindings::destroy(const Arguments& args)
+{
+	HandleScope scope;
+	OracleBindings* obj = getObject(args);
+
+	if (!obj->itsOracleObject->destroy())
+	{
+		nodeUtilities::ThrowError(obj->itsOracleObject->getOracleError().what());
+		return scope.Close(Undefined());
+	}
+
+	return scope.Close(Undefined());
+}
+
+///////////////////////////////////////////////////////////////////////////
 Handle<Value> OracleBindings::executeSync(const Arguments& args)
 {
 	HandleScope scope;
 	OracleBindings* obj = getObject(args);
 
+	// Check the number and types of arguments
+	if (args.Length() != 3)
+	{
+		nodeUtilities::ThrowError("The function executeSync requires exactly 3 arguments!");
+		return scope.Close(Undefined());
+	}
+
+	// Get the username
+	std::string username = nodeUtilities::getArgString(args, 0);
+	if (username.empty())
+	{
+		nodeUtilities::ThrowError("The username is not allowed to be empty!");
+		return scope.Close(Undefined());
+	}
+
+	// Get the password
+	std::string password = nodeUtilities::getArgString(args, 1);
+
 	// Get the sql statement
-	std::string sql = nodeUtilities::getArgString(args, 0);
+	std::string sql = nodeUtilities::getArgString(args, 2);
 	if (sql.empty())
 	{
 		nodeUtilities::ThrowError("The sql statement is not allowed to be empty!");
@@ -138,7 +193,7 @@ Handle<Value> OracleBindings::executeSync(const Arguments& args)
 	}
 
 	// Execute the sql statement
-	if (!obj->itsOracleObject->execute(sql))
+	if (!obj->itsOracleObject->execute(username, password, sql))
 	{
 		nodeUtilities::ThrowError(obj->itsOracleObject->getOracleError().what());
 		return scope.Close(Undefined());
@@ -154,11 +209,13 @@ Handle<Value> OracleBindings::request(const Arguments& args)
 	OracleBindings* obj = getObject(args);
 
 	// Parse the arguments
+	std::string			username;
+	std::string			password;
 	std::string			procedure;
 	propertyListType	parameters;
 	propertyListType	cgi;
 	Local<Function>		cb;
-	std::string error = requestParseArguments(args, &procedure, &parameters, &cgi, &cb);
+	std::string error = requestParseArguments(args, &username, &password, &procedure, &parameters, &cgi, &cb);
 	if (!error.empty())
 	{
 		nodeUtilities::ThrowTypeError("OracleBindings::request: " + error);
@@ -171,6 +228,8 @@ Handle<Value> OracleBindings::request(const Arguments& args)
 
 	// Initialize the request type
 	rh->oracleObject	=	obj->itsOracleObject;
+	rh->username		=	username;
+	rh->password		=	password;
 	rh->procedure		=	procedure;
 	rh->parameters		=	parameters;
 	rh->cgi				=	cgi;
@@ -192,7 +251,7 @@ void OracleBindings::doRequest(uv_work_t* req)
 {
 	RequestHandle* rh = static_cast<RequestHandle*>(req->data);
 
-	if (!rh->oracleObject->request(rh->cgi, rh->procedure, rh->parameters, &rh->page))
+	if (!rh->oracleObject->request(rh->username, rh->password, rh->cgi, rh->procedure, rh->parameters, &rh->page))
 	{
 		rh->error = rh->oracleObject->getOracleError().what();
 	}
@@ -225,26 +284,40 @@ void OracleBindings::doRequestAfter(uv_work_t* req, int status)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-std::string OracleBindings::requestParseArguments(const v8::Arguments& args, std::string* procedure, propertyListType* parameters, propertyListType* cgi, Local<Function>* cb /*= 0*/)
+std::string OracleBindings::requestParseArguments(const v8::Arguments& args, std::string* username, std::string* password, std::string* procedure, propertyListType* parameters, propertyListType* cgi, Local<Function>* cb)
 {
-	const int NUMBER_OF_ARGUMENTS = (cb) ? 4 : 3;
-
 	// Check the number and types of arguments
-	if (args.Length() != NUMBER_OF_ARGUMENTS)
+	if (args.Length() != 6)
 	{
-		return "This function requires exactly 4 arguments!";
+		return "This function requires exactly 6 arguments!";
 	}
 
 	//
-	// 1) Get procedure name as first arguments
+	// 2) Get username and password
 	//
 
 	if (!nodeUtilities::isArgString(args, 0))
 	{
 		return "The first argument must be a string!";
 	}
+	*username = nodeUtilities::getArgString(args, 0);
 
-	*procedure = nodeUtilities::getArgString(args, 0);
+	if (!nodeUtilities::isArgString(args, 1))
+	{
+		return "The second argument must be a string!";
+	}
+	*password = nodeUtilities::getArgString(args, 1);
+
+	//
+	// 2) Get procedure name as first arguments
+	//
+
+	if (!nodeUtilities::isArgString(args, 2))
+	{
+		return "The third argument must be a string!";
+	}
+
+	*procedure = nodeUtilities::getArgString(args, 2);
 
 	if (procedure->empty())
 	{
@@ -252,83 +325,64 @@ std::string OracleBindings::requestParseArguments(const v8::Arguments& args, std
 	}
 
 	//
-	// 2) Get the parameters of the procedure
+	// 3) Get the parameters of the procedure
 	//
 
-	if (!nodeUtilities::isArgObject(args, 1))
+	if (!nodeUtilities::isArgObject(args, 3))
 	{
-		return "The second argument must be an object!";
+		return "The fourth argument must be an object!";
 	}
 	else
 	{
 		Local<Object> object;
-		if (!nodeUtilities::getArgObject(args, 1, &object))
+		if (!nodeUtilities::getArgObject(args, 3, &object))
 		{
-			return "The second parameter must be an object!";
+			return "The fourth parameter must be an object!";
 		}
 		if (!nodeUtilities::objectAsStringLists(object, parameters))
 		{
-			return "The second parameter must be an object with all properties of type string!";
+			return "The fourth parameter must be an object with all properties of type string!";
 		}
 	}
 
 	//
-	// 3) Get the CGI environment
+	// 4) Get the CGI environment
 	//
 
-	/*
-		var_name(2) := 'SERVER_NAME';
-		var_name(3) := 'GATEWAY_INTERFACE';
-		var_name(4) := 'REMOTE_HOST';
-		var_name(5) := 'REMOTE_ADDR';
-		var_name(6) := 'AUTH_TYPE';
-		var_name(7) := 'REMOTE_USER';
-		var_name(8) := 'REMOTE_IDENT';
-		var_name(9) := 'HTTP_ACCEPT';
-		var_name(10) := 'HTTP_USER_AGENT';
-		var_name(11) := 'SERVER_PROTOCOL';
-		var_name(12) := 'SERVER_PORT';
-		var_name(13) := 'SCRIPT_NAME';
-		var_name(14) := 'PATH_INFO';
-		var_name(15) := 'PATH_TRANSLATED';
-		var_name(16) := 'HTTP_REFERER';
-		var_name(17) := 'HTTP_COOKIE';
-	*/
-
-	if (!nodeUtilities::isArgObject(args, 2))
+	if (!nodeUtilities::isArgObject(args, 4))
 	{
-		return "The third argument must be an object!";
+		return "The fifth argument must be an object!";
 	}
 	else
 	{
 		Local<Object> object;
-		if (!nodeUtilities::getArgObject(args, 2, &object))
+		if (!nodeUtilities::getArgObject(args, 4, &object))
 		{
-			return "The third parameter must be an object!";
+			return "The fifth parameter must be an object!";
 		}
 		if (!nodeUtilities::objectAsStringLists(object, cgi))
 		{
-			return "The third parameter must be an object with all properties of type string!";
+			return "The fifth parameter must be an object with all properties of type string!";
 		}
 		if (cgi->size() < 1)
 		{
-			return "The third parameter must be an object with at least one property!";
+			return "The fifth parameter must be an object with at least one property!";
 		}
 	}
 
 	//
-	// 4) The optional callback function
+	// 5) The optional callback function
 	//
 
 	if (cb)
 	{
-		if (!args[3]->IsFunction())
+		if (!args[5]->IsFunction())
 		{
-			return "The fourth parameter must be the callback function!";
+			return "The sixt parameter must be the callback function!";
 		}
 		else
 		{
-  			*cb = Local<Function>::Cast(args[3]);
+  			*cb = Local<Function>::Cast(args[5]);
   		}
 	}
 

@@ -11,23 +11,23 @@
 #include <string.h> 
 #include <time.h> 
 
-static OCIError   *errhp = 0;
-static OCIEnv     *envhp = 0;
-static OCICPool   *poolhp = 0;
-static OCISvcCtx  *svchp = 0;
-static OraText    *poolName = 0;
-static sb4         poolNameLen = 0;
+static char			appusername[1024];
+static char			apppassword[1024];
+static char			username[1024];
+static char			password[1024];
+static char			database[1024];
 
-static CONST OraText *database = (OraText *)"";
-static CONST OraText *username = (OraText *)"sample";
-static CONST OraText *password = (OraText *)"sample";
-static CONST OraText *appusername = (OraText *)"sample"; 
-static CONST OraText *apppassword = (OraText *)"sample";
+static OCIError		*errhp			= 0;
+static OCIEnv		*envhp			= 0;
+static OCICPool		*poolhp			= 0;
+static OCISvcCtx	*svchp			= 0;
+static OraText		*poolName		= 0;
+static sb4			poolNameLen		= 0;
 
 /* Max, min and increment connections */
-static ub4 conMin = 1;
-static ub4 conMax = 3;
-static ub4 conIncr = 1;
+static ub4			conMin			= 1;
+static ub4			conMax			= 3;
+static ub4			conIncr			= 1;
  
 /* Local functions */
 static double get_time();
@@ -35,14 +35,18 @@ static void elapsed_time(const char* text, double start_time);
 static void checkerr(OCIError *errhp, sword status);
 static sb4 olen(CONST OraText * string);
 static void sleep(int milliseconds);
+static void get_command_line_arguments(int argc, char* argv[]);
+static void usage(const char* app);
 
 /* main */
-int main()
+int main(int argc, char* argv[])
 {
 	double start;
 	sword status;
 
 	printf("START\n");
+
+	get_command_line_arguments(argc, argv);
 
 	start = get_time();
 	OCIEnvCreate(&envhp, OCI_THREADED | OCI_OBJECT, (dvoid *)0,  NULL, NULL, NULL, 0, (dvoid *)0);
@@ -80,7 +84,7 @@ int main()
 	elapsed_time("OCILogoff from the server", start);
 
 	/* sleep for 1 minute */
-	/*sleep(60000);*/
+	sleep(60000);
 
 	/* CREATE THE CONNECTION POOL */
 	start = get_time();
@@ -199,6 +203,62 @@ void checkerr(OCIError *errhp, sword status)
 		default:
 			break;
 	}
+}
+
+/* get the command line arguments */
+void get_command_line_arguments(int argc, char* argv[])
+{
+	int i;
+
+	#define eq(a,n) strncmp((a), (n), strlen(n))
+
+	for (i = 1; i < argc; i++)
+	{
+		if (eq(argv[i], "--") == 0)
+		{
+			if (eq(argv[i], "--appusername=") == 0)
+			{
+				strcpy(appusername, argv[i] + strlen("--appusername="));
+			}
+			else if (eq(argv[i], "--apppassword=") == 0)
+			{
+				strcpy(apppassword, argv[i] + strlen("--apppassword="));
+
+			}
+			else if (eq(argv[i], "--username=") == 0)
+			{
+				strcpy(username, argv[i] + strlen("--username="));
+
+			}
+			else if (eq(argv[i], "--password=") == 0)
+			{
+				strcpy(password, argv[i] + strlen("--password="));
+
+			}
+			else if (eq(argv[i], "--database=") == 0)
+			{
+				strcpy(database, argv[i] + strlen("--database="));
+
+			}
+			else
+			{
+				printf("-- with no proper argument\n");
+				usage(argv[0]);
+			}
+		}
+		else
+		{
+			printf("argument not starting with --\n");
+			usage(argv[0]);
+		}
+	}
+}
+
+/* usage */
+void usage(const char* app)
+{
+	printf("Usage: %s [--appusername<username>] [--apppassword<password>] [--username<username>] [--password<password>] [--database<database>]\n", app);
+	exit(1);
 }
 
 /* Get the length of a OraText* string */

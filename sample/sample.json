@@ -17,11 +17,11 @@
             // The route to be intercepted for this service
             "route": "sample",
             // The Oracle username
-            "oracleUsername": "sample",
+            "username": "sample",
             // The Oracle password
-            "oraclePassword": "sample",
+            "password": "sample",
             // The Oracle database name
-            "oracleDatabase": ""
+            "database": ""
         }
     ]
 }

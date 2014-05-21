@@ -114,11 +114,11 @@ ConnectionPool::~ConnectionPool()
 }
 
 ///////////////////////////////////////////////////////////////////////////
-bool ConnectionPool::create(const std::string& username, const std::string& password, const std::string& server, int connMin, int connMax, int connIncr)
+bool ConnectionPool::create(const std::string& username, const std::string& password, const std::string& database, int connMin, int connMax, int connIncr)
 {
 	assert(!m_hasPool);
 
-	m_oracle_status = oci_connect_pool_create(m_envhp, m_errhp, m_poolhp, &m_poolName, &m_poolNameLen, username, password, server, connMin, connMax, connIncr);
+	m_oracle_status = oci_connect_pool_create(m_envhp, m_errhp, m_poolhp, &m_poolName, &m_poolNameLen, username, password, database, connMin, connMax, connIncr);
 	if (m_oracle_status != OCI_SUCCESS)
 	{
 		return false;
@@ -194,11 +194,13 @@ bool Connection::connect(const std::string& username, const std::string& passwor
 
 	if (hasPool())
 	{
+		assert(server.size() == 0);
 		// Logon to connection pool
 		m_oracle_status = oci_logon(m_envhp, m_errhp, &m_svchp, username, password, m_poolName, m_poolNameLen);
 	}
 	else
 	{
+		assert(server.size() > 0);
 		// Logon to server
 		m_oracle_status = oci_logon(m_envhp, m_errhp, &m_svchp, username, password, server);
 	}

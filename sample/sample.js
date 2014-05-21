@@ -12,9 +12,9 @@ var config = {
 	},
 	services: [{
 		route: 'sample',
-		oracleUsername: 'sample',
-		oraclePassword: 'sample',
-		oracleDatabase: ''
+		username: 'sample',
+		password: 'sample',
+		database: ''
 	}]
 };
 
