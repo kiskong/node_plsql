@@ -117,12 +117,6 @@ Handle<Value> OracleBindings::New(const Arguments& args)
 		return scope.Close(Undefined());
 	}
 
-	if (config.m_debug)
-	{
-
-		config.debug();
-	}
-
 	// Create the object and warp it
 	OracleBindings* obj = new OracleBindings(config);
 	obj->Wrap(args.This());
@@ -436,6 +430,8 @@ std::string OracleBindings::getConfig(const Arguments& args, Config* config)
 	config->m_database	= nodeUtilities::getObjString(object,	"database");
 	config->m_conPool	= nodeUtilities::getObjBoolean(object,	"oracleConnectionPool");
 	config->m_debug		= nodeUtilities::getObjBoolean(object,	"oracleDebug");
+
+	std::cout << "OracleBindings::getConfig" << std::endl << config->asString() << std::endl << std::flush;
 
 	return "";
 }

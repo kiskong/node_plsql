@@ -200,7 +200,6 @@ bool Connection::connect(const std::string& username, const std::string& passwor
 	}
 	else
 	{
-		assert(server.size() > 0);
 		// Logon to server
 		m_oracle_status = oci_logon(m_envhp, m_errhp, &m_svchp, username, password, server);
 	}

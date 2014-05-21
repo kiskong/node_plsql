@@ -7,7 +7,7 @@ class Config
 public:
 	Config() : m_conMin(10), m_conMax(10000), m_conIncr(10), m_conPool(true), m_debug(false) {}
 	~Config() {}
-	void debug() const;
+	std::string asString() const;
 
 	int			m_conMin;
 	int			m_conMax;

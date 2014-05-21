@@ -36,6 +36,8 @@ private:
 	bool requestRun(ocip::Connection* connection, const std::string& procedure, const propertyListType& parameters);
 	bool requestPage(ocip::Connection* connection, std::wstring* page);
 
+	ocip::Connection* createConnection();
+
 	// Error handling
 	void reportError(int oracleStatus, OCIError* errhp, const std::string& message, const std::string& file, int line);
 

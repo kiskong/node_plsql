@@ -8,11 +8,21 @@ OracleObject::OracleObject(const Config& config)
 	,	m_environment(0)
 	,	m_connectionPool(0)
 {
+	if (m_Config.m_debug)
+	{
+		std::cout << "OracleObject::OracleObject" << std::endl << config.asString() << std::endl << std::flush;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////
 OracleObject::~OracleObject()
 {
+	if (m_Config.m_debug)
+	{
+		std::cout << "OracleObject::~OracleObject" << std::endl << std::flush;
+	}
+
+	destroy();
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -20,22 +30,26 @@ bool OracleObject::create()
 {
 	if (m_Config.m_debug)
 	{
-		std::cout << "OracleObject::create" << std::endl;
+		std::cout << "OracleObject::create" << std::endl << std::flush;
 	}
 
 	// Create the Oracle enviroment
 	m_environment = new ocip::Environment(OCI_THREADED);
 	assert(m_environment);
 
-	// Create the connection pool
-	m_connectionPool = new ocip::ConnectionPool(m_environment);
-	assert(m_connectionPool);
-
-	// Create the connection pool
-	if (!m_connectionPool->create(m_Config.m_username, m_Config.m_password, m_Config.m_database, m_Config.m_conMin, m_Config.m_conMax, m_Config.m_conIncr))
+	// Are we using a connection pool
+	if (m_Config.m_conPool)
 	{
-		m_OracleError = m_connectionPool->reportError("create connection pool", __FILE__, __LINE__, m_Config.m_debug);
-		return false;
+		// Create the connection pool
+		m_connectionPool = new ocip::ConnectionPool(m_environment);
+		assert(m_connectionPool);
+
+		// Create the connection pool
+		if (!m_connectionPool->create(m_Config.m_username, m_Config.m_password, m_Config.m_database, m_Config.m_conMin, m_Config.m_conMax, m_Config.m_conIncr))
+		{
+			m_OracleError = m_connectionPool->reportError("create connection pool", __FILE__, __LINE__, m_Config.m_debug);
+			return false;
+		}
 	}
 
 	return true;
@@ -46,17 +60,23 @@ bool OracleObject::destroy()
 {
 	if (m_Config.m_debug)
 	{
-		std::cout << "OracleObject::destroy" << std::endl;
+		std::cout << "OracleObject::destroy" << std::endl << std::flush;
 	}
 
-	// Destroy the connection pool
-	m_connectionPool->destroy();
-	delete m_connectionPool;
-	m_connectionPool = 0;
+	if (m_connectionPool)
+	{
+		// Destroy the connection pool
+		m_connectionPool->destroy();
+		delete m_connectionPool;
+		m_connectionPool = 0;
+	}
 
 	// Destroy the connection object
-	delete m_environment;
-	m_environment = 0;
+	if (m_environment)
+	{
+		delete m_environment;
+		m_environment = 0;
+	}
 
 	return true;
 }
@@ -66,19 +86,21 @@ bool OracleObject::execute(const std::string& username, const std::string& passw
 {
 	if (m_Config.m_debug)
 	{
-		std::cout << "OracleObject::execute(" << sql << ") - BEGIN" << std::flush << std::endl;
+		std::cout << "OracleObject::execute(" << sql << ") - BEGIN" << std::endl << std::flush;
 	}
 
-	// Connect using the connection pool
-	ocip::Connection connection(m_connectionPool);
-	if (!connection.connect(username, password))
+	// Create a new connection
+	ocip::Connection* connection = createConnection();
+
+	// Connect with database
+	if (!connection->connect(username, password))
 	{
-		m_OracleError = connection.reportError("connect using the connection pool", __FILE__, __LINE__, m_Config.m_debug);
+		m_OracleError = connection->reportError("connect using the connection pool", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
 	// Prepare statement
-	ocip::Statement statement(&connection);
+	ocip::Statement statement(connection);
 	if (!statement.prepare(sql))
 	{
 		m_OracleError = statement.reportError("oci_statement_prepare", __FILE__, __LINE__, m_Config.m_debug);
@@ -93,11 +115,13 @@ bool OracleObject::execute(const std::string& username, const std::string& passw
 	}
 
 	// Disconnect from the connection pool
-	if (!connection.disconnect())
+	if (!connection->disconnect())
 	{
-		m_OracleError = connection.reportError("disconnect from the connection pool", __FILE__, __LINE__, m_Config.m_debug);
+		m_OracleError = connection->reportError("disconnect from the connection pool", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
+
+	delete connection;
 
 	return true;
 }
@@ -105,38 +129,42 @@ bool OracleObject::execute(const std::string& username, const std::string& passw
 ///////////////////////////////////////////////////////////////////////////
 bool OracleObject::request(const std::string& username, const std::string& password, const propertyListType& cgi, const std::string& procedure, const propertyListType& parameters, std::wstring* page)
 {
-	// Connect using the connection pool
-	ocip::Connection connection(m_connectionPool);
-	if (!connection.connect(username, password))
+	// Create a new connection
+	ocip::Connection* connection = createConnection();
+
+	// Connect with database
+	if (!connection->connect(username, password))
 	{
-		connection.reportError("connect using the connection pool", __FILE__, __LINE__, m_Config.m_debug);
+		m_OracleError = connection->reportError("connect using the connection pool", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
 	// 1. Initialize the request
-	if (!requestInit(&connection, cgi))
+	if (!requestInit(connection, cgi))
 	{
 		return false;
 	}
 
 	// 2. Invoke the procedure
-	if (!requestRun(&connection, procedure, parameters))
+	if (!requestRun(connection, procedure, parameters))
 	{
 		return false;
 	}
 
 	// 3. Retrieve the page content
-	if (!requestPage(&connection, page))
+	if (!requestPage(connection, page))
 	{
 		return false;
 	}
 
 	// Disconnect from the connection pool
-	if (!connection.disconnect())
+	if (!connection->disconnect())
 	{
-		connection.reportError("disconnect from the connection pool", __FILE__, __LINE__, m_Config.m_debug);
+		connection->reportError("disconnect from the connection pool", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
+
+	delete connection;
 
 	return true;
 }
@@ -373,4 +401,27 @@ bool OracleObject::requestPage(ocip::Connection* connection, std::wstring* page)
 	}
 
 	return true;
+}
+
+///////////////////////////////////////////////////////////////////////////
+ocip::Connection* OracleObject::createConnection()
+{
+	if (m_Config.m_debug)
+	{
+		std::cout << "OracleObject::createConnection" << std::endl << std::flush;
+	}
+
+	// Are we using a connection pool ?
+	ocip::Connection* connection = 0;
+	if (m_Config.m_conPool)
+	{
+		connection = new ocip::Connection(m_connectionPool);
+	}
+	else
+	{
+		connection = new ocip::Connection(m_environment);
+	}
+	assert(connection);
+
+	return connection;
 }
