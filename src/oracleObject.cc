@@ -95,7 +95,7 @@ bool OracleObject::execute(const std::string& username, const std::string& passw
 	// Connect with database
 	if (!connection->connect(username, password))
 	{
-		m_OracleError = connection->reportError("connect using the connection pool", __FILE__, __LINE__, m_Config.m_debug);
+		m_OracleError = connection->reportError("connect", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
@@ -135,7 +135,7 @@ bool OracleObject::request(const std::string& username, const std::string& passw
 	// Connect with database
 	if (!connection->connect(username, password))
 	{
-		m_OracleError = connection->reportError("connect using the connection pool", __FILE__, __LINE__, m_Config.m_debug);
+		m_OracleError = connection->reportError("connect", __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 
