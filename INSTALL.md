@@ -17,7 +17,7 @@ You first need to download and install the [Oracle instant client](http://www.or
 
 * The Oracle Bug 17481818 (GETTING A CONNECTION FROM OCI CONNECTION POOL IS SLOW ON WINDOWS PLATFORMS) affects Oracle Clients 11.2.0.3, 11.2.0.4 and 12.1.0.1 and
 drammaticaly slows down the connection to the Database when more than one naming method is used in NAMES.DIRECTORY_PATH in the SQLNET.ORA configuration file.
-The reccomended workaround is to only use one adapter in NAMES.DIRECTORY_PATH in sqlnet.ora.
+The reccomended workaround is to only use the TNSNAMES adapter in NAMES.DIRECTORY_PATH in sqlnet.ora.
 NAMES.DIRECTORY_PATH=(TNSNAMES)
 
 ### Set up the following environment variables
