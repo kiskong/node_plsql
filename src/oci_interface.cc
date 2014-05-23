@@ -25,27 +25,20 @@ const char* oci_get_client_version()
 ///////////////////////////////////////////////////////////////////////////
 sword oci_error_get(dvoid* hndlp, ub4 type, std::string* error_message, int* error_code)
 {
-	sb4		errcode = 0;
-	text	bufp[32767];
-	memset(bufp, 0, sizeof(bufp));
+	sb4	errcode = 0;
+	oci_text o_error(32767);
 
 	sword status = OCIErrorGet(
 		hndlp,					// hndlp        (IN) The error handle, usually, or the environment handle (for errors on OCIEnvCreate(), OCIHandleAlloc()).
 		1,						// recordno     (IN) Indicates the status record from which the application seeks information. Starts from 1.
 		(OraText*) 0,			// sqlstate    (OUT) Not supported in release 8.x or later.
 		&errcode,				// errcodep    (OUT) The error code returned.
-		bufp,					// bufp        (OUT) The error message text returned.
-		(ub4) sizeof(bufp),		// bufsiz       (IN) The size of the buffer provided for the error message, in number of bytes.
+		o_error.text(),			// bufp        (OUT) The error message text returned.
+		o_error.size(),			// bufsiz       (IN) The size of the buffer provided for the error message, in number of bytes.
 		type					// type         (IN) The type of the handle (OCI_HTYPE_ERROR or OCI_HTYPE_ENV).
 		);
 
-#ifdef USE_LINUX
-	std::wstring ws(oci_text::to_wstring(bufp));
-#else
-	std::wstring ws((wchar_t*)bufp);
-#endif
-
-	*error_message = std::string(ws.begin(), ws.end());
+	*error_message = o_error.getString();
 	*error_code	= static_cast<int>(errcode);
 
 	return status;

@@ -7,31 +7,32 @@
 class oci_text
 {
 public:
-	oci_text() : ot(0), sz(0) {}
-	oci_text(const std::wstring& s) : ws(s), ot(0), sz(0) {}
-	oci_text(const std::string& s) : ws(std::wstring(s.begin(), s.end())), ot(0), sz(0) {}
+	oci_text() : m_text(0), m_size(0) {}
+	oci_text(size_t bytes);
+	oci_text(const OraText* text);
+	oci_text(const std::wstring& s);
+	oci_text(const std::string& s);
+	~oci_text();
 
 	oci_text(const oci_text& t) {*this = t;}
 	oci_text& operator=(const oci_text& t);
 
-	std::wstring get_wstring() const {return ws;}
-	std::string get_string() const {return std::string(ws.begin(), ws.end());}
-	const wchar_t* data() const {return ws.c_str();}
-	const OraText* text() const;
-	ub4 size() const;
-	void dump() const;
+	OraText* text() const {return reinterpret_cast<OraText*>(m_text);}
+	ub4 size() const {return static_cast<ub4>(m_size * sizeof(unsigned short));}
 
-	static std::wstring to_wstring(const OraText* text);
+	std::wstring getWString() const;
+	std::string getString() const;
 
-	static size_t stringLength(const void* ptr, size_t size_elem);
-	static int copy4to2bytes(const unsigned int* src, size_t src_size, unsigned short* dst, size_t dst_size);
-	static int copy2to4bytes(const unsigned short* src, size_t src_size, unsigned int* dst, size_t dst_size);
-	static void dump(const char* text, size_t size, const std::string& title = "");
+	void dump(const std::string& desc = "") const;
 
 private:
-	std::wstring	ws;
-	OraText*		ot;
-	size_t			sz;	// the size allocated for ot
+	void create(const std::wstring& s);
+
+	// Alocate a buffer for max_size characters ad return the size in bytes
+	size_t allocate(size_t max_size);
+
+	unsigned short*	m_text;	//	the text
+	size_t			m_size;	//	the size of the text in UTF16 character (not byte)
 };
 
 #endif // OCI_TEXT__H

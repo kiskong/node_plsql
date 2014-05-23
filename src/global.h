@@ -36,6 +36,7 @@ typedef std::list<propertyType>::iterator propertyListIteratorType;
 typedef std::list<propertyType>::const_iterator propertyListConstIteratorType;
 
 ///////////////////////////////////////////////////////////////////////////
+void hexDump(const char* desc, const void* addr, int len);
 void convert(const propertyListType& properties, stringListType* names, stringListType* values);
 
 #endif // GLOBAL__H

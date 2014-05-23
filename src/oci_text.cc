@@ -39,6 +39,58 @@
 #define UTF8_BYTES_PER_CHAR     4
 
 ///////////////////////////////////////////////////////////////////////////
+static size_t stringLength(const void* ptr, size_t size_elem);
+static int copy4to2bytes(const unsigned int* src, size_t src_size, unsigned short* dst, size_t dst_size);
+static int copy2to4bytes(const unsigned short* src, size_t src_size, unsigned int* dst, size_t dst_size);
+
+///////////////////////////////////////////////////////////////////////////
+oci_text::oci_text(size_t max_size)
+	:	m_text(0)
+	,	m_size(0)
+{
+	// Allocate m_text
+	allocate(max_size);
+}
+
+///////////////////////////////////////////////////////////////////////////
+oci_text::oci_text(const OraText* text)
+	:	m_text(0)
+	,	m_size(0)
+{
+	// Allocate m_text
+	const size_t bytes = allocate(stringLength(reinterpret_cast<const void*>(text), sizeof(unsigned short)));
+
+	// Copy m_text
+	memmove(m_text, text, bytes);
+}
+
+///////////////////////////////////////////////////////////////////////////
+oci_text::oci_text(const std::wstring& s)
+	:	m_text(0)
+	,	m_size(0)
+{
+	create(s);
+}
+
+///////////////////////////////////////////////////////////////////////////
+oci_text::oci_text(const std::string& s)
+	:	m_text(0)
+	,	m_size(0)
+{
+	std::wstring ws(s.begin(), s.end());
+	create(ws);
+}
+
+///////////////////////////////////////////////////////////////////////////
+oci_text::~oci_text()
+{
+	if (m_text)
+	{
+		free(m_text);
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////
 oci_text& oci_text::operator=(const oci_text& t)
 {
 	// Copy myself
@@ -46,118 +98,95 @@ oci_text& oci_text::operator=(const oci_text& t)
 		return *this;
 	}
 
-	// Free buffer
-	if (ot) {
-		free(ot);
-	}
-	ot = 0;
-	sz = 0;
+	// Allocate m_text
+	const size_t bytes = allocate(t.m_size);
 
-	// Copy string
-	ws = t.ws;
+	// Copy m_text
+	memmove(m_text, t.m_text, bytes);
 
 	return *this;
 }
 
 ///////////////////////////////////////////////////////////////////////////
-const OraText* oci_text::text() const
+std::wstring oci_text::getWString() const
 {
-	// Calculate the size:
-	const size_t SIZE = (ws.size() + 1) * sizeof(wchar_t);
-
-	// Do we need more space
-	if (SIZE > sz)
-	{
-		// (re)Allocate buffer
-		OraText* buffer = reinterpret_cast<OraText*>(realloc(ot, SIZE));
-		memset(buffer, 0, SIZE);
-		(const_cast<oci_text*>(this))->ot = buffer;
-		assert(ot);
-		(const_cast<oci_text*>(this))->sz = SIZE;
-	}
-
 #ifdef USE_LINUX
+	// Allocate buffer
+	unsigned int* temp_buffer = reinterpret_cast<unsigned int*>(malloc((m_size + 1) * sizeof(wchar_t)));
 
-	{
-	const size_t SIZE_ELEM = sizeof(wchar_t);
-	assert(SIZE_ELEM >= 2);
-
-	// source
-	const unsigned int* src = reinterpret_cast<const unsigned int*>(ws.c_str());
-	size_t src_size = ws.size();
+	// Convert 2 bytes to 4 bytes
+	copy2to4bytes(m_text, m_size, temp_buffer, m_size);
 	
-	// destination
-	unsigned short* dst = reinterpret_cast<unsigned short*>((const_cast<oci_text*>(this))->ot);
-	size_t dst_size = src_size;
+	// Create a wstring
+	std::wstring ws(reinterpret_cast<wchar_t*>(temp_buffer));
 
-	// convert 4 bytes to 2 bytes
-	/*int size =*/ copy4to2bytes(src, src_size, dst, dst_size);
-	}
-
-#else // USE_LINUX
-
-	memmove((const_cast<oci_text*>(this))->ot, reinterpret_cast<const OraText*>(ws.c_str()), SIZE);
-
-#endif // USE_LINUX
-
-	return ot;
-}
-
-///////////////////////////////////////////////////////////////////////////
-ub4 oci_text::size() const
-{
-	return static_cast<ub4>(ws.length() * sizeof(short));
-}
-
-///////////////////////////////////////////////////////////////////////////
-void oci_text::dump() const
-{
-	std::cout << "oci_text: ws=(";
-	std::wcout << ws;
-	std::cout << ") ot=(" << (void*)ot << ") sz=(" << sz << ")" << std::endl << std::flush;
-}
-
-///////////////////////////////////////////////////////////////////////////
-std::wstring oci_text::to_wstring(const OraText* text)
-{
-	const size_t SIZE_ELEM = sizeof(short);
-	assert(SIZE_ELEM == 2);
-
-	// source
-	const unsigned short* src = reinterpret_cast<const unsigned short*>(text);
-	size_t src_size = oci_text::stringLength(reinterpret_cast<const void*>(text), SIZE_ELEM);
-	
-	// destination
-	unsigned int* dst = reinterpret_cast<unsigned int*>(malloc((src_size + 1) * sizeof(wchar_t)));
-	size_t dst_size = src_size;
-
-	// convert 2 bytes to 4 bytes
-	/*int size =*/ oci_text::copy2to4bytes(src, src_size, dst, dst_size);
-
-	// convert to std:wstring
-	std::wstring ws(reinterpret_cast<wchar_t*>(dst));
-
-	// free temporary buffer
-	free(dst);
+	// Free the buffer
+	free(temp_buffer);
+#else
+	std::wstring ws((wchar_t*)m_text);
+#endif
 
 	return ws;
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void oci_text::dump(const char* text, size_t size, const std::string& title)
+std::string oci_text::getString() const
 {
-	std::cout << "---" << title << "-BEGIN------------------------------" << std::endl;
-
-	for (size_t i = 0; i < size; i++)
-	{
-		std::cout << i << ": " << "(" << (int)text[i] << ") ... (" << (char)text[i] << ")" << std::endl;
-	}
-
-	std::cout << "---" << title << "-END--------------------------------" << std::endl << std::flush;
+	std::wstring ws(getWString());
+	return std::string(ws.begin(), ws.end());
 }
 
 ///////////////////////////////////////////////////////////////////////////
-size_t oci_text::stringLength(const void* ptr, size_t size_elem)
+void oci_text::create(const std::wstring& s)
+{
+	assert(m_text == 0);
+	assert(m_size == 0);
+
+	// Allocate m_text
+	const size_t bytes = allocate(s.size());
+	assert(bytes >= s.size());
+
+#ifdef USE_LINUX
+	// Convert 4 bytes to 2 bytes
+	copy4to2bytes(reinterpret_cast<const unsigned int*>(s.c_str()), m_size, m_text, m_size);
+#else // USE_LINUX
+	memmove(reinterpret_cast<void*>(m_text), reinterpret_cast<const void*>(s.c_str()), bytes);
+#endif // USE_LINUX
+}
+
+///////////////////////////////////////////////////////////////////////////
+size_t oci_text::allocate(size_t max_size)
+{
+	assert(m_text == 0);
+	assert(m_size == 0);
+
+	m_size = max_size;
+
+	// Calculate the buffer size in bytes
+	const size_t bytes = (m_size + 1) * sizeof(unsigned short);
+
+	// Allocate m_text
+	m_text = reinterpret_cast<unsigned short*>(malloc(bytes));
+	assert(m_text);
+
+	// Initialize buffer
+	memset(m_text, 0, bytes);
+
+	// Return size in bytes
+	return bytes;
+}
+
+///////////////////////////////////////////////////////////////////////////
+void oci_text::dump(const std::string& desc) const
+{
+	std::wcout << L"oci_text: m_text=(" << m_text << ") m_size=(" << m_size << ")" << std::endl << std::flush;
+
+	const size_t bytes = (m_size + 1) * sizeof(unsigned short);
+	hexDump(desc.c_str(), reinterpret_cast<const void*>(m_text), static_cast<int>(bytes));
+}
+
+///////////////////////////////////////////////////////////////////////////
+size_t stringLength(const void* ptr, size_t size_elem)
 {
     int size = 0;
 
@@ -195,7 +224,7 @@ size_t oci_text::stringLength(const void* ptr, size_t size_elem)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-int oci_text::copy4to2bytes(const unsigned int* src, size_t src_size, unsigned short* dst, size_t dst_size)
+int copy4to2bytes(const unsigned int* src, size_t src_size, unsigned short* dst, size_t dst_size)
 {
     int cp_size = 0;
 
@@ -259,7 +288,7 @@ int oci_text::copy4to2bytes(const unsigned int* src, size_t src_size, unsigned s
 }
 
 ///////////////////////////////////////////////////////////////////////////
-int oci_text::copy2to4bytes(const unsigned short* src, size_t src_size, unsigned int* dst, size_t dst_size)
+int copy2to4bytes(const unsigned short* src, size_t src_size, unsigned int* dst, size_t dst_size)
 {
     int cp_size = 0;
 
