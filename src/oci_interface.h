@@ -2,24 +2,7 @@
 #define OCI_INTERFACE__H
 
 #include "oci_includes.h"
-
-///////////////////////////////////////////////////////////////////////////
-class oci_text
-{
-public:
-	oci_text() {}
-	oci_text(const std::wstring& s) : ws(s) {}
-	oci_text(const std::string& s) : ws(std::wstring(s.begin(), s.end())) {}
-	oci_text(const oci_text& t) : ws(reinterpret_cast<const wchar_t*>(&t)) {}
-	std::wstring get_wstring() const {return ws;}
-	std::string get_string() const {return std::string(ws.begin(), ws.end());}
-	const wchar_t* data() const {return ws.c_str();}
-	const OraText* text() const {return reinterpret_cast<const OraText*>(ws.c_str());}
-	ub4 size() const {return static_cast<ub4>(ws.length() * sizeof(wchar_t));}
-
-private:
-	std::wstring	ws;
-};
+#include "oci_text.h"
 
 ///////////////////////////////////////////////////////////////////////////
 const char* oci_get_client_version();

@@ -431,7 +431,7 @@ std::string OracleBindings::getConfig(const Arguments& args, Config* config)
 	config->m_conPool	= nodeUtilities::getObjBoolean(object,	"oracleConnectionPool");
 	config->m_debug		= nodeUtilities::getObjBoolean(object,	"oracleDebug");
 
-	std::cout << "OracleBindings::getConfig" << std::endl << config->asString() << std::endl << std::flush;
+	//std::cout << "OracleBindings::getConfig" << std::endl << config->asString() << std::endl << std::flush;
 
 	return "";
 }

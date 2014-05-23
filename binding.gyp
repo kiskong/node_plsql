@@ -6,6 +6,7 @@
         "src/oracleBindings.cc",
         "src/config.cc",
         "src/oracleObject.cc",
+        "src/oci_text.cc",
         "src/oci_interface.cc",
         "src/ocip_interface.cc",
         "src/oracleError.cc",
@@ -27,6 +28,7 @@
             "oci_library%": "<!(if [ -z $USE_ORACLE_DUMMY ]; then echo \"-lclntsh\"; else echo \"\"; fi)"
           },
           "defines": [
+            "USE_LINUX=1",
             "USE_ORACLE_DUMMY=<(use_oracle_dummy)"
           ],
           "link_settings": {"libraries": [ "-L<(oci_lib_dir)"] },
@@ -57,6 +59,8 @@
           "defines": [
             "USE_ORACLE_DUMMY=<(use_oracle_dummy)"
           ],
+          "cflags": [ "/Wall" ],
+          "cflags_cc": [ "/Wall" ],
           "link_settings": {"libraries": [ "<(oci_lib_dir)\oci.lib"] }
         }]
       ],

@@ -44,6 +44,11 @@ bool OracleObject::create()
 		m_connectionPool = new ocip::ConnectionPool(m_environment);
 		assert(m_connectionPool);
 
+		if (m_Config.m_debug)
+		{
+			std::cout << "OracleObject::create: create connection pool. user=(" << m_Config.m_username << ") password=(" << m_Config.m_password << ") database=(" << m_Config.m_database << ")" << std::endl << std::flush;
+		}
+
 		// Create the connection pool
 		if (!m_connectionPool->create(m_Config.m_username, m_Config.m_password, m_Config.m_database, m_Config.m_conMin, m_Config.m_conMax, m_Config.m_conIncr))
 		{
@@ -95,7 +100,9 @@ bool OracleObject::execute(const std::string& username, const std::string& passw
 	// Connect with database
 	if (!connection->connect(username, password))
 	{
-		m_OracleError = connection->reportError("connect", __FILE__, __LINE__, m_Config.m_debug);
+		std::ostringstream s;
+		s << "error when trying to connect. username: \"" << username << "\" password: \"" << password << "\"";
+		m_OracleError = connection->reportError(s.str(), __FILE__, __LINE__, m_Config.m_debug);
 		return false;
 	}
 

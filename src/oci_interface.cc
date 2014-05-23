@@ -39,7 +39,12 @@ sword oci_error_get(dvoid* hndlp, ub4 type, std::string* error_message, int* err
 		type					// type         (IN) The type of the handle (OCI_HTYPE_ERROR or OCI_HTYPE_ENV).
 		);
 
+#ifdef USE_LINUX
+	std::wstring ws(oci_text::to_wstring(bufp));
+#else
 	std::wstring ws((wchar_t*)bufp);
+#endif
+
 	*error_message = std::string(ws.begin(), ws.end());
 	*error_code	= static_cast<int>(errcode);
 
