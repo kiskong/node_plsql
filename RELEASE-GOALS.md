@@ -9,13 +9,9 @@ This document outlines the high-level goals for each significant milestone relea
 
 ## [v0.1.0]
 
-* **Improved scalability** - by switching to non-blocking calls
-* **Install documentation**
+* **OSX** - test OSX build.
 
 ## [v0.2.0]
 
-* **Linux** - test Linux build.
-
 ## [v0.3.0]
 
-* **OSX** - test OSX build.
