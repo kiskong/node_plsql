@@ -1,17 +1,19 @@
 This document outlines the high-level goals for each significant milestone release of the Node.js PL/SQL Server.
 
 ## [v0.0.1]
-* **Proof of concept**
-* **Flexible parameter passing** - support for flexible parameter passing.
-* **CGI** - support for all required CGI parameters.
-* **Cookies** - support for cookies.
-* **Static files** - support for static files.
+* **Proof of concept release**
+* Support for flexible parameter passing.
+* Support for all required cgi parameters including cookies.
+* Support for static files.
+* Support for non-blocking Oracle requests.
+* Support for Oracle connection pooling.
 
-## [v0.1.0]
+## [v0.0.2]
+* Add support for file upload.
+* Add support for home page.
+* Add support for custom html error messages.
+* Add support for overloaded PL/SQL procedures.
 
-* **OSX** - test OSX build.
+## [v0.0.3]
 
-## [v0.2.0]
-
-## [v0.3.0]
-
+* **OSX** - OSX support.

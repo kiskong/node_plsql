@@ -13,14 +13,25 @@ See the [installation guide](https://github.com/doberkofler/node_plsql/blob/mast
 
 ## Basic example
 * Install the PL/SQL examples using SQL*Plus and running install.sql from the sql directory as user sys.
-* Adapt the demo/server.js file and make sure that the Oracle configuration is correct.
-* Run `node demo/server.js` in the root of the source directory.
-* Invoke a browser and open the page http://localhost:8999/demo/demo.pageIndex.
+* Run `node_plsql --init=sample.json` to create a new sample configuration file.
+* Change the sample JSON configuration file (sample.json) as needed and especially make sure that the Oracle configuration information is correct.
+* Run `node_plsql --config=sample.json` to start the server.
+* Invoke a browser and open the page `http://localhost:8999/demo/demo.pageIndex`.
 
 #Development
 
 ##Debugging
-* Set the environment variable DEBUG to * before starting node.
+* Set the environment variable DEBUG to the module to debug or * for all modules before starting the server.
+
+Windows:
+```bat
+set DEBUG=*
+```
+
+MacOS/Linux:
+```bash
+export DEBUG=*
+```
 
 ## Unit test
 * Run `npm install` and `npm test` in the root of the source directory
