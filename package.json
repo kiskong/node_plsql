@@ -1,6 +1,6 @@
 {
   "name": "node_plsql",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Dieter Oberkofler <doberkofler.github@gmail.com>",
   "description": "The Node.js PL/SQL Gateway for Oracle",
   "bin": {
@@ -64,26 +64,26 @@
     "test": "node Makefile.js test"
   },
   "dependencies": {
-    "underscore": ">=1.6.0",
-    "express": ">=4.1.1",
-    "cookie-parser": ">=1.1.0",
-    "compression": ">=1.0.2",
-    "serve-static": ">=1.1.0",
-    "morgan": ">=1.0.0",
-    "tough-cookie": ">=0.12.1",
-    "debug": ">=0.8.1",
-    "nopt": ">=2.2.1",
+    "compression": "^1.0.2",
+    "cookie-parser": "^1.1.0",
+    "debug": "^0.8.1",
+    "express": "^4.3.1",
     "js-yaml": "^3.0.2",
-    "strip-json-comments": "^0.1.2"
+    "morgan": "^1.1.1",
+    "nopt": "^2.2.1",
+    "serve-static": "^1.1.0",
+    "strip-json-comments": "^0.1.2",
+    "tough-cookie": "^0.12.1",
+    "underscore": "^1.6.0"
   },
   "devDependencies": {
-    "shelljs": ">=0.3.0",
-    "shelljs-nodecli": ">=0.1.1",
-    "mocha": ">=1.18.2",
-    "chai": ">=1.9.1",
-    "istanbul": ">=0.2.8",
-    "jshint": ">=2.5.1",
-    "jsonlint": ">=1.6.0"
+    "shelljs": "^0.3.0",
+    "shelljs-nodecli": "^0.1.1",
+    "mocha": "^1.18.2",
+    "chai": "^1.9.1",
+    "istanbul": "^0.2.8",
+    "jshint": "^2.5.1",
+    "jsonlint": "^1.6.0"
   },
   "preferGlobal": true
 }
