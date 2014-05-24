@@ -1,9 +1,12 @@
 {
   "name": "node_plsql",
+  "version": "0.0.1",
+  "author": "Dieter Oberkofler <doberkofler.github@gmail.com>",
   "description": "The Node.js PL/SQL Gateway for Oracle",
   "bin": {
     "node_plsql": "./bin/node_plsql.js"
   },
+  "main": "./lib/api.js",
   "keywords": [
     "plsql",
     "pl/sql",
@@ -20,9 +23,8 @@
   ],
   "homepage": "https://github.com/doberkofler/node_plsql",
   "license": "MIT",
-  "version": "0.0.1",
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=0.10"
   },
   "maintainers": [
     {
@@ -82,5 +84,6 @@
     "istanbul": ">=0.2.8",
     "jshint": ">=2.5.1",
     "jsonlint": ">=1.6.0"
-  }
+  },
+  "preferGlobal": true
 }
