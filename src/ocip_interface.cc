@@ -13,6 +13,9 @@ namespace ocip
 {
 
 ///////////////////////////////////////////////////////////////////////////
+bool Environment::m_debug = false;
+
+///////////////////////////////////////////////////////////////////////////
 std::string getTypeName(DataType type)
 {
 	switch (type)
@@ -25,22 +28,39 @@ std::string getTypeName(DataType type)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-Environment::Environment(int mode /*= OCI_DEFAULT*/)
+Environment::Environment(int mode /*= OCI_DEFAULT*/, bool debug /*= false*/)
 	:	m_mode(static_cast<ub4>(mode))
 	,	m_envhp(0)
 {
+	m_debug = debug;
+
+	if (Environment::debug())
+	{
+		std::cout << "Environment::Environment" << std::flush << std::endl;
+	}
+
 	create();
 }
 
 ///////////////////////////////////////////////////////////////////////////
 Environment::~Environment()
 {
+	if (Environment::debug())
+	{
+		std::cout << "Environment::~Environment" << std::flush << std::endl;
+	}
+
 	destroy();
 }
 
 ///////////////////////////////////////////////////////////////////////////
 void Environment::create()
 {
+	if (Environment::debug())
+	{
+		std::cout << "Environment::create" << std::flush << std::endl;
+	}
+
 	// Create the Oracle environment
 	sword status = oci_connect_environment_create(&m_envhp, m_mode, OCI_UTF16ID, OCI_UTF16ID);
 	assert(status == OCI_SUCCESS);
@@ -49,6 +69,11 @@ void Environment::create()
 ///////////////////////////////////////////////////////////////////////////
 void Environment::destroy()
 {
+	if (Environment::debug())
+	{
+		std::cout << "Environment::destroy" << std::flush << std::endl;
+	}
+
 	// Free the environment handle
 	sword status = oci_handle_free(OCI_HTYPE_ENV, reinterpret_cast<dvoid**>(&m_envhp));
 	assert(status == OCI_SUCCESS);
@@ -57,9 +82,9 @@ void Environment::destroy()
 }
 
 ///////////////////////////////////////////////////////////////////////////
-oracleError Environment::reportError(int oracleStatus, OCIError* errhp, const std::string& message, const std::string& file, int line, bool debug)
+oracleError Environment::reportError(int oracleStatus, OCIError* errhp, const std::string& message, const std::string& file, int line)
 {
-	if (debug)
+	if (Environment::debug())
 	{
 		std::cerr << "ORACLE ERROR in " << file << "(" << line << "): " << message << std::endl << "Oracle status code: " << oracleStatus << std::flush << std::endl;
 	}
@@ -72,7 +97,7 @@ oracleError Environment::reportError(int oracleStatus, OCIError* errhp, const st
 	{
 		/*sword status =*/ oci_error_get(errhp, &oracleErrorMessage, &oracleErrorCode);
 
-		if (debug)
+		if (Environment::debug())
 		{
 			std::cerr << "Oracle error code: " << oracleErrorMessage << std::endl << "Oracle error message: " << oracleErrorCode << std::flush << std::endl;
 		}
@@ -92,6 +117,11 @@ ConnectionPool::ConnectionPool(Environment* environment)
 	,	m_hasPool(false)
 	,	m_oracle_status(0)
 {
+	if (Environment::debug())
+	{
+		std::cout << "ConnectionPool::ConnectionPool" << std::flush << std::endl;
+	}
+
 	// Allocate an error handle:
 	m_oracle_status = oci_handle_allocate(m_envhp, OCI_HTYPE_ERROR, reinterpret_cast<dvoid**>(&m_errhp));
 	assert(m_oracle_status == OCI_SUCCESS);
@@ -104,6 +134,11 @@ ConnectionPool::ConnectionPool(Environment* environment)
 ///////////////////////////////////////////////////////////////////////////
 ConnectionPool::~ConnectionPool()
 {
+	if (Environment::debug())
+	{
+		std::cout << "ConnectionPool::~ConnectionPool" << std::flush << std::endl;
+	}
+
 	// Free a connection pool handle:
 	m_oracle_status = oci_handle_free(OCI_HTYPE_CPOOL, reinterpret_cast<dvoid**>(&m_poolhp));
 	assert(m_oracle_status == OCI_SUCCESS);
@@ -116,6 +151,11 @@ ConnectionPool::~ConnectionPool()
 ///////////////////////////////////////////////////////////////////////////
 bool ConnectionPool::create(const std::string& username, const std::string& password, const std::string& database, int connMin, int connMax, int connIncr)
 {
+	if (Environment::debug())
+	{
+		std::cout << "Connection::create(" << username << ", " << password << ", " << connMin << ", " << connMax << ", " << connIncr << ")" << std::flush << std::endl;
+	}
+
 	assert(!m_hasPool);
 
 	m_oracle_status = oci_connect_pool_create(m_envhp, m_errhp, m_poolhp, &m_poolName, &m_poolNameLen, username, password, database, connMin, connMax, connIncr);
@@ -132,6 +172,11 @@ bool ConnectionPool::create(const std::string& username, const std::string& pass
 ///////////////////////////////////////////////////////////////////////////
 bool ConnectionPool::destroy()
 {
+	if (Environment::debug())
+	{
+		std::cout << "ConnectionPool::destroy" << std::flush << std::endl;
+	}
+
 	assert(m_hasPool);
 
 	m_oracle_status = oci_connect_pool_destroy(m_poolhp, m_errhp);
@@ -157,6 +202,10 @@ Connection::Connection(Environment* environment)
 	,	m_isLoggedOn(false)
 	,	m_oracle_status(OCI_SUCCESS)
 {
+	if (Environment::debug())
+	{
+		std::cout << "Connection::Connection" << std::flush << std::endl;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -171,17 +220,31 @@ Connection::Connection(ConnectionPool* connectionPool)
 	,	m_isLoggedOn(false)
 	,	m_oracle_status(OCI_SUCCESS)
 {
+	if (Environment::debug())
+	{
+		std::cout << "Connection::Connection" << std::flush << std::endl;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////
 Connection::~Connection()
 {
+	if (Environment::debug())
+	{
+		std::cout << "Connection::~Connection" << std::flush << std::endl;
+	}
+
 	disconnect();
 }
 
 ///////////////////////////////////////////////////////////////////////////
 bool Connection::connect(const std::string& username, const std::string& password, const std::string& server)
 {
+	if (Environment::debug())
+	{
+		std::cout << "Connection::connect(" << username << ", " << password << ", " << server << ")" << std::flush << std::endl;
+	}
+
 	m_oracle_status = OCI_SUCCESS;
 
 	// Allocate an error handle:
@@ -217,6 +280,11 @@ bool Connection::connect(const std::string& username, const std::string& passwor
 ///////////////////////////////////////////////////////////////////////////
 bool Connection::disconnect()
 {
+	if (Environment::debug())
+	{
+		std::cout << "Connection::disconnect" << std::flush << std::endl;
+	}
+
 	m_oracle_status = OCI_SUCCESS;
 
 	if (!isConnected())
@@ -249,6 +317,11 @@ Statement::Statement(Connection* connection)
 	:	m_connection(connection)
 	,	m_stmtp(0)
 {
+	if (Environment::debug())
+	{
+		std::cout << "Statement::Statement" << std::flush << std::endl;
+	}
+
 	m_oracle_status = oci_statement_allocate(m_connection->hEnv(), &m_stmtp);
 	assert(m_oracle_status == OCI_SUCCESS);
 }
@@ -256,6 +329,11 @@ Statement::Statement(Connection* connection)
 ///////////////////////////////////////////////////////////////////////////
 Statement::~Statement()
 {
+	if (Environment::debug())
+	{
+		std::cout << "Statement::~Statement" << std::flush << std::endl;
+	}
+
 	ParameterListIteratorType it;
 	for (it = m_parameters.begin(); it != m_parameters.end(); ++it)
 	{
@@ -269,6 +347,16 @@ Statement::~Statement()
 ///////////////////////////////////////////////////////////////////////////
 bool Statement::prepare(const std::string& sql)
 {
+	if (Environment::debug())
+	{
+		std::string s(sql);
+		replace(s, "\n", "\\n");
+		if (s.size() > 100) {
+			s = s.substr(0, 100) + "...";
+		}
+		std::cout << "Statement::prepare: sql=\"" << s << "\"" << std::flush << std::endl;
+	}
+
 	m_oracle_status = oci_statement_prepare(m_stmtp, m_connection->hError(), sql);
 	return (m_oracle_status == OCI_SUCCESS);
 }
@@ -276,6 +364,11 @@ bool Statement::prepare(const std::string& sql)
 ///////////////////////////////////////////////////////////////////////////
 bool Statement::execute(int iterations)
 {
+	if (Environment::debug())
+	{
+		std::cout << "Statement::execute: iterations=" << iterations << std::flush << std::endl;
+	}
+
 	// Actually bind the parameter
 	ParameterListIteratorType it;
 	for (it = m_parameters.begin(); it != m_parameters.end(); ++it)
@@ -292,6 +385,11 @@ bool Statement::execute(int iterations)
 ///////////////////////////////////////////////////////////////////////////
 bool Statement::bind(OCIBind** bindpp, const std::string& placeholder, ub2 dty, dvoid* valuep, sb4 value_sz, sb2* indp, ub4 maxarr_len, ub4* curelen)
 {
+	if (Environment::debug())
+	{
+		std::cout << "ParameterValue::bind: m_placeholder=\"" << placeholder << "\"" << std::flush << std::endl;
+	}
+
 	m_oracle_status = oci_bind_by_name(m_stmtp, bindpp, m_connection->hError(), placeholder, dty, valuep, value_sz, indp, maxarr_len, curelen);
 	return (m_oracle_status == OCI_SUCCESS);
 }
@@ -299,6 +397,11 @@ bool Statement::bind(OCIBind** bindpp, const std::string& placeholder, ub2 dty, 
 ///////////////////////////////////////////////////////////////////////////
 void Statement::addParameter(Parameter* parameter)
 {
+	if (Environment::debug())
+	{
+		std::cout << "ParameterValue::addParameterValue: m_placeholder=\"" << parameter->m_placeholder << "\"" << std::flush << std::endl;
+	}
+
 	parameter->m_statement = this;
 
 	m_parameters.push_back(parameter);
@@ -310,16 +413,29 @@ ParameterValue::ParameterValue(const std::string& placeholder, DataType type, Di
 	,	m_value_sz(0)
 	,	m_ind(0)
 {
+	if (Environment::debug())
+	{
+		std::cout << "ParameterValue::ParameterValue: m_placeholder=\"" << m_placeholder << "\" type=\"" << getTypeName(type) << "\"" << std::flush << std::endl;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////
 ParameterValue::~ParameterValue()
 {
+	if (Environment::debug())
+	{
+		std::cout << "ParameterValue::~ParameterValue m_placeholder=\"" << m_placeholder << "\"" << std::flush << std::endl;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////
 void ParameterValue::value(long value)
 {
+	if (Environment::debug())
+	{
+		std::cout << "ParameterValue::value(long) m_placeholder=\"" << m_placeholder << "\" value=" << value << std::flush << std::endl;
+	}
+
 	assert(m_direction == Input);
 	assert(m_type == Integer);
 
@@ -335,30 +451,30 @@ void ParameterValue::value(long value)
 ///////////////////////////////////////////////////////////////////////////
 void ParameterValue::value(const std::string& value)
 {
+	if (Environment::debug())
+	{
+		std::cout << "ParameterValue::value(std::string) m_placeholder=\"" << m_placeholder << "\" value=\"" << value << "\"" << std::flush << std::endl;
+	}
+
 	assert(m_direction == Input);
 	assert(m_type == String);
 
-	// convert to wstring
-	std::wstring ws(value.begin(), value.end());
-
-	// get the size of the value to bind
-	size_t size = (ws.length() + 1) * sizeof(wchar_t);
-	m_value_sz = static_cast<sb4>(size);
-
-	// copy the value
-	assert(size < sizeof(m_value));
-	memmove(m_value, ws.c_str(), size);
+	// convert
+	m_value_sz = oci_text::convert(value, reinterpret_cast<oci_text::utf16_char_t*>(m_value), sizeof(m_value));
 }
 
 ///////////////////////////////////////////////////////////////////////////
 sword ParameterValue::bind(OCIStmt* stmtp, OCIError* errhp)
 {
+	if (Environment::debug())
+	{
+		std::cout << "ParameterValue::bind m_placeholder=\"" << m_placeholder << "\" m_type=\"" << getTypeName(m_type) << "\" m_value_sz=" << m_value_sz << std::endl << std::flush;
+	}
+
 	assert(m_statement);
 	assert(stmtp);
 	assert(errhp);
 	assert(m_value_sz > 0);
-
-	//std::cout << "ParameterValue::bind: " << m_placeholder << " (m_type=" << getTypeName(m_type) << " m_value_sz=" << m_value_sz << ")" << std::endl << std::flush;
 
 	return oci_bind_by_name(stmtp, &m_bindp, errhp, m_placeholder, static_cast<ub2>(m_type), reinterpret_cast<dvoid*>(m_value), m_value_sz, &m_ind);
 }
@@ -372,11 +488,20 @@ ParameterArray::ParameterArray(const std::string& placeholder, DataType type, Di
 	,	m_maxarr_len(0)
 	,	m_curelen(0)
 {
+	if (Environment::debug())
+	{
+		std::cout << "ParameterArray::ParameterArray: m_placeholder=\"" << m_placeholder << "\" type=\"" << getTypeName(type) << "\"" << std::flush << std::endl;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////
 ParameterArray::~ParameterArray()
 {
+	if (Environment::debug())
+	{
+		std::cout << "ParameterArray::~ParameterArray m_placeholder=\"" << m_placeholder << "\"" << std::flush << std::endl;
+	}
+
 	if (m_valuep)
 	{
 		free(m_valuep);
@@ -393,6 +518,11 @@ ParameterArray::~ParameterArray()
 ///////////////////////////////////////////////////////////////////////////
 void ParameterArray::value(std::list<long> list)
 {
+	if (Environment::debug())
+	{
+		std::cout << "ParameterArray::value(std::list<long>) m_placeholder=\"" << m_placeholder << "\" list.size()=" << list.size() << std::flush << std::endl;
+	}
+
 	assert(m_direction == Input);
 	assert(m_type == Integer);
 	assert(list.size() > 0);
@@ -415,7 +545,10 @@ void ParameterArray::value(std::list<long> list)
 ///////////////////////////////////////////////////////////////////////////
 void ParameterArray::value(std::list<std::string> list)
 {
-	//std::cout << "ParameterArray::value: BEGIN" << std::endl << std::flush;
+	if (Environment::debug())
+	{
+		std::cout << "ParameterArray::value(std::list<string>) m_placeholder=\"" << m_placeholder << "\" list.size()=" << list.size() << std::flush << std::endl;
+	}
 
 	assert(m_direction == Input);
 	assert(m_type == String);
@@ -436,8 +569,8 @@ void ParameterArray::value(std::list<std::string> list)
 		}
 	}
 
-	// Add the 0 terminator and reserve space for wchar_t wide characters
-	max_string_size = (max_string_size + 1) * sizeof (wchar_t);
+	// Add the 0 terminator and reserve space for UTF16 characters
+	max_string_size = (max_string_size + 1) * sizeof (oci_text::utf16_char_t);
 
 	// get the size of the value to bind
 	m_value_sz = static_cast<sb4>(max_string_size);
@@ -449,21 +582,23 @@ void ParameterArray::value(std::list<std::string> list)
 	unsigned char* p = reinterpret_cast<unsigned char*>(m_valuep);
 	for (it = list.begin(); it != list.end(); ++it)
 	{
-		std::wstring ws(it->begin(), it->end());
-		memmove(p, ws.c_str(), (ws.length() + 1) * sizeof(wchar_t));
+		/*size_t bytes =*/ oci_text::convert(*it, reinterpret_cast<oci_text::utf16_char_t*>(p), max_string_size);
 		p += max_string_size;
 	}
 
 	// Set the array sizes
 	m_maxarr_len = static_cast<ub4>(LIST_SIZE);
 	m_curelen = m_maxarr_len;
-
-	//std::cout << "ParameterArray::value: END" << std::endl << std::flush;
 }
 
 ///////////////////////////////////////////////////////////////////////////
 sword ParameterArray::bind(OCIStmt* stmtp, OCIError* errhp)
 {
+	if (Environment::debug())
+	{
+		std::cout << "ParameterArray::bind m_placeholder=\"" << m_placeholder << "\" m_type=\"" << getTypeName(m_type) << "\" m_value_sz=" << m_value_sz << std::endl << std::flush;
+	}
+
 	assert(m_statement);
 	assert(stmtp);
 	assert(errhp);
@@ -473,17 +608,18 @@ sword ParameterArray::bind(OCIStmt* stmtp, OCIError* errhp)
 	assert(m_maxarr_len > 0);
 	assert(m_curelen == m_maxarr_len);
 
-	//std::cout << "ParameterArray::bind: " << m_placeholder << " (m_type=" << getTypeName(m_type) << " m_value_sz=" << m_value_sz << ")" << std::endl << std::flush;
-
 	return oci_bind_by_name(stmtp, &m_bindp, errhp, m_placeholder, static_cast<ub2>(m_type), m_valuep, m_value_sz, m_indp, m_maxarr_len, &m_curelen);
 }
 
 ///////////////////////////////////////////////////////////////////////////
 void ParameterArray::allocate(size_t value_size, size_t array_size)
 {
-	assert(array_size > 0);
+	if (Environment::debug())
+	{
+		std::cout << "ParameterArray::allocate m_placeholder=\"" << m_placeholder << "\" value_size=" << value_size << " array_size=" << array_size << std::endl << std::flush;
+	}
 
-	//std::cout << "ParameterArray::allocate: (value_size=" << value_size << " array_size=" << array_size << ")" << std::endl << std::flush;
+	assert(array_size > 0);
 
 	// set the value size
 	m_value_sz = static_cast<sb4>(value_size);

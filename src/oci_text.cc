@@ -58,7 +58,7 @@ oci_text::oci_text(const OraText* text)
 	,	m_size(0)
 {
 	// Allocate m_text
-	const size_t bytes = allocate(stringLength(reinterpret_cast<const void*>(text), sizeof(unsigned short)));
+	const size_t bytes = allocate(stringLength(reinterpret_cast<const void*>(text), sizeof(utf16_char_t)));
 
 	// Copy m_text
 	memmove(m_text, text, bytes);
@@ -97,6 +97,14 @@ oci_text& oci_text::operator=(const oci_text& t)
 	if (this == &t) {
 		return *this;
 	}
+
+	// Free any existing resources
+	if (m_text)
+	{
+		free(m_text);
+	}
+	m_text = 0;
+	m_size = 0;
 
 	// Allocate m_text
 	const size_t bytes = allocate(t.m_size);
@@ -163,10 +171,10 @@ size_t oci_text::allocate(size_t max_size)
 	m_size = max_size;
 
 	// Calculate the buffer size in bytes
-	const size_t bytes = (m_size + 1) * sizeof(unsigned short);
+	const size_t bytes = (m_size + 1) * sizeof(utf16_char_t);
 
 	// Allocate m_text
-	m_text = reinterpret_cast<unsigned short*>(malloc(bytes));
+	m_text = reinterpret_cast<utf16_char_t*>(malloc(bytes));
 	assert(m_text);
 
 	// Initialize buffer
@@ -181,8 +189,31 @@ void oci_text::dump(const std::string& desc) const
 {
 	std::wcout << L"oci_text: m_text=(" << m_text << ") m_size=(" << m_size << ")" << std::endl << std::flush;
 
-	const size_t bytes = (m_size + 1) * sizeof(unsigned short);
+	const size_t bytes = (m_size + 1) * sizeof(utf16_char_t);
 	hexDump(desc.c_str(), reinterpret_cast<const void*>(m_text), static_cast<int>(bytes));
+}
+
+///////////////////////////////////////////////////////////////////////////
+size_t oci_text::convert(const std::wstring& s, utf16_char_t* buffer, size_t max_bytes)
+{
+	// Initialize the buffer
+	memset(buffer, 0, max_bytes);
+
+	// Calculate the number of characters
+	const size_t size = s.size();
+
+	// Calculate the buffer size in bytes
+	const size_t bytes = (size + 1) * sizeof(utf16_char_t);
+	assert(bytes <= max_bytes);
+
+#ifdef USE_LINUX
+	// Convert 4 bytes to 2 bytes
+	copy4to2bytes(reinterpret_cast<const unsigned int*>(s.c_str()), size, buffer, size);
+#else // USE_LINUX
+	memmove(reinterpret_cast<void*>(buffer), reinterpret_cast<const void*>(s.c_str()), bytes);
+#endif // USE_LINUX
+
+	return bytes;
 }
 
 ///////////////////////////////////////////////////////////////////////////

@@ -30,19 +30,24 @@ class ParameterArray;
 class Environment
 {
 public:
-	Environment(int mode = OCI_DEFAULT);
+	Environment(int mode = OCI_DEFAULT, bool debug = false);
 	~Environment();
 
 	OCIEnv* hEnv() const {return m_envhp;}
 
-	static oracleError reportError(int oracleStatus, OCIError* errhp, const std::string& message, const std::string& file, int line, bool debug);
+	static oracleError reportError(int oracleStatus, OCIError* errhp, const std::string& message, const std::string& file, int line);
 
+	static void debug(bool debug) {m_debug = debug;}
+	static bool debug() {return m_debug;}
+	
 private:
 	void create();
 	void destroy();
 
 	sb4					m_mode;
 	OCIEnv*				m_envhp;
+
+	static bool			m_debug;
 
 	// Disable copy/assign
 	Environment(const Environment&);
@@ -67,9 +72,9 @@ public:
 
 	bool hasPool() const {return m_hasPool;}
 
-	oracleError reportError(const std::string& message, const std::string& file, int line, bool debug)
+	oracleError reportError(const std::string& message, const std::string& file, int line)
 	{
-		return Environment::reportError(m_oracle_status, m_errhp, message, file, line, debug);
+		return Environment::reportError(m_oracle_status, m_errhp, message, file, line);
 	}
 
 private:
@@ -79,7 +84,6 @@ private:
 	OraText*			m_poolName;
 	sb4					m_poolNameLen;
 	bool				m_hasPool;
-
 	sword				m_oracle_status;
 
 	// Disable copy/assign
@@ -109,9 +113,9 @@ public:
 	OCIError* hError() const {return m_errhp;}
 	OCISvcCtx* hSvcCtx() const {return m_svchp;}
 
-	oracleError reportError(const std::string& message, const std::string& file, int line, bool debug)
+	oracleError reportError(const std::string& message, const std::string& file, int line)
 	{
-		return Environment::reportError(m_oracle_status, m_errhp, message, file, line, debug);
+		return Environment::reportError(m_oracle_status, m_errhp, message, file, line);
 	}
 
 private:
@@ -146,9 +150,9 @@ public:
 	OCIStmt* hStmt() const {return m_stmtp;}
 	OCIError* hError() const {return m_connection->hError();}
 
-	oracleError reportError(const std::string& message, const std::string& file, int line, bool debug)
+	oracleError reportError(const std::string& message, const std::string& file, int line)
 	{
-		return Environment::reportError(m_oracle_status, m_connection->hError(), message, file, line, debug);
+		return Environment::reportError(m_oracle_status, m_connection->hError(), message, file, line);
 	}
 
 private:
