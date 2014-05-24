@@ -119,8 +119,12 @@ oci_text& oci_text::operator=(const oci_text& t)
 std::wstring oci_text::getWString() const
 {
 #ifdef USE_LINUX
+	// Size in bytes
+	size_t bytes = (m_size + 1) * sizeof(wchar_t);
+
 	// Allocate buffer
-	unsigned int* temp_buffer = reinterpret_cast<unsigned int*>(malloc((m_size + 1) * sizeof(wchar_t)));
+	unsigned int* temp_buffer = reinterpret_cast<unsigned int*>(malloc(bytes));
+	memset(temp_buffer, 0, bytes);
 
 	// Convert 2 bytes to 4 bytes
 	copy2to4bytes(m_text, m_size, temp_buffer, m_size);

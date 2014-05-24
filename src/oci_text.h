@@ -32,7 +32,7 @@ public:
 	oci_text(const oci_text& t) {*this = t;}
 	oci_text& operator=(const oci_text& t);
 
-	OraText* text() const {return reinterpret_cast<OraText*>(m_text);}
+	OraText* text() const {assert(m_text); return reinterpret_cast<OraText*>(m_text);}
 	ub4 size() const {return static_cast<ub4>(m_size * sizeof(utf16_char_t));}
 
 	std::wstring getWString() const;

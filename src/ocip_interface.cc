@@ -387,7 +387,7 @@ bool Statement::bind(OCIBind** bindpp, const std::string& placeholder, ub2 dty, 
 {
 	if (Environment::debug())
 	{
-		std::cout << "ParameterValue::bind: m_placeholder=\"" << placeholder << "\"" << std::flush << std::endl;
+		std::cout << "Statement::bind: m_placeholder=\"" << placeholder << "\"" << std::flush << std::endl;
 	}
 
 	m_oracle_status = oci_bind_by_name(m_stmtp, bindpp, m_connection->hError(), placeholder, dty, valuep, value_sz, indp, maxarr_len, curelen);
@@ -399,13 +399,69 @@ void Statement::addParameter(Parameter* parameter)
 {
 	if (Environment::debug())
 	{
-		std::cout << "ParameterValue::addParameterValue: m_placeholder=\"" << parameter->m_placeholder << "\"" << std::flush << std::endl;
+		std::cout << "Statement::addParameterValue: m_placeholder=\"" << parameter->m_placeholder << "\"" << std::flush << std::endl;
 	}
 
 	parameter->m_statement = this;
 
 	m_parameters.push_back(parameter);
 }
+
+///////////////////////////////////////////////////////////////////////////
+bool Statement::openAndReadLOB(OCILobLocator* locp, std::wstring* lob)
+{
+	if (Environment::debug())
+	{
+		std::cout << "ParameterValue::openAndReadLOB" << std::flush << std::endl;
+	}
+
+	assert(locp);
+	assert(lob);
+
+	// Open CLOB
+	m_oracle_status = oci_open_lob(m_connection->hSvcCtx(), m_connection->hError(), locp);
+	if (m_oracle_status != OCI_SUCCESS)
+	{
+		std::cout << "ERROR in oci_open_lob" << std::flush << std::endl;
+		return false;
+	}
+
+	// Get length of CLOB
+	long lob_length = 0;
+	m_oracle_status = oci_lob_gen_length(m_connection->hSvcCtx(), m_connection->hError(), locp, &lob_length);
+	if (m_oracle_status != OCI_SUCCESS)
+	{
+		std::cout << "ERROR in oci_lob_gen_length" << std::flush << std::endl;
+		return false;
+	}
+
+	// Allocate buffer for CLOB
+	oci_text lob_buffer(lob_length);
+
+	// Read the CLOB
+	ub4 amt		= lob_buffer.size();
+	ub4 buflen	= amt;
+	m_oracle_status = oci_clob_read(m_connection->hSvcCtx(), m_connection->hError(), locp, &amt, 1, reinterpret_cast<void*>(lob_buffer.text()), buflen, OCI_UTF16ID);
+	if (m_oracle_status != OCI_SUCCESS)
+	{
+		std::cout << "ERROR in oci_clob_read: m_oracle_status=" << m_oracle_status << std::flush << std::endl;
+		return false;
+	}
+
+	// Convert into page
+	*lob = lob_buffer.getWString();
+
+	// Close CLOB
+	m_oracle_status = oci_close_lob(m_connection->hSvcCtx(), m_connection->hError(), locp);
+	if (m_oracle_status != OCI_SUCCESS)
+	{
+		std::cout << "ERROR in oci_close_lob" << std::flush << std::endl;
+		return false;
+	}
+
+	return true;
+}
+
 
 ///////////////////////////////////////////////////////////////////////////
 ParameterValue::ParameterValue(const std::string& placeholder, DataType type, Direction direction)

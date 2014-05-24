@@ -155,6 +155,8 @@ public:
 		return Environment::reportError(m_oracle_status, m_connection->hError(), message, file, line);
 	}
 
+	bool openAndReadLOB(OCILobLocator* locp, std::wstring* lob);
+
 private:
 	Connection*			m_connection;
 	OCIStmt*			m_stmtp;

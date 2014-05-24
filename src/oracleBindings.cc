@@ -260,10 +260,13 @@ void OracleBindings::doRequestAfter(uv_work_t* req, int status)
 
 	HandleScope scope;
 
+	// Convert to UTF16
+	oci_text page(rh->page);
+
 	// Prepare arguments
 	Local<Value> argv[3];
-	argv[0] = Local<Value>::New(Null());											//	error
-	argv[1] = String::New(reinterpret_cast<const uint16_t*>(rh->page.c_str()));		//	page content
+	argv[0] = Local<Value>::New(Null());																//	error
+	argv[1] = String::New(reinterpret_cast<const uint16_t*>(page.text()));								//	page content
 
 	// Invoke callback
 	node::MakeCallback(Context::GetCurrent()->Global(), rh->callback, 2, argv);

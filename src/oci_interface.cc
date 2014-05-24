@@ -403,16 +403,16 @@ sword oci_close_lob(OCISvcCtx* svchp, OCIError* errhp, OCILobLocator* locp)
 sword oci_lob_gen_length(OCISvcCtx* svchp, OCIError* errhp, OCILobLocator* locp, long* length)
 {
 	sword status = 0;
-	ub4 l = 0;
+	ub4 lenp = 0;
 
 	status = OCILobGetLength(
 		svchp,					// svchp    (IN/OUT) Service context handle.
 		errhp,					// errhp    (IN/OUT) An error handle you can pass to OCIErrorGet() for diagnostic information in the event of an error.
 		locp,					// locp     (IN/OUT) A locator uniquely referencing the LOB to be freed.
-		(ub4 *) &l				// ???
+		&lenp					// lenp        (OUT) On output, it is the length of the LOB if the LOB is not NULL. For character LOBs, it is the number of characters, for binary LOBs and BFILEs it is the number of bytes in the LOB.
 		);
 
-	*length = static_cast<long>(l);
+	*length = static_cast<long>(lenp);
 
 	return status;
 }
@@ -420,8 +420,6 @@ sword oci_lob_gen_length(OCISvcCtx* svchp, OCIError* errhp, OCILobLocator* locp,
 ///////////////////////////////////////////////////////////////////////////
 sword oci_blob_read(OCISvcCtx* svchp, OCIError* errhp, OCILobLocator *locp, ub4 *amtp, ub4 offset, void *bufp, ub4 buflen)
 {
-	memset(bufp, 0, buflen);
-
 	return OCILobRead(
 		svchp,					// svchp    (IN/OUT) Service context handle.
 		errhp,					// errhp    (IN/OUT) An error handle you can pass to OCIErrorGet() for diagnostic information in the event of an error.
@@ -433,6 +431,24 @@ sword oci_blob_read(OCISvcCtx* svchp, OCIError* errhp, OCILobLocator *locp, ub4 
 		0,						// ctxp         (IN) The context for the callback function. Can be NULL.
 		0,						// cbfp         (IN) A callback that can be registered to be called for each piece. If this is NULL, then OCI_NEED_DATA is returned for each piece.
 		0,						// csid         (IN) The character set ID of the data in the buffer. If this value is 0, then csid is set to the client's NLS_LANG or NLS_CHAR value, depending on the value of csfrm.
+		SQLCS_IMPLICIT			// csfrm        (IN) The character set form of the buffer data. The csfrm parameter must be consistent with the type of the LOB.
+		);
+}
+
+///////////////////////////////////////////////////////////////////////////
+sword oci_clob_read(OCISvcCtx* svchp, OCIError* errhp, OCILobLocator *locp, ub4 *amtp, ub4 offset, void *bufp, ub4 buflen, ub2 csid)
+{
+	return OCILobRead(
+		svchp,					// svchp    (IN/OUT) Service context handle.
+		errhp,					// errhp    (IN/OUT) An error handle you can pass to OCIErrorGet() for diagnostic information in the event of an error.
+		locp,					// locp     (IN/OUT) An internal LOB locator that uniquely references the LOB. This locator must have been a locator that was obtained from the server specified by svchp.
+		amtp,					// amtp     (IN/OUT) The value in amtp is the amount in either bytes or characters.
+		offset,					// offset       (IN) On input, this is the absolute offset from the beginning of the LOB value. For character LOBs (CLOBs, NCLOBs) it is the number of characters from the beginning of the LOB, for binary LOBs or BFILEs it is the number of bytes. The first position is 1.
+		bufp,					// bufp     (IN/OUT) The pointer to a buffer into which the piece is read. The length of the allocated memory is assumed to be bufl.
+		buflen,					// buflen       (IN) The length of the buffer in octets. This value differs from the amtp value for CLOBs and for NCLOBs (csfrm=SQLCS_NCHAR) when the amtp parameter is specified in terms of characters, and the bufl parameter is specified in terms of bytes.
+		0,						// ctxp         (IN) The context for the callback function. Can be NULL.
+		0,						// cbfp         (IN) A callback that can be registered to be called for each piece. If this is NULL, then OCI_NEED_DATA is returned for each piece.
+		csid,					// csid         (IN) The character set ID of the data in the buffer. If this value is 0, then csid is set to the client's NLS_LANG or NLS_CHAR value, depending on the value of csfrm.
 		SQLCS_IMPLICIT			// csfrm        (IN) The character set form of the buffer data. The csfrm parameter must be consistent with the type of the LOB.
 		);
 }
@@ -452,26 +468,6 @@ sword oci_blob_write(OCISvcCtx* svchp, OCIError* errhp, OCILobLocator *locp, ub4
 		0,						// ctxp         (IN) The context for the callback function. Can be NULL.
 		0,						// cbfp         (IN) A callback that can be registered to be called for each piece in a piecewise write. If this is NULL, the standard polling method is used.
 		0,						// csid         (IN) The character set ID of the data in the buffer. If this value is 0, then csid is set to the client's NLS_LANG or NLS_CHAR value, depending on the value of csfrm.
-		SQLCS_IMPLICIT			// csfrm        (IN) The character set form of the buffer data. The csfrm parameter must be consistent with the type of the LOB.
-		);
-}
-
-///////////////////////////////////////////////////////////////////////////
-sword oci_clob_read(OCISvcCtx* svchp, OCIError* errhp, OCILobLocator *locp, ub4 *amtp, ub4 offset, void *bufp, ub4 buflen, ub2 csid)
-{
-	memset(bufp, 0, buflen);
-
-	return OCILobRead(
-		svchp,					// svchp    (IN/OUT) Service context handle.
-		errhp,					// errhp    (IN/OUT) An error handle you can pass to OCIErrorGet() for diagnostic information in the event of an error.
-		locp,					// locp     (IN/OUT) An internal LOB locator that uniquely references the LOB. This locator must have been a locator that was obtained from the server specified by svchp.
-		amtp,					// amtp     (IN/OUT) The value in amtp is the amount in either bytes or characters.
-		offset,					// offset       (IN) On input, this is the absolute offset from the beginning of the LOB value. For character LOBs (CLOBs, NCLOBs) it is the number of characters from the beginning of the LOB, for binary LOBs or BFILEs it is the number of bytes. The first position is 1.
-		bufp,					// bufp     (IN/OUT) The pointer to a buffer into which the piece is read. The length of the allocated memory is assumed to be bufl.
-		buflen,					// buflen       (IN) The length of the buffer in octets. This value differs from the amtp value for CLOBs and for NCLOBs (csfrm=SQLCS_NCHAR) when the amtp parameter is specified in terms of characters, and the bufl parameter is specified in terms of bytes.
-		0,						// ctxp         (IN) The context for the callback function. Can be NULL.
-		0,						// cbfp         (IN) A callback that can be registered to be called for each piece. If this is NULL, then OCI_NEED_DATA is returned for each piece.
-		csid,					// csid         (IN) The character set ID of the data in the buffer. If this value is 0, then csid is set to the client's NLS_LANG or NLS_CHAR value, depending on the value of csfrm.
 		SQLCS_IMPLICIT			// csfrm        (IN) The character set form of the buffer data. The csfrm parameter must be consistent with the type of the LOB.
 		);
 }

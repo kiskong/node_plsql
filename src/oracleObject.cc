@@ -195,7 +195,7 @@ bool OracleObject::requestInit(ocip::Connection* connection, const propertyListT
 
 	if (m_Config.m_debug)
 	{
-		std::cout << "OracleObject::requestInit - BEGIN" << std::endl;
+		std::cout << "OracleObject::requestInit" << std::endl;
 		for (it = cgi.begin(), i = 0; it != cgi.end(); ++it, ++i)
 		{
 			std::cout << "   " << i << ". '" << it->name << "': '" << it->value << "'" << std::endl;
@@ -248,7 +248,7 @@ bool OracleObject::requestRun(ocip::Connection* connection, const std::string& p
 {
 	if (m_Config.m_debug)
 	{
-		std::cout << "OracleObject::requestRun(" << procedure << ") - BEGIN" << std::flush << std::endl;
+		std::cout << "OracleObject::requestRun(" << procedure << ")" << std::flush << std::endl;
 	}
 
 	// Build the proper sql command
@@ -314,7 +314,7 @@ bool OracleObject::requestPage(ocip::Connection* connection, std::wstring* page)
 {
 	if (m_Config.m_debug)
 	{
-		std::cout << "OracleObject::requestPage - BEGIN" << std::flush << std::endl;
+		std::cout << "OracleObject::requestPage" << std::endl << std::flush;
 	}
 
 	sword status = 0;
@@ -352,44 +352,10 @@ bool OracleObject::requestPage(ocip::Connection* connection, std::wstring* page)
 		return false;
 	}
 
-	// Open CLOB
-	status = oci_open_lob(connection->hSvcCtx(), connection->hError(), locp);
-	if (status != OCI_SUCCESS)
+	// Open CLOB and read the contents
+	if (!statement.openAndReadLOB(locp, page))
 	{
-		m_OracleError = ocip::Environment::reportError(status, connection->hError(), "oci_open_lob", __FILE__, __LINE__);
-		return false;
-	}
-
-	// Get length of CLOB
-	long lob_length = 0;
-	status = oci_lob_gen_length(connection->hSvcCtx(), connection->hError(), locp, &lob_length);
-	if (status != OCI_SUCCESS)
-	{
-		m_OracleError = ocip::Environment::reportError(status, connection->hError(), "oci_lob_gen_length", __FILE__, __LINE__);
-		return false;
-	}
-
-	// Allocate buffer for CLOB
-	oci_text lob_buffer(lob_length);
-
-	// Read the CLOB
-	ub4 amt		= lob_length * sizeof(oci_text::utf16_char_t);
-	ub4 buflen	= lob_length * sizeof(oci_text::utf16_char_t);
-	status = oci_clob_read(connection->hSvcCtx(), connection->hError(), locp, &amt, 1, reinterpret_cast<void*>(lob_buffer.text()), buflen, OCI_UTF16ID);
-	if (status != OCI_SUCCESS)
-	{
-		m_OracleError = ocip::Environment::reportError(status, connection->hError(), "oci_clob_read", __FILE__, __LINE__);
-		return false;
-	}
-
-	// Convert into page
-	*page = lob_buffer.getWString();
-
-	// Close CLOB
-	status = oci_close_lob(connection->hSvcCtx(), connection->hError(), locp);
-	if (status != OCI_SUCCESS)
-	{
-		m_OracleError = ocip::Environment::reportError(status, connection->hError(), "oci_close_lob", __FILE__, __LINE__);
+		m_OracleError = statement.reportError("open and read CLOB content", __FILE__, __LINE__);
 		return false;
 	}
 
