@@ -26,14 +26,20 @@
             // The route to be intercepted for this service
             "route": "sample",
 
-            // The Oracle username
-            "username": "sample",
+            // The default page
+            "defaultPage": "",
 
-            // The Oracle password
-            "password": "sample",
+            // The database username
+            "databaseUsername": "sample",
 
-            // The Oracle database name
-            "database": ""
+            // The database password
+            "databasePassword": "sample",
+
+            // The database connect string
+            "databaseConnectString": "",
+
+            // The name of the table for file uploads
+            "documentTableName": "doctable"
         }
     ]
 }

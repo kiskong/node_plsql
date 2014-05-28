@@ -10,6 +10,19 @@ class OracleObject;
 class Config;
 
 ///////////////////////////////////////////////////////////////////////////
+class fileType
+{
+public:
+	fileType() {}
+	fileType(const std::string& name, const std::string& path) : name(name), path(path) {}
+	std::string name;
+	std::string path;
+};
+typedef std::list<fileType> fileListType;
+typedef std::list<fileType>::iterator fileListIteratorType;
+typedef std::list<fileType>::const_iterator fileListConstIteratorType;
+
+///////////////////////////////////////////////////////////////////////////
 class RequestHandle
 {
 public:
@@ -56,7 +69,7 @@ private:
 	static void doRequestAfter(uv_work_t* req, int status);
 
 	// Helper
-	static std::string requestParseArguments(const v8::Arguments& args, std::string* username, std::string* password, std::string* procedure, propertyListType* parameters, propertyListType* cgi, v8::Local<v8::Function>* cb);
+	static std::string requestParseArguments(const v8::Arguments& args, std::string* username, std::string* password, std::string* procedure, propertyListType* parameters, propertyListType* cgi, fileListType* files, v8::Local<v8::Function>* cb);
 	static std::string getConfig(const v8::Arguments& args, Config* config);
 	static inline OracleBindings* getObject(const v8::Arguments& args);
 };
@@ -208,8 +221,9 @@ Handle<Value> OracleBindings::request(const Arguments& args)
 	std::string			procedure;
 	propertyListType	parameters;
 	propertyListType	cgi;
+	fileListType		files;
 	Local<Function>		cb;
-	std::string error = requestParseArguments(args, &username, &password, &procedure, &parameters, &cgi, &cb);
+	std::string error = requestParseArguments(args, &username, &password, &procedure, &parameters, &cgi, &files, &cb);
 	if (!error.empty())
 	{
 		nodeUtilities::ThrowTypeError("OracleBindings::request: " + error);
@@ -281,12 +295,12 @@ void OracleBindings::doRequestAfter(uv_work_t* req, int status)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-std::string OracleBindings::requestParseArguments(const v8::Arguments& args, std::string* username, std::string* password, std::string* procedure, propertyListType* parameters, propertyListType* cgi, Local<Function>* cb)
+std::string OracleBindings::requestParseArguments(const v8::Arguments& args, std::string* username, std::string* password, std::string* procedure, propertyListType* parameters, propertyListType* cgi, fileListType* files, Local<Function>* cb)
 {
 	// Check the number and types of arguments
-	if (args.Length() != 6)
+	if (args.Length() != 7)
 	{
-		return "This function requires exactly 6 arguments!";
+		return "This function requires exactly 7 arguments! (username, password, procedure, args, cgi, files, callback)";
 	}
 
 	//
@@ -371,16 +385,22 @@ std::string OracleBindings::requestParseArguments(const v8::Arguments& args, std
 	// 5) The optional callback function
 	//
 
+	// ...
+
+	//
+	// 6) The optional callback function
+	//
+
 	if (cb)
 	{
-		if (!args[5]->IsFunction())
+		if (!args[6]->IsFunction())
 		{
 			return "The sixt parameter must be the callback function!";
 		}
 		else
 		{
-  			*cb = Local<Function>::Cast(args[5]);
-  		}
+			*cb = Local<Function>::Cast(args[6]);
+		}
 	}
 
 	return "";

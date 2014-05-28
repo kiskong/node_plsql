@@ -18,8 +18,14 @@ GRANT execute on dbms_lock TO &&SAMPLE_USER;
 -- change schema
 ALTER SESSION SET CURRENT_SCHEMA=&&SAMPLE_USER;
 
+-- install document table
+@doc_table.sql
+
 -- install demo
 @sample.pks
 show errors
 @sample.pkb
 show errors
+
+-- show errors
+select * from user_errors;

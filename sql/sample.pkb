@@ -13,6 +13,8 @@ BEGIN
 	htp.p('<li><a href="!sample.pageFlexible?p1=v1'||CHR(38)||'p2=v2'||CHR(38)||'p3=v3">Flexible parameter passing</a></li>');
 	htp.p('<li><a href="sample.pageCGI">CGI</a></li>');
 	htp.p('<li><a href="sample.pageCookie">Cookies</a></li>');
+	htp.p('<li><a href="sample.pageForm">Form</a></li>');
+	htp.p('<li><a href="sample.pageFileUpload">File upload</a></li>');
 	htp.p('<li><a href="sample.pageBlocking">Blocking</a></li>');
 	htp.p('<li><a href="sample.pageRedirect">Redirect</a></li>');
 	htp.p('<li><a href="sample.pageLocation">Change location</a></li>');
@@ -75,6 +77,62 @@ BEGIN
 	htp.p('</table>');
 	closePage();
 END pageCookie;
+
+PROCEDURE pageForm
+IS
+BEGIN
+	openPage('PLSQL-SERVER - Form');
+	htp.p('<form method="POST" action="!sample.pageFormProcess">');
+	htp.p('<table>');
+	htp.p('<tr><td>First name:</td><td><input type="text" name="firstname"></td></tr>');
+	htp.p('<tr><td>Last name:</td><td><input type="text" name="lastname"></td></tr>');
+	htp.p('<tr><td colspan="2"><input type="radio" name="sex" value="male">Male</td></tr>');
+	htp.p('<tr><td colspan="2"><input type="radio" name="sex" value="female">Female</td></tr>');
+	htp.p('<tr><td colspan="2"><input type="checkbox" name="vehicle" value="Bike">I have a bike</td></tr>');
+	htp.p('<tr><td colspan="2"><input type="checkbox" name="vehicle" value="Car">I have a car </td></tr>');
+	htp.p('<tr><td colspan="2"><input type="submit" value="Submit"></td></tr>');
+	htp.p('</table>');
+	htp.p('</form>');
+	closePage();
+END pageForm;
+
+PROCEDURE pageFormProcess(name_array IN owa.vc_arr, value_array IN owa.vc_arr)
+IS
+BEGIN
+	openPage('PLSQL-SERVER - Form processed');
+	htp.p('<table>');
+	htp.p('<tr><th>name</th><th>value</th></tr>');
+	FOR i IN 1 .. name_array.COUNT LOOP
+		htp.p('<tr><td>'||name_array(i)||'</td><td>'||value_array(i)||'</td></tr>');
+	END LOOP;
+	htp.p('</table>');
+	closePage();
+END pageFormProcess;
+
+PROCEDURE pageFileUpload
+IS
+BEGIN
+	openPage('PLSQL-SERVER - File upload');
+	htp.p('<form enctype="multipart/form-data" method="POST" action="!sample.pageFileUploaded">');
+	htp.p('<p>File 1: <input type="file" name="file1" id="file1" /></p>');
+	htp.p('<p>File 2: <input type="file" name="file2" id="file2" /></p>');
+	htp.p('<p><input type="submit" name="submit" value"Upload" /></p>');
+	htp.p('</form>');
+	closePage();
+END pageFileUpload;
+
+PROCEDURE pageFileUploaded(name_array IN owa.vc_arr, value_array IN owa.vc_arr)
+IS
+BEGIN
+	openPage('PLSQL-SERVER - File uploaded');
+	htp.p('<table>');
+	htp.p('<tr><th>name</th><th>value</th></tr>');
+	FOR i IN 1 .. name_array.COUNT LOOP
+		htp.p('<tr><td>'||name_array(i)||'</td><td>'||value_array(i)||'</td></tr>');
+	END LOOP;
+	htp.p('</table>');
+	closePage();
+END pageFileUploaded;
 
 PROCEDURE pageBlocking(secs IN NUMBER DEFAULT 60)
 IS
