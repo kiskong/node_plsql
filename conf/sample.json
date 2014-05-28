@@ -3,27 +3,35 @@
     "server": {
         // The server port to listen at
         "port": 8999,
-        // Use an Oracle connection pool
-        "oracleConnectionPool": true,
-        // Enable debugging the low-level Oracle interface
-        "oracleDebug": false,
+
         // The mapping for servicing static files
         "static": [
             {
                 "mountPath": "/",
                 "physicalDirectory": "./static"
             }
-        ]
+        ],
+
+        // Enable http request logging
+        "requestLogging": true,
+
+        // Use an Oracle connection pool
+        "oracleConnectionPool": true,
+
+        // Enable debugging the low-level Oracle interface
+        "oracleDebug": false
     },
     // Service configuration (used for each individual connection)
-    "services": [
-        {
+    "services": [{
             // The route to be intercepted for this service
             "route": "sample",
+
             // The Oracle username
             "username": "sample",
+
             // The Oracle password
             "password": "sample",
+
             // The Oracle database name
             "database": ""
         }
