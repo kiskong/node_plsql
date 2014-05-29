@@ -1,2 +1,11 @@
+uploads
+coverage
 coverage.html
+*.exe
+*.obj
+*.bak
+*.log
 *.tgz
+_*.*
+
+

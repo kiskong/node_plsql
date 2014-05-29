@@ -13,10 +13,9 @@ inline bool isArgString(const v8::Arguments& args, int index)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline std::string getArgString(const v8::Arguments& args, int index)
+inline bool isArgBoolean(const v8::Arguments& args, int index)
 {
-	v8::String::Utf8Value param(args[index]->ToString());
-	return std::string(*param);
+	return (index >= 0 && index < args.Length() && args[index]->IsBoolean());
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -26,27 +25,28 @@ inline bool isArgInt32(const v8::Arguments& args, int index)
 }
 
 ///////////////////////////////////////////////////////////////////////////
+inline bool isArgObject(const v8::Arguments& args, int index)
+{
+	return (index >= 0 && index < args.Length() && args[index]->IsObject());
+}
+
+///////////////////////////////////////////////////////////////////////////
+inline std::string getArgString(const v8::Arguments& args, int index)
+{
+	v8::String::Utf8Value param(args[index]->ToString());
+	return std::string(*param);
+}
+
+///////////////////////////////////////////////////////////////////////////
 inline int getArgInt32(const v8::Arguments& args, int index)
 {
 	return args[index]->Int32Value();
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline bool isArgBoolean(const v8::Arguments& args, int index)
-{
-	return (index >= 0 && index < args.Length() && args[index]->IsBoolean());
-}
-
-///////////////////////////////////////////////////////////////////////////
 inline bool getArgBoolean(const v8::Arguments& args, int index)
 {
 	return args[index]->BooleanValue();
-}
-
-///////////////////////////////////////////////////////////////////////////
-inline bool isArgObject(const v8::Arguments& args, int index)
-{
-	return (index >= 0 && index < args.Length() && args[index]->IsObject());
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -60,6 +60,27 @@ inline bool getArgObject(const v8::Arguments& args, int index, v8::Local<v8::Obj
 	else
 	{
 		std::cerr << "ERROR in " << __FILE__ << "(" << __LINE__ << "): The argument \"" << index << "\" is not an object!" << std::endl;
+		return false;
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////
+inline bool isArgArray(const v8::Arguments& args, int index)
+{
+	return (index >= 0 && index < args.Length() && args[index]->IsArray());
+}
+
+///////////////////////////////////////////////////////////////////////////
+inline bool getArgArray(const v8::Arguments& args, int index, v8::Local<v8::Array>* array)
+{
+	if (index >= 0 && index < args.Length() && args[index]->IsArray())
+	{
+		*array = v8::Local<v8::Array>::Cast(args[index]);
+		return true;
+	}
+	else
+	{
+		std::cerr << "ERROR in " << __FILE__ << "(" << __LINE__ << "): The argument \"" << index << "\" is not an array!" << std::endl;
 		return false;
 	}
 }
@@ -93,76 +114,70 @@ inline bool isObjNumber(const v8::Local<v8::Object>& object, const std::string& 
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline std::string getObjString(const v8::Local<v8::Object>& object, const std::string& key)
+inline bool getObjString(const v8::Local<v8::Object>& object, const std::string& key, std::string* result)
 {
-	std::string s;
+	assert(result);
 
 	v8::Local<v8::Value> value = object->Get(v8::String::New(key.c_str()));
-	if (value->IsString())
+	if (!value->IsString())
 	{
-		v8::String::Utf8Value utf8String(value);
-		s = std::string(*utf8String);
+		return false;
 	}
-	else
-	{
-		std::cerr << "ERROR in " << __FILE__ << "(" << __LINE__ << "): The key \"" << key << "\" is not a string!" << std::endl;
-	}
+	
+	v8::String::Utf8Value utf8String(value);
+	*result = std::string(*utf8String);
 
-	return s;
+	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline bool getObjBoolean(const v8::Local<v8::Object>& object, const std::string& key)
+inline bool getObjBoolean(const v8::Local<v8::Object>& object, const std::string& key, bool* result)
 {
-	bool b(false);
+	assert(result);
 
 	v8::Local<v8::Value> value = object->Get(v8::String::New(key.c_str()));
-	if (value->IsBoolean())
+	if (!value->IsBoolean())
 	{
-		b = static_cast<int>(value->IsTrue());
-	}
-	else
-	{
-		std::cerr << "ERROR in " << __FILE__ << "(" << __LINE__ << "): The key \"" << key << "\" is not a boolean!" << std::endl;
+		return false;
 	}
 
-	return b;
+	*result = static_cast<int>(value->IsTrue());
+
+	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline int getObjInteger(const v8::Local<v8::Object>& object, const std::string& key)
+inline int getObjInteger(const v8::Local<v8::Object>& object, const std::string& key, long* result)
 {
-	int n(0);
+	assert(result);
 
 	v8::Local<v8::Value> value = object->Get(v8::String::New(key.c_str()));
-	if (value->IsNumber())
+	if (!value->IsNumber())
 	{
-		n = static_cast<int>(value->ToNumber()->Value());
-	}
-	else
-	{
-		std::cerr << "ERROR in " << __FILE__ << "(" << __LINE__ << "): The key \"" << key << "\" is not a number!" << std::endl;
+		return false;
 	}
 
-	return n;
+
+	*result = static_cast<long>(value->ToNumber()->Value());
+
+	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline double getObjNumber(const v8::Local<v8::Object>& object, const std::string& key)
+inline double getObjNumber(const v8::Local<v8::Object>& object, const std::string& key, double* result)
 {
-	double n(0);
+	assert(result);
 
 	v8::Local<v8::Value> value = object->Get(v8::String::New(key.c_str()));
-	if (value->IsNumber())
+	if (!value->IsNumber())
 	{
-		n = static_cast<double>(value->ToNumber()->Value());
-	}
-	else
-	{
-		std::cerr << "ERROR in " << __FILE__ << "(" << __LINE__ << "): The key \"" << key << "\" is not a number!" << std::endl;
+		return false;
 	}
 
-	return n;
+
+	*result = static_cast<double>(value->ToNumber()->Value());
+
+	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////

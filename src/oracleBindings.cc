@@ -13,10 +13,21 @@ class Config;
 class fileType
 {
 public:
-	fileType() {}
-	fileType(const std::string& name, const std::string& path) : name(name), path(path) {}
-	std::string name;
-	std::string path;
+	fileType() : m_size(0) {}
+	fileType(const std::string& fieldname, const std::string& filename, const std::string& path, const std::string& encoding, const std::string& mimetype, double size)
+		:	m_fieldname(fieldname)
+		,	m_filename(filename)
+		,	m_path(path)
+		,	m_encoding(encoding)
+		,	m_mimetype(mimetype)
+		,	m_size(size)
+		{}
+	std::string m_fieldname;
+	std::string m_filename;
+	std::string m_path;
+	std::string m_encoding;
+	std::string m_mimetype;
+	double		m_size;
 };
 typedef std::list<fileType> fileListType;
 typedef std::list<fileType>::iterator fileListIteratorType;
@@ -382,20 +393,97 @@ std::string OracleBindings::requestParseArguments(const v8::Arguments& args, std
 	}
 
 	//
-	// 5) The optional callback function
+	// 5) The array of files to upload
 	//
 
-	// ...
+	if (!nodeUtilities::isArgArray(args, 5))
+	{
+		return "The sixt argument must be an array of objects!";
+	}
+	else
+	{
+		// Get the array
+		Local<Array> array;
+		if (!nodeUtilities::getArgArray(args, 5, &array))
+		{
+			return "The sixt parameter must be an array of objects!";
+		}
+
+		// Get the number of array entries
+		uint32_t length = array->Length();
+
+		// Process the array
+		for (uint32_t i = 0; i < length; i++)
+		{
+			// Get the file object
+			v8::Local<v8::Value> value = array->Get(i);
+			if (!value->IsObject())
+			{
+				return "The sixt parameter must be an array of objects!";
+			}
+
+			// Cast the value to an object
+			v8::Local<Object> object = v8::Local<v8::Object>::Cast(value);
+
+			// Now get the properties of the object
+
+			// "fieldValue"
+			std::string fieldValue;
+			if (!nodeUtilities::getObjString(object, "fieldValue", &fieldValue) || fieldValue.empty())
+			{
+				return "The sixt parameter must be an array of objects with a non-empty string property \"fieldValue\"!";
+			}
+
+			// "filename"
+			std::string filename;
+			if (!nodeUtilities::getObjString(object, "filename", &filename) || filename.empty())
+			{
+				return "The sixt parameter must be an array of objects with a no9n-empty string property \"filename\"!";
+			}
+
+			// "physicalFilename"
+			std::string physicalFilename;
+			if (!nodeUtilities::getObjString(object, "physicalFilename", &physicalFilename) || physicalFilename.empty())
+			{
+				return "The sixt parameter must be an array of objects with a non-empty string property \"physicalFilename\"!";
+			}
+
+			// "encoding"
+			std::string encoding;
+			if (!nodeUtilities::getObjString(object, "encoding", &encoding))
+			{
+				return "The sixt parameter must be an array of objects with a string property \"encoding\"!";
+			}
+
+			// "mimetype"
+			std::string mimetype;
+			if (!nodeUtilities::getObjString(object, "mimetype", &mimetype))
+			{
+				return "The sixt parameter must be an array of objects with a string property \"mimetype\"!";
+			}
+
+			// "size"
+			double size(0);
+			if (!nodeUtilities::getObjNumber(object, "size", &size))
+			{
+				return "The sixt parameter must be an array of objects with a string property \"size\"!";
+			}
+
+			// Add the new file entry
+			fileType file = fileType(fieldValue, filename, physicalFilename, encoding, mimetype, size);
+			files->push_back(file);
+		}
+	}
 
 	//
-	// 6) The optional callback function
+	// 6) The callback function
 	//
 
 	if (cb)
 	{
 		if (!args[6]->IsFunction())
 		{
-			return "The sixt parameter must be the callback function!";
+			return "The seventh parameter must be the callback function!";
 		}
 		else
 		{
@@ -425,34 +513,27 @@ std::string OracleBindings::getConfig(const Arguments& args, Config* config)
 		return "The first parameter must be an object!";
 	}
 
-	// Check the properties
-	if (!nodeUtilities::isObjString(object, "username"))
+	// Get the properties
+	if (!nodeUtilities::getObjString(object, "username", &config->m_username))
 	{
 		return "Object must contain a property 'username' of type string!";
 	}
-	if (!nodeUtilities::isObjString(object, "password"))
+	if (!nodeUtilities::getObjString(object, "password", &config->m_password))
 	{
 		return "Object must contain a property 'password' of type string!";
 	}
-	if (!nodeUtilities::isObjString(object, "database"))
+	if (!nodeUtilities::getObjString(object, "database", &config->m_database))
 	{
 		return "Object must contain a property 'database' of type string!";
 	}
-	if (!nodeUtilities::isObjBoolean(object, "oracleConnectionPool"))
+	if (!nodeUtilities::getObjBoolean(object, "oracleConnectionPool", &config->m_conPool))
 	{
 		return "Object must contain a property 'oracleConnectionPool' of type boolean!";
 	}
-	if (!nodeUtilities::isObjBoolean(object, "oracleDebug"))
+	if (!nodeUtilities::getObjBoolean(object, "oracleDebug", &config->m_debug))
 	{
 		return "Object must contain a property 'oracleDebug' of type boolean!";
 	}
-
-	// Get the properties
-	config->m_username	= nodeUtilities::getObjString(object,	"username");
-	config->m_password	= nodeUtilities::getObjString(object,	"password");
-	config->m_database	= nodeUtilities::getObjString(object,	"database");
-	config->m_conPool	= nodeUtilities::getObjBoolean(object,	"oracleConnectionPool");
-	config->m_debug		= nodeUtilities::getObjBoolean(object,	"oracleDebug");
 
 	//std::cout << "OracleBindings::getConfig" << std::endl << config->asString() << std::endl << std::flush;
 

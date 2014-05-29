@@ -1,4 +1,5 @@
 /build/*
+uploads
 coverage
 coverage.html
 node_modules
