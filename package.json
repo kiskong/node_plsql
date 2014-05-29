@@ -6,6 +6,7 @@
   "bin": {
     "node_plsql": "./bin/node_plsql.js"
   },
+  "preferGlobal": true,
   "main": "./lib/api.js",
   "keywords": [
     "plsql",
@@ -60,35 +61,41 @@
     "RELEASE-GOALS.md"
   ],
   "scripts": {
-    "lint": "node Makefile.js lint",
-    "test": "node Makefile.js test"
+    "lint": "grunt lint",
+    "test": "grunt test"
   },
   "dependencies": {
-    "body-parser": "^1.2.2",
-    "compression": "^1.0.2",
-    "connect-multiparty": "^1.0.4",
-    "cookie-parser": "^1.1.0",
-    "crypto": "^0.0.3",
-    "debug": "^0.8.1",
-    "express": "^4.3.2",
-    "js-yaml": "^3.0.2",
-    "mkdirp": "^0.5.0",
-    "mocha": "^1.20.0",
-    "morgan": "^1.1.1",
-    "nopt": "^2.2.1",
-    "serve-static": "^1.1.0",
-    "strip-json-comments": "^0.1.3",
-    "tough-cookie": "^0.12.1",
-    "underscore": "^1.6.0"
+    "body-parser": "~1.2.2",
+    "compression": "~1.0.2",
+    "connect-multiparty": "~1.0.4",
+    "cookie-parser": "~1.1.0",
+    "debug": "~0.8.1",
+    "express": "~4.3.2",
+    "js-yaml": "~3.0.2",
+    "mkdirp": "~0.5.0",
+    "mocha": "~1.20.0",
+    "morgan": "~1.1.1",
+    "nopt": "~2.2.1",
+    "serve-static": "~1.1.0",
+    "strip-json-comments": "~0.1.3",
+    "tough-cookie": "~0.12.1",
+    "underscore": "~1.6.0"
   },
   "devDependencies": {
-    "shelljs": "^0.3.0",
-    "shelljs-nodecli": "^0.1.1",
-    "mocha": "^1.18.2",
-    "chai": "^1.9.1",
-    "istanbul": "^0.2.8",
-    "jshint": "^2.5.1",
-    "jsonlint": "^1.6.0"
+    "chai": ">=1.9.1",
+    "grunt": ">=0.4.5",
+    "grunt-blanket": ">=0.0.8",
+    "grunt-contrib-clean": ">=0.5.0",
+    "grunt-contrib-copy": ">=0.5.0",
+    "grunt-contrib-jshint": ">=0.10.0",
+    "grunt-contrib-watch": ">=0.6.1",
+    "grunt-jsonlint": ">=1.0.4",
+    "grunt-mocha-test": ">=0.10.2",
+    "travis-cov": ">=0.2.5"
   },
-  "preferGlobal": true
+  "config": {
+    "travis-cov": {
+      "threshold": 80
+    }
+  }
 }

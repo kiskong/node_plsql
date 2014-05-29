@@ -24,7 +24,7 @@ describe('dump', function () {
 
 	describe('when calling dump.divider()', function () {
 		it('should work with defaults', function () {
-			assert.strictEqual(dump.divider(), '------------------------------------------------------------');
+			assert.strictEqual(dump.divider(), '----------------------------------------------------------------------');
 		});
 		it('should work with 1 parameter', function () {
 			assert.strictEqual(dump.divider(10), '----------');
@@ -36,7 +36,7 @@ describe('dump', function () {
 
 	describe('when calling dump.block()', function () {
 		it('it should work with 2 parameters', function () {
-			assert.strictEqual(dump.block('title', 'content'), '-title begin------------------------------------------------\ncontent\n-title end--------------------------------------------------');
+			assert.strictEqual(dump.block('title', 'content'), '-title begin----------------------------------------------------------\ncontent\n-title end------------------------------------------------------------');
 		});
 	});
 

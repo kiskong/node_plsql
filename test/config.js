@@ -23,7 +23,7 @@ var config = require('../lib/config');
 describe('config', function () {
 	'use strict';
 
-	var filePath = './test.json';
+	var filePath = './_mocha.json';
 
 	if (fs.existsSync(filePath)) {
 		fs.unlinkSync(filePath);
@@ -34,11 +34,10 @@ describe('config', function () {
 			config.createSampleConfig(filePath);
 			var obj = config.loadConfig(filePath);
 			assert.isObject(obj);
+			if (fs.existsSync(filePath)) {
+				fs.unlinkSync(filePath);
+			}
 		});
 	});
-
-	if (fs.existsSync(filePath)) {
-		fs.unlinkSync(filePath);
-	}
 
 });
