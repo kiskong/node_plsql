@@ -516,7 +516,7 @@ void ParameterValue::value(const std::string& value)
 	assert(m_type == String);
 
 	// convert
-	m_value_sz = oci_text::convert(value, reinterpret_cast<oci_text::utf16_char_t*>(m_value), sizeof(m_value));
+	m_value_sz = static_cast<sb4>(oci_text::convert(value, reinterpret_cast<oci_text::utf16_char_t*>(m_value), sizeof(m_value)));
 }
 
 ///////////////////////////////////////////////////////////////////////////
