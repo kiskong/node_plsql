@@ -313,6 +313,22 @@ bool Connection::disconnect()
 }
 
 ///////////////////////////////////////////////////////////////////////////
+bool Connection::commit()
+{
+	if (Environment::debug())
+	{
+		std::cout << "Connection::commit" << std::flush << std::endl;
+	}
+
+	assert(isConnected());
+	assert(m_svchp);
+	assert(m_errhp);
+
+	m_oracle_status = oci_commit(m_svchp, m_errhp);
+	return (m_oracle_status == OCI_SUCCESS);
+}
+
+///////////////////////////////////////////////////////////////////////////
 Statement::Statement(Connection* connection)
 	:	m_connection(connection)
 	,	m_stmtp(0)
@@ -351,8 +367,8 @@ bool Statement::prepare(const std::string& sql)
 	{
 		std::string s(sql);
 		replace(s, "\n", "\\n");
-		if (s.size() > 100) {
-			s = s.substr(0, 100) + "...";
+		if (s.size() > 1000) {
+			s = s.substr(0, 1000) + "...";
 		}
 		std::cout << "Statement::prepare: sql=\"" << s << "\"" << std::flush << std::endl;
 	}
@@ -397,6 +413,8 @@ bool Statement::bind(OCIBind** bindpp, const std::string& placeholder, ub2 dty, 
 ///////////////////////////////////////////////////////////////////////////
 void Statement::addParameter(Parameter* parameter)
 {
+	assert(parameter);
+
 	if (Environment::debug())
 	{
 		std::cout << "Statement::addParameterValue: m_placeholder=\"" << parameter->m_placeholder << "\"" << std::flush << std::endl;
@@ -462,6 +480,28 @@ bool Statement::openAndReadLOB(OCILobLocator* locp, std::wstring* lob)
 	return true;
 }
 
+///////////////////////////////////////////////////////////////////////////
+bool Statement::writeBLOB(OCILobLocator* locp, const std::vector<unsigned char>& lob)
+{
+	if (Environment::debug())
+	{
+		std::cout << "ParameterValue::writeBLOB (size=" << lob.size() << ")" << std::flush << std::endl;
+	}
+
+	assert(locp);
+
+	// Write the BLOB
+	ub4 amt		= static_cast<ub4>(lob.size());
+	ub4 buflen	= amt;
+	m_oracle_status = oci_blob_write(m_connection->hSvcCtx(), m_connection->hError(), locp, &amt, 1, const_cast<void*>(reinterpret_cast<const void*>(&lob[0])), buflen, OCI_ONE_PIECE);
+	if (m_oracle_status != OCI_SUCCESS)
+	{
+		std::cout << "ERROR in oci_blob_write: m_oracle_status=" << m_oracle_status << std::flush << std::endl;
+		return false;
+	}
+
+	return true;
+}
 
 ///////////////////////////////////////////////////////////////////////////
 ParameterValue::ParameterValue(const std::string& placeholder, DataType type, Direction direction)

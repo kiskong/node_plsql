@@ -109,6 +109,8 @@ public:
 	bool hasPool() const {return m_poolhp != 0;}
 	bool isConnected() const {return m_isLoggedOn;}
 
+	bool commit();
+
 	OCIEnv* hEnv() const {return m_envhp;}
 	OCIError* hError() const {return m_errhp;}
 	OCISvcCtx* hSvcCtx() const {return m_svchp;}
@@ -156,6 +158,7 @@ public:
 	}
 
 	bool openAndReadLOB(OCILobLocator* locp, std::wstring* lob);
+	bool writeBLOB(OCILobLocator* locp, const std::vector<unsigned char>& lob);
 
 private:
 	Connection*			m_connection;
@@ -205,8 +208,8 @@ public:
 	ParameterValue(const std::string& placeholder, DataType type, Direction direction);
 	virtual ~ParameterValue();
 
-	void value(long value);
-	void value(const std::string& value);
+	virtual void value(long value);
+	virtual void value(const std::string& value);
 
 private:
 	virtual sword bind(OCIStmt* stmtp, OCIError* errhp);
@@ -229,8 +232,8 @@ public:
 	ParameterArray(const std::string& placeholder, DataType type, Direction direction);
 	virtual ~ParameterArray();
 
-	void value(std::list<long> list);
-	void value(std::list<std::string> list);
+	virtual void value(std::list<long> list);
+	virtual void value(std::list<std::string> list);
 
 private:
 	virtual sword bind(OCIStmt* stmtp, OCIError* errhp);

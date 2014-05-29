@@ -8,13 +8,15 @@ v0.0.1 - May 24, 2014
 * support for non-blocking Oracle requests. (Dieter Oberkofler)
 * support for Oracle connection pooling. (Dieter Oberkofler)
 
-v0.0.2 - May ??, 2014
+v0.0.2 - May 29, 2014
 
-* Switched from Makefile to Gruntfile.
-* Added support for parsing multipart-form data requests.
-* Added support for form data requests.
-* Added configuration option "requestLogging" allowing enable/disable the http request logging middleware.
-* update "mocha" to 1.20.0
-* update "strip-json-comments" to 0.1.3
-* update "express" to 4.3.2
-* update "morgan" to 1.1.1
+* 0.0.2 (Dieter Oberkofler)
+* Added support for file uploads. (Dieter Oberkofler)
+* Added support for parsing multipart-form data requests. (Dieter Oberkofler)
+* Added support for form data requests. (Dieter Oberkofler)
+* Added configuration option "requestLogging" allowing enable/disable the http request logging middleware. (Dieter Oberkofler)
+* Switched from Makefile to Gruntfile. (Dieter Oberkofler)
+* update "express" to 4.3.2 (Dieter Oberkofler)
+* update "mocha" to 1.20.0 (Dieter Oberkofler)
+* update "morgan" to 1.1.1 (Dieter Oberkofler)
+* update "strip-json-comments" to 0.1.3 (Dieter Oberkofler)

@@ -25,6 +25,9 @@ sword oci_logon(OCIEnv* envhp, OCIError* errhp, OCISvcCtx** svchp, const std::st
 sword oci_logoff(OCISvcCtx* svchp, OCIError* errhp);
 
 ///////////////////////////////////////////////////////////////////////////
+sword oci_commit(OCISvcCtx* svchp, OCIError* errhp);
+
+///////////////////////////////////////////////////////////////////////////
 sword oci_attribute_set(dvoid* trgthndlp, ub4 trghndltyp, dvoid* attributep, ub4 size, ub4 attrtype, OCIError* errhp);
 
 ///////////////////////////////////////////////////////////////////////////

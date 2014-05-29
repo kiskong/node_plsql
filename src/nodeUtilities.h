@@ -31,22 +31,68 @@ inline bool isArgObject(const v8::Arguments& args, int index)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline std::string getArgString(const v8::Arguments& args, int index)
+inline bool getArgString(const v8::Arguments& args, int index, std::string* result)
 {
-	v8::String::Utf8Value param(args[index]->ToString());
-	return std::string(*param);
+	assert(result);
+
+	v8::Local<v8::Value> value = args[index];
+	if (!value->IsString())
+	{
+		return false;
+	}
+	
+	v8::String::Utf8Value utf8String(value);
+	*result = std::string(*utf8String);
+
+	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline int getArgInt32(const v8::Arguments& args, int index)
+inline bool getArgBoolean(const v8::Arguments& args, int index, bool* result)
 {
-	return args[index]->Int32Value();
+	assert(result);
+
+	v8::Local<v8::Value> value = args[index];
+	if (!value->IsBoolean())
+	{
+		return false;
+	}
+
+	*result = static_cast<int>(value->IsTrue());
+
+	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline bool getArgBoolean(const v8::Arguments& args, int index)
+inline bool getArgInteger(const v8::Arguments& args, int index, long* result)
 {
-	return args[index]->BooleanValue();
+	assert(result);
+
+	v8::Local<v8::Value> value = args[index];
+	if (!value->IsNumber())
+	{
+		return false;
+	}
+
+	*result = static_cast<long>(value->ToNumber()->Value());
+
+	return true;
+}
+
+///////////////////////////////////////////////////////////////////////////
+inline bool getArgInteger(const v8::Arguments& args, int index, double* result)
+{
+	assert(result);
+
+	v8::Local<v8::Value> value = args[index];
+	if (!value->IsNumber())
+	{
+		return false;
+	}
+
+	*result = static_cast<double>(value->ToNumber()->Value());
+
+	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -156,7 +202,6 @@ inline int getObjInteger(const v8::Local<v8::Object>& object, const std::string&
 	{
 		return false;
 	}
-
 
 	*result = static_cast<long>(value->ToNumber()->Value());
 

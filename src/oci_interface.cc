@@ -188,6 +188,16 @@ sword oci_logoff(OCISvcCtx* svchp, OCIError* errhp)
 }
 
 ///////////////////////////////////////////////////////////////////////////
+sword oci_commit(OCISvcCtx* svchp, OCIError* errhp)
+{
+	return OCITransCommit(
+		svchp,					// svchp        (IN) The service context handle.
+		errhp,					// errhp        (IN) An error handle you can pass to OCIErrorGet() for diagnostic information in the event of an error.
+		OCI_DEFAULT				// flags        (IN) A flag used for one-phase commit optimization in global transactions.
+		);
+}
+
+///////////////////////////////////////////////////////////////////////////
 sword oci_attribute_set(dvoid* trgthndlp, ub4 trghndltyp, dvoid* attributep, ub4 size, ub4 attrtype, OCIError* errhp)
 {
 	return OCIAttrSet(

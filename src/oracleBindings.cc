@@ -10,30 +10,6 @@ class OracleObject;
 class Config;
 
 ///////////////////////////////////////////////////////////////////////////
-class fileType
-{
-public:
-	fileType() : m_size(0) {}
-	fileType(const std::string& fieldname, const std::string& filename, const std::string& path, const std::string& encoding, const std::string& mimetype, double size)
-		:	m_fieldname(fieldname)
-		,	m_filename(filename)
-		,	m_path(path)
-		,	m_encoding(encoding)
-		,	m_mimetype(mimetype)
-		,	m_size(size)
-		{}
-	std::string m_fieldname;
-	std::string m_filename;
-	std::string m_path;
-	std::string m_encoding;
-	std::string m_mimetype;
-	double		m_size;
-};
-typedef std::list<fileType> fileListType;
-typedef std::list<fileType>::iterator fileListIteratorType;
-typedef std::list<fileType>::const_iterator fileListConstIteratorType;
-
-///////////////////////////////////////////////////////////////////////////
 class RequestHandle
 {
 public:
@@ -46,6 +22,8 @@ public:
 	std::string						procedure;
 	propertyListType				parameters;
 	propertyListType				cgi;
+	fileListType					files;
+	std::string						doctablename;
 
 	// Results
 	std::wstring					page;
@@ -80,7 +58,7 @@ private:
 	static void doRequestAfter(uv_work_t* req, int status);
 
 	// Helper
-	static std::string requestParseArguments(const v8::Arguments& args, std::string* username, std::string* password, std::string* procedure, propertyListType* parameters, propertyListType* cgi, fileListType* files, v8::Local<v8::Function>* cb);
+	static std::string requestParseArguments(const v8::Arguments& args, std::string* username, std::string* password, std::string* procedure, propertyListType* parameters, propertyListType* cgi, fileListType* files, std::string* doctablename, v8::Local<v8::Function>* cb);
 	static std::string getConfig(const v8::Arguments& args, Config* config);
 	static inline OracleBindings* getObject(const v8::Arguments& args);
 };
@@ -192,21 +170,26 @@ Handle<Value> OracleBindings::executeSync(const Arguments& args)
 	}
 
 	// Get the username
-	std::string username = nodeUtilities::getArgString(args, 0);
-	if (username.empty())
+	std::string username;
+	if (!nodeUtilities::getArgString(args, 0, &username) || username.empty())
 	{
-		nodeUtilities::ThrowError("The username is not allowed to be empty!");
+		nodeUtilities::ThrowError("The parameter username must be a non-empty string!");
 		return scope.Close(Undefined());
 	}
 
 	// Get the password
-	std::string password = nodeUtilities::getArgString(args, 1);
+	std::string password;
+	if (!nodeUtilities::getArgString(args, 1, &password))
+	{
+		nodeUtilities::ThrowError("The parameter password must be a string!");
+		return scope.Close(Undefined());
+	}
 
 	// Get the sql statement
-	std::string sql = nodeUtilities::getArgString(args, 2);
-	if (sql.empty())
+	std::string sql;
+	if (!nodeUtilities::getArgString(args, 2, &sql) || sql.empty())
 	{
-		nodeUtilities::ThrowError("The sql statement is not allowed to be empty!");
+		nodeUtilities::ThrowError("The parameter sql must be a non-empty string!");
 		return scope.Close(Undefined());
 	}
 
@@ -233,8 +216,9 @@ Handle<Value> OracleBindings::request(const Arguments& args)
 	propertyListType	parameters;
 	propertyListType	cgi;
 	fileListType		files;
+	std::string			doctablename;
 	Local<Function>		cb;
-	std::string error = requestParseArguments(args, &username, &password, &procedure, &parameters, &cgi, &files, &cb);
+	std::string error = requestParseArguments(args, &username, &password, &procedure, &parameters, &cgi, &files, &doctablename, &cb);
 	if (!error.empty())
 	{
 		nodeUtilities::ThrowTypeError("OracleBindings::request: " + error);
@@ -252,6 +236,8 @@ Handle<Value> OracleBindings::request(const Arguments& args)
 	rh->procedure		=	procedure;
 	rh->parameters		=	parameters;
 	rh->cgi				=	cgi;
+	rh->files			=	files;
+	rh->doctablename	=	doctablename;
 	rh->callback		=	Persistent<Function>::New(cb);
 
 	// Invoke function on the thread pool
@@ -270,7 +256,7 @@ void OracleBindings::doRequest(uv_work_t* req)
 {
 	RequestHandle* rh = static_cast<RequestHandle*>(req->data);
 
-	if (!rh->oracleObject->request(rh->username, rh->password, rh->cgi, rh->procedure, rh->parameters, &rh->page))
+	if (!rh->oracleObject->request(rh->username, rh->password, rh->cgi, rh->files, rh->doctablename, rh->procedure, rh->parameters, &rh->page))
 	{
 		rh->error = rh->oracleObject->getOracleError().what();
 	}
@@ -306,48 +292,43 @@ void OracleBindings::doRequestAfter(uv_work_t* req, int status)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-std::string OracleBindings::requestParseArguments(const v8::Arguments& args, std::string* username, std::string* password, std::string* procedure, propertyListType* parameters, propertyListType* cgi, fileListType* files, Local<Function>* cb)
+std::string OracleBindings::requestParseArguments(const v8::Arguments& args, std::string* username, std::string* password, std::string* procedure, propertyListType* parameters, propertyListType* cgi, fileListType* files, std::string* doctablename, Local<Function>* cb)
 {
 	// Check the number and types of arguments
-	if (args.Length() != 7)
+	if (args.Length() != 8)
 	{
-		return "This function requires exactly 7 arguments! (username, password, procedure, args, cgi, files, callback)";
+		return "This function requires exactly 8 arguments! (username, password, procedure, args, cgi, files, doctablename, callback)";
 	}
 
 	//
-	// 2) Get username and password
+	// 1) Get username
 	//
 
-	if (!nodeUtilities::isArgString(args, 0))
+	if (!nodeUtilities::getArgString(args, 0, username))
 	{
 		return "The first argument must be a string!";
 	}
-	*username = nodeUtilities::getArgString(args, 0);
 
-	if (!nodeUtilities::isArgString(args, 1))
+	//
+	// 2) Get password
+	//
+
+	if (!nodeUtilities::getArgString(args, 1, password))
 	{
 		return "The second argument must be a string!";
 	}
-	*password = nodeUtilities::getArgString(args, 1);
 
 	//
-	// 2) Get procedure name as first arguments
+	// 3) Get procedure name
 	//
 
-	if (!nodeUtilities::isArgString(args, 2))
+	if (!nodeUtilities::getArgString(args, 2, procedure) || procedure->empty())
 	{
-		return "The third argument must be a string!";
-	}
-
-	*procedure = nodeUtilities::getArgString(args, 2);
-
-	if (procedure->empty())
-	{
-		return "The procedure name is not allowed to be empty!";
+		return "The third argument must be a non-empty string!";
 	}
 
 	//
-	// 3) Get the parameters of the procedure
+	// 4) Get the parameters of the procedure
 	//
 
 	if (!nodeUtilities::isArgObject(args, 3))
@@ -368,7 +349,7 @@ std::string OracleBindings::requestParseArguments(const v8::Arguments& args, std
 	}
 
 	//
-	// 4) Get the CGI environment
+	// 5) Get the CGI environment
 	//
 
 	if (!nodeUtilities::isArgObject(args, 4))
@@ -393,7 +374,7 @@ std::string OracleBindings::requestParseArguments(const v8::Arguments& args, std
 	}
 
 	//
-	// 5) The array of files to upload
+	// 6) The array of files to upload
 	//
 
 	if (!nodeUtilities::isArgArray(args, 5))
@@ -462,33 +443,31 @@ std::string OracleBindings::requestParseArguments(const v8::Arguments& args, std
 				return "The sixt parameter must be an array of objects with a string property \"mimetype\"!";
 			}
 
-			// "size"
-			double size(0);
-			if (!nodeUtilities::getObjNumber(object, "size", &size))
-			{
-				return "The sixt parameter must be an array of objects with a string property \"size\"!";
-			}
-
 			// Add the new file entry
-			fileType file = fileType(fieldValue, filename, physicalFilename, encoding, mimetype, size);
+			fileType file = fileType(fieldValue, filename, physicalFilename, encoding, mimetype);
 			files->push_back(file);
 		}
 	}
 
 	//
-	// 6) The callback function
+	// 7) Get the table name
 	//
 
-	if (cb)
+	if (!nodeUtilities::getArgString(args, 6, doctablename) || doctablename->empty())
 	{
-		if (!args[6]->IsFunction())
-		{
-			return "The seventh parameter must be the callback function!";
-		}
-		else
-		{
-			*cb = Local<Function>::Cast(args[6]);
-		}
+		return "The seventh argument must be a non-empty string!";
+	}
+
+	//
+	// 8) The callback function
+	//
+	if (!args[7]->IsFunction())
+	{
+		return "The eight parameter must be the callback function!";
+	}
+	else
+	{
+		*cb = Local<Function>::Cast(args[7]);
 	}
 
 	return "";
