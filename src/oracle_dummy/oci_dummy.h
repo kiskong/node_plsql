@@ -188,6 +188,24 @@ typedef struct {int d;} OCITrans;
 #define OCI_LOGON2_STMTCACHE   0x0004     /* Use Stmt Caching */
 #define OCI_LOGON2_PROXY       0x0008     /* Proxy authentiaction */
 
+/*----------------------------Piece Definitions------------------------------*/
+
+/* if ocidef.h is being included in the app, ocidef.h should precede oci.h */
+
+/* 
+ * since clients may  use oci.h, ocidef.h and ocidfn.h the following defines
+ * need to be guarded, usually internal clients
+ */
+
+#ifndef OCI_FLAGS
+#define OCI_FLAGS
+#define OCI_ONE_PIECE 0                                         /* one piece */
+#define OCI_FIRST_PIECE 1                                 /* the first piece */
+#define OCI_NEXT_PIECE 2                          /* the next of many pieces */
+#define OCI_LAST_PIECE 3                                   /* the last piece */
+#endif
+/*---------------------------------------------------------------------------*/
+
 // functions
 typedef sb4 (*OCICallbackLobRead)(void  *ctxp, const void  *bufp, ub4 len, ub1 piece);
 typedef sb4 (*OCICallbackLobWrite)(void  *ctxp, void  *bufp, ub4 *lenp, ub1 *piece);
