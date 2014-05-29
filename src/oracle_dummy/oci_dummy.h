@@ -293,4 +293,6 @@ inline sword   OCILogon2 (OCIEnv *envhp, OCIError *errhp, OCISvcCtx **svchp,
 
 inline sword   OCILogoff (OCISvcCtx *svchp, OCIError *errhp) {return OCI_SUCCESS;}
 
+inline sword   OCITransCommit  (OCISvcCtx *svchp, OCIError *errhp, ub4 flags) {return OCI_SUCCESS;}
+
 #endif // OCI_ORACLE_DUMMY_H
