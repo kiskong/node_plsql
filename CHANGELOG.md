@@ -13,5 +13,7 @@ v0.0.2 - May ??, 2014
 * Added support for parsing multipart-form data requests.
 * Added support for form data requests.
 * Added configuration option "requestLogging" allowing enable/disable the http request logging middleware.
-* update "express" to 4.3.1
+* update "mocha" to 1.20.0
+* update "strip-json-comments" to 0.1.3
+* update "express" to 4.3.2
 * update "morgan" to 1.1.1
