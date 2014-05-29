@@ -5,7 +5,7 @@
 ///////////////////////////////////////////////////////////////////////////
 static bool loadFileContent(const std::string filename, std::vector<unsigned char>& fileContents)
 {
-	std::ifstream file(filename, std::ios::in | std::ios::binary);
+	std::ifstream file(filename.c_str(), std::ios_base::in | std::ios_base::binary);
 	if (!file.is_open())
 	{
 		return false;
