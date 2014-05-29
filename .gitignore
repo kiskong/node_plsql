@@ -1,5 +1,6 @@
 /build/*
 coverage
+coverage.html
 node_modules
 *.exe
 *.obj

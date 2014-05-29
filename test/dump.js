@@ -15,6 +15,7 @@
 var assert = require('chai').assert;
 var dump = require('../lib/dump');
 
+var debug = require('debug')('test-dump.js');
 
 //------------------------------------------------------------------------------
 // Tests
@@ -37,6 +38,12 @@ describe('dump', function () {
 	describe('when calling dump.block()', function () {
 		it('it should work with 2 parameters', function () {
 			assert.strictEqual(dump.block('title', 'content'), '-title begin----------------------------------------------------------\ncontent\n-title end------------------------------------------------------------');
+		});
+	});
+
+	describe('when calling dump.debug()', function () {
+		it('it should at least be there and not break', function () {
+			dump.debug('title', 'text\ntext', debug);
 		});
 	});
 
