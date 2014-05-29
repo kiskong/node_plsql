@@ -10,6 +10,7 @@ v0.0.1 - May 24, 2014
 
 v0.0.2 - May ??, 2014
 
+* Switched from Makefile to Gruntfile.
 * Added support for parsing multipart-form data requests.
 * Added support for form data requests.
 * Added configuration option "requestLogging" allowing enable/disable the http request logging middleware.

@@ -1,20 +1,21 @@
 language: node_js
+
 node_js:
-    - "0.10"
-    - "0.11"
+  - "0.10"
+  - "0.11"
 
 env:
-    - USE_ORACLE_DUMMY=1
+  - USE_ORACLE_DUMMY=1
 
 before_script:
-	- npm install -g grunt-cli
+  - npm install -g grunt-cli
 
 script:
-    - "grunt lint"
-    - "grunt test"
+  - "grunt lint"
+  - "grunt test"
 
 install:
-    - npm install
+  - npm install
 
 notifications:
   email:
