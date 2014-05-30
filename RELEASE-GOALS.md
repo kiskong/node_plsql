@@ -14,9 +14,9 @@ This document outlines the high-level goals for each significant milestone relea
 * Add support for file upload.
 
 ## [v0.0.3]
+* Add support for darwin.
+
+## [v0.0.4]
 * Add support for defualt pages.
 * Add support for custom html error messages.
 * Add support for overloaded PL/SQL procedures.
-
-## [v0.0.4]
-* Add support for OSX.

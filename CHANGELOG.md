@@ -20,3 +20,8 @@ v0.0.2 - May 29, 2014
 * update "mocha" to 1.20.0 (Dieter Oberkofler)
 * update "morgan" to 1.1.1 (Dieter Oberkofler)
 * update "strip-json-comments" to 0.1.3 (Dieter Oberkofler)
+
+v0.0.3 - May 30, 2014
+
+* 0.0.3 (Dieter Oberkofler)
+* Add support for darwin. (Dieter Oberkofler)
