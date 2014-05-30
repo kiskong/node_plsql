@@ -25,3 +25,8 @@ v0.0.3 - May 30, 2014
 
 * 0.0.3 (Dieter Oberkofler)
 * Add support for darwin. (Dieter Oberkofler)
+
+v0.0.4 - ??? ??, 2014
+
+* 0.0.4 (Dieter Oberkofler)
+* Add support for default pages. (Dieter Oberkofler)
