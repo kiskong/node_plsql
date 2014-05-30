@@ -18,6 +18,48 @@ See the [installation guide](https://github.com/doberkofler/node_plsql/blob/mast
 * Run `node_plsql --config=sample.json` to start the server.
 * Invoke a browser and open the page `http://localhost:8999/demo/demo.pageIndex`.
 
+## How does a mod_plsql DAD configuration compare to the node_plsql configuration file
+
+```
+<Location /pls/sample>
+  SetHandler                    pls_handler
+  Order                         deny,allow
+  Allow                         from all
+  PlsqlDatabaseUsername         scott
+  PlsqlDatabasePassword         tiger
+  PlsqlDatabaseConnectString    ORCL
+  PlsqlAuthenticationMode       Basic
+  PlsqlDefaultPage              demo.pageindex
+  PlsqlDocumentTablename        doctable
+  PlsqlErrorStyle               DebugStyle
+  PlsqlNlsLanguage              AMERICAN_AMERICA.UTF8
+</Location>
+```
+
+```json
+{
+  "server": {
+    "port": 8999,
+    "static": [{
+        "mountPath": "/",
+        "physicalDirectory": "./static"
+      }
+    ],
+    "requestLogging": true,
+    "oracleConnectionPool": true,
+    "oracleDebug": false
+  },
+  "services": [{
+    "route": "sample",
+    "defaultPage": "demo.pageindex",
+    "databaseUsername": "scott",
+    "databasePassword": "tiger",
+    "databaseConnectString": "ORCL",
+    "documentTableName": "doctable"
+  }]
+}
+```
+
 #Development
 
 ##Debugging
