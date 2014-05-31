@@ -35,7 +35,10 @@ v0.0.4 - May 31, 2014
 * update "compression" to 1.0.3 (Dieter Oberkofler)
 * update "serve-static" to 1.1.0 (Dieter Oberkofler)
 
-v0.0.5 - ??? ??, 2014
+v0.0.5 - May 31, 2014
 
 * 0.0.5 (Dieter Oberkofler)
-* Improve test framework
+* Extracted the database interface and created a shim for testing purposes
+* Added integration test framework
+* Added proper error handling for 404 and 500 error messages
+* Added proper error handling for Oracle error messages

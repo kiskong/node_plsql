@@ -83,6 +83,8 @@ function databaseInvoke(databaseHandle, username, password, procedure, args, cgi
 
 	if (proc === 'samplepage') {
 		callback(null, getPage('sample page'));
+	} else if (proc === 'invalidpage') {
+		callback('procedure not found');
 	}
 }
 
@@ -161,21 +163,19 @@ describe('route-map', function () {
 	});
 
 	describe('GET /invalidRoute', function () {
-		it('it should return the error page', function (done) {
+		it('it should return the 404 page not found error', function (done) {
 			request(app)
 			.get('/invalidRoute')
-			.expect('Cannot GET /invalidRoute\n', done);
+			.expect('<html><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL /invalidRoute was not found.</p></body></html>', done);
 		});
 	});
 
-	/*
 	describe('GET /sampleRoute/invalidPage', function () {
-		it('it should return the error page', function (done) {
+		it('it should return the 404 procedure not found error', function (done) {
 			request(app)
 			.get('/sampleRoute/invalidPage')
-			.expect('Cannot GET /invalidRoute\n', done);
+			.expect('<html><head><title>Failed to parse target procedure</title></head><body><h1>Failed to parse target procedure</h1>\n<p>\nprocedure not found<br/>\n</p>\n</body></html>', done);
 		});
 	});
-	*/
 
 });
