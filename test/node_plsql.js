@@ -39,7 +39,7 @@ var node_plsql = require('../lib/node_plsql');
 function databaseConnect(config)
 {
 	'use strict';
-			
+
 	debug('databaseConnect: \n' + util.inspect(arguments, {showHidden: false, depth: null, colors: true}) + '\"');
 }
 
@@ -89,21 +89,13 @@ function databaseInvoke(databaseHandle, username, password, procedure, args, cgi
 /**
 * Start server
 *
-* @param {Object} databaseHandle Database handle object.
-* @param {String} username Oracle username.
-* @param {String} password Oracle password.
-* @param {String} procedure PL/SQL procedure to execute.
-* @param {Object} args Object with the arguments for the PL/SQL procedure as properties.
-* @param {Array} cgi Array of cgi variables to send for the PL/SQL code.
-* @param {Array} files Array of files to upload.
-* @param {String} doctablename Document table name.
-* @param {Function} callback Callback function (function cb(err, page)) to invoke when done.
+* @return {Object} Express application.
 * @api private
 */
 function startServer()
 {
 	'use strict';
-			
+
 	var config = {
 		server: {
 			port: 8999,
