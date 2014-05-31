@@ -12,6 +12,9 @@
             }
         ],
 
+        // Suppress any console output
+        "suppressOutput": false,
+
         // Enable http request logging
         "requestLogging": true,
 

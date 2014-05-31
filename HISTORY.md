@@ -34,3 +34,8 @@ v0.0.4 - May 31, 2014
 * update "express" to 4.4.0 (Dieter Oberkofler)
 * update "compression" to 1.0.3 (Dieter Oberkofler)
 * update "serve-static" to 1.1.0 (Dieter Oberkofler)
+
+v0.0.5 - ??? ??, 2014
+
+* 0.0.5 (Dieter Oberkofler)
+* Improve test framework

@@ -18,5 +18,10 @@ This document outlines the high-level goals for each significant milestone relea
 
 ## [v0.0.4]
 * Add support for default pages.
+
+## [v0.0.5]
+* Improve test framework
+
+## [v0.0.6]
 * Add support for custom html error messages.
 * Add support for overloaded PL/SQL procedures.

@@ -9,6 +9,7 @@ var config = {
 			mountPath: '/',
 			physicalDirectory: __dirname + '/static'
 		}],
+		suppressOutput: false,
 		requestLogging: true,
 		oracleConnectionPool: true,
 		oracleDebug: false
