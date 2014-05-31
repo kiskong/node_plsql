@@ -38,7 +38,7 @@ v0.0.4 - May 31, 2014
 v0.0.5 - May 31, 2014
 
 * 0.0.5 (Dieter Oberkofler)
-* Extracted the database interface and created a shim for testing purposes
-* Added integration test framework
-* Added proper error handling for 404 and 500 error messages
-* Added proper error handling for Oracle error messages
+* Extracted the database interface and created a shim for testing purposes. (Dieter Oberkofler)
+* Added integration test framework. (Dieter Oberkofler)
+* Added proper error handling for 404 and 500 error messages. (Dieter Oberkofler)
+* Added proper error handling for Oracle error messages. (Dieter Oberkofler)
