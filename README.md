@@ -82,4 +82,4 @@ export DEBUG=*
 This README and the [release goals](https://github.com/doberkofler/node_plsql/blob/master/RELEASE-GOALS.md) are currently the only available documentation.
 
 # Release History
-See the [change log](https://github.com/doberkofler/node_plsql/blob/master/CHANGELOG.md).
+See the [history](https://github.com/doberkofler/node_plsql/blob/master/HISTORY.md).

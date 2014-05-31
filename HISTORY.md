@@ -26,7 +26,11 @@ v0.0.3 - May 30, 2014
 * 0.0.3 (Dieter Oberkofler)
 * Add support for darwin. (Dieter Oberkofler)
 
-v0.0.4 - ??? ??, 2014
+v0.0.4 - May 31, 2014
 
 * 0.0.4 (Dieter Oberkofler)
 * Add support for default pages. (Dieter Oberkofler)
+* Added jscs linting. (Dieter Oberkofler)
+* update "express" to 4.4.0 (Dieter Oberkofler)
+* update "compression" to 1.0.3 (Dieter Oberkofler)
+* update "serve-static" to 1.1.0 (Dieter Oberkofler)

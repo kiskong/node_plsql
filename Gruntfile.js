@@ -3,6 +3,9 @@
 module.exports = function (grunt) {
 	'use strict';
 
+	// Explicitely set the DEBUG environment variable when running grunt
+	process.env.DEBUG = '';
+
 	// Project configuration.
 	grunt.initConfig({
 		clean: {
@@ -26,18 +29,26 @@ module.exports = function (grunt) {
 				dest: 'coverage/lib/'
 			}
 		},
+		jscs: {
+			src: [
+				'Gruntfile.js',
+				'lib/**/*.js',
+				'test/**/*.js'
+			],
+			options: {
+				config: '.jscsrc'
+			}
+		},
 		jshint: {
 			options: {
 				jshintrc: '.jshintrc'
 			},
-			gruntfile: {
-				src: 'Gruntfile.js'
-			},
-			lib: {
-				src: ['lib/**/*.js']
-			},
-			test: {
-				src: ['test/**/*.js']
+			files: {
+				src: [
+					'Gruntfile.js',
+					'lib/**/*.js',
+					'test/**/*.js'
+				]
 			},
 		},
 		jsonlint: {
@@ -89,14 +100,15 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-copy');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-watch');
+	grunt.loadNpmTasks('grunt-jscs-checker');
 	grunt.loadNpmTasks('grunt-jsonlint');
 	grunt.loadNpmTasks('grunt-mocha-test');
 
 	// Default task.
-	grunt.registerTask('default', ['jshint', 'jsonlint', 'clean', 'blanket', 'copy', 'mochaTest']);
+	grunt.registerTask('default', ['lint', 'test']);
 
 	// "lint" task.
-	grunt.registerTask('lint', ['jshint', 'jsonlint']);
+	grunt.registerTask('lint', ['jscs', 'jshint', 'jsonlint']);
 
 	// "test" task.
 	grunt.registerTask('test', ['clean', 'blanket', 'copy', 'mochaTest']);
