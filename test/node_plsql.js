@@ -144,12 +144,38 @@ describe('route-map', function () {
 		});
 	});
 
-	describe('GET /sampleRoute', function () {
-		it('it should return the default page', function (done) {
+	describe('GET /sampleRoute/samplePage?p1=v1', function () {
+		it('it should return the sample page with parameters', function (done) {
 			request(app)
-			.get('/sampleRoute/samplePage')
+			.get('/sampleRoute/samplePage?p1=v1')
 			.expect('sample page', done);
 		});
 	});
+
+	describe('GET /sampleRoute', function () {
+		it('it should return the default page', function (done) {
+			request(app)
+			.get('/sampleRoute')
+			.expect('Moved Temporarily. Redirecting to /sampleRoute/samplePage', done);
+		});
+	});
+
+	describe('GET /invalidRoute', function () {
+		it('it should return the error page', function (done) {
+			request(app)
+			.get('/invalidRoute')
+			.expect('Cannot GET /invalidRoute\n', done);
+		});
+	});
+
+	/*
+	describe('GET /sampleRoute/invalidPage', function () {
+		it('it should return the error page', function (done) {
+			request(app)
+			.get('/sampleRoute/invalidPage')
+			.expect('Cannot GET /invalidRoute\n', done);
+		});
+	});
+	*/
 
 });
