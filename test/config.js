@@ -42,6 +42,8 @@ function fileCopy(from, to)
 {
 	'use strict';
 
+	console.log('Copying file "' + from + '" to "' + to + '"...');
+
 	var content = fs.readFileSync(from);
 	fs.writeFileSync(to, content);
 }
@@ -226,6 +228,7 @@ describe('config', function () {
 
 		// Copy the sample file
 		mkdirp(path.resolve(path.resolve(path.join(__dirname, '../conf'))));
+		fileDelete(SAMPLE_FILE_DST);
 		fileCopy(SAMPLE_FILE_SRC, SAMPLE_FILE_DST);
 
 		it('should create and load a sample configuration file', function () {
@@ -235,8 +238,6 @@ describe('config', function () {
 
 			var obj = config.load(TEST_CONFIGURATION_FILENAME);
 			assert.isObject(obj);
-
-			fileDelete(TEST_CONFIGURATION_FILENAME);
 		});
 
 		it('should throw an error when trying to load an invalid configuration file', function () {
@@ -247,8 +248,6 @@ describe('config', function () {
 			assert.throws(function () {
 				config.load(TEST_CONFIGURATION_FILENAME);
 			});
-
-			fileDelete(TEST_CONFIGURATION_FILENAME);
 		});
 
 		it('should throw an error when trying to create a sample configuration file without name', function () {
@@ -257,8 +256,6 @@ describe('config', function () {
 			assert.throws(function () {
 				config.createSample('undefined_folder/test.json');
 			});
-
-			fileDelete(TEST_CONFIGURATION_FILENAME);
 		});
 
 		it('should not be able to find the sample configuration file', function () {
@@ -271,8 +268,6 @@ describe('config', function () {
 			assert.throws(function () {
 				config.createSample(TEST_CONFIGURATION_FILENAME);
 			});
-
-			fileDelete(TEST_CONFIGURATION_FILENAME);
 		});
 
 	});
