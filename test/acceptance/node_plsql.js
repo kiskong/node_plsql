@@ -92,14 +92,32 @@ function databaseInvoke(databaseHandle, username, password, procedure, args, cgi
 
 	debug('databaseInvoke: \n' + util.inspect(arguments, {showHidden: false, depth: null, colors: true}) + '\"');
 
-	if (proc === 'samplepage') {
-		callback(null, getPage('sample page'));
-	} else if (proc === 'completepage') {
-		callback(null, getPage('complete page', {'Set-Cookie': 'C1=V1'}));
-	} else if (proc === 'invalidpage') {
+	switch (proc) {
+	case 'samplepage':
+		callback(null, getPage('sample page'), {'Content-Type': 'text/html'});
+		break;
+	case 'completepage':
+		callback(null, getPage('complete page', {'Content-Type': 'text/html', 'Set-Cookie': 'C1=V1'}));
+		break;
+	case 'redirect':
+		callback(null, getPage('', {'Location': 'www.google.com'}));
+		break;
+	case 'json':
+		callback(null, getPage('{"name":"johndoe"}', {'Content-Type': 'application/json'}));
+		break;
+	case 'form_urlencoded':
+		callback(null, getPage('{"name":"johndoe"}', {'Content-Type': 'text/html'}));
+		break;
+	case 'multipart_form_data':
+		callback(null, getPage('foo.txt', {'Content-Type': 'text/html'}));
+		break;
+	case 'invalidpage':
 		callback('procedure not found');
-	} else if (proc === 'internalerror') {
+		break;
+	case 'internalerror':
 		throw new Error('internal error');
+	default:
+		break;
 	}
 }
 
@@ -162,58 +180,84 @@ describe('route-map', function () {
 	var app = startServer();
 
 	describe('GET /sampleRoute/samplePage', function () {
-		it('should return the sample page', function (done) {
-			request(app)
-			.get('/sampleRoute/samplePage')
-			.expect('sample page', done);
+		it('GET /sampleRoute/samplePage should return the sample page', function (done) {
+			var test = request(app).get('/sampleRoute/samplePage');
+			test.expect(200, 'sample page', done);
 		});
 	});
 
 	describe('GET /sampleRoute/completePage', function () {
 		it('should return the complete page', function (done) {
-			request(app)
-			.get('/sampleRoute/completePage')
-			.expect('complete page', done);
+			var test = request(app).get('/sampleRoute/completePage?para=value');
+			test.expect(200, 'complete page', done);
 		});
 	});
 
-	describe('GET /sampleRoute/samplePage?p1=v1', function () {
-		it('should return the sample page with parameters', function (done) {
-			request(app)
-			.get('/sampleRoute/samplePage?p1=v1')
-			.expect('sample page', done);
+	describe('GET /sampleRoute/redirect', function () {
+		it('should redirect to another page', function (done) {
+			var test = request(app).get('/sampleRoute/redirect');
+			test.expect(302, done);
+		});
+	});
+
+	describe('GET /sampleRoute/json', function () {
+		it('should parse JSON', function (done) {
+			var test = request(app).get('/sampleRoute/json');
+			test.expect(200, '{"name":"johndoe"}', done);
+		});
+	});
+
+	describe('POST /sampleRoute/form_urlencoded', function () {
+		it('should return a form with fields', function (done) {
+			var test = request(app).post('/sampleRoute/form_urlencoded');
+			test.set('Content-Type', 'application/x-www-form-urlencoded');
+			test.send('name=johndoe');
+			test.expect(200, '{"name":"johndoe"}', done);
+		});
+	});
+
+	describe('POST /sampleRoute/multipart_form_data', function () {
+		it('should return a multipart form with files', function (done) {
+			var test = request(app).post('/sampleRoute/multipart_form_data');
+			test.set('Content-Type', 'multipart/form-data; boundary=foo');
+			test.write('--foo\r\n');
+			test.write('Content-Disposition: form-data; name="user[name]"\r\n');
+			test.write('\r\n');
+			test.write('Tobi');
+			test.write('\r\n--foo\r\n');
+			test.write('Content-Disposition: form-data; name="text"; filename="foo.txt"\r\n');
+			test.write('\r\n');
+			test.write('some text here');
+			test.write('\r\n--foo--');
+			test.expect(200, 'foo.txt', done);
 		});
 	});
 
 	describe('GET /sampleRoute', function () {
 		it('should return the default page', function (done) {
-			request(app)
-			.get('/sampleRoute')
-			.expect('Moved Temporarily. Redirecting to /sampleRoute/samplePage', done);
+			var test = request(app).get('/sampleRoute');
+			test.expect('Moved Temporarily. Redirecting to /sampleRoute/samplePage', done);
 		});
 	});
 
 	describe('GET /invalidRoute', function () {
 		it('should respond with 404', function (done) {
-			request(app)
-			.get('/invalidRoute')
-			.expect('<html><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL /invalidRoute was not found.</p></body></html>', done);
+			var test = request(app).get('/invalidRoute');
+			test.expect(404, '<html><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL /invalidRoute was not found.</p></body></html>', done);
 		});
 	});
 
 	describe('GET /sampleRoute/invalidPage', function () {
 		it('should respond with 404', function (done) {
-			request(app)
-			.get('/sampleRoute/invalidPage')
-			.expect('<html><head><title>Failed to parse target procedure</title></head><body><h1>Failed to parse target procedure</h1>\n<p>\nprocedure not found<br/>\n</p>\n</body></html>', done);
+			var test = request(app).get('/sampleRoute/invalidPage');
+			test.expect(404, '<html><head><title>Failed to parse target procedure</title></head><body><h1>Failed to parse target procedure</h1>\n<p>\nprocedure not found<br/>\n</p>\n</body></html>', done);
 		});
 	});
 
 	describe('GET /sampleRoute/internalError', function () {
 		it('should respond with 500', function (done) {
-			request(app)
-			.get('/sampleRoute/internalError')
-			.expect('{}', done);
+			var test = request(app).get('/sampleRoute/internalError');
+			test.expect(500, '{}', done);
 		});
 	});
 
