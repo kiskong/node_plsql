@@ -153,6 +153,8 @@ describe('config', function () {
 		});
 	});
 
+	/*
+
 	describe('when creating a new configuration file', function () {
 		var SAMPLE_FILE_SRC = path.resolve(path.join(__dirname, '../../conf/sample.json')),
 			SAMPLE_FILE_DST = path.resolve(path.join(__dirname, '../conf/sample.json')),
@@ -217,5 +219,7 @@ describe('config', function () {
 		});
 
 	});
+
+	*/
 
 });
