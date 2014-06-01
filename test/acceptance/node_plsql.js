@@ -46,14 +46,26 @@ function databaseConnect(config)
 * Get database page
 *
 * @param {String} body Page body.
+* @param {Object} header Header object where the properties are the header names.
 * @return {String} Text returned by database engine.
 * @api private
 */
-function getPage(body)
+function getPage(body, header)
 {
 	'use strict';
 
-	var text = 'Content-type: text/html; charset=UTF-8\nX-DB-Content-length: ' + body.length + '\n\n' + body;
+	var text = '',
+		name;
+
+	if (header) {
+		for (name in header) {
+			if (header.hasOwnProperty(name)) {
+				text += name + ': ' + header[name] + '\n';
+			}
+		}
+	}
+
+	text += 'Content-type: text/html; charset=UTF-8\nX-DB-Content-length: ' + body.length + '\n\n' + body;
 
 	return text;
 }
@@ -82,8 +94,12 @@ function databaseInvoke(databaseHandle, username, password, procedure, args, cgi
 
 	if (proc === 'samplepage') {
 		callback(null, getPage('sample page'));
+	} else if (proc === 'completepage') {
+		callback(null, getPage('complete page', {'Set-Cookie': 'C1=V1'}));
 	} else if (proc === 'invalidpage') {
 		callback('procedure not found');
+	} else if (proc === 'internalerror') {
+		throw new Error('internal error');
 	}
 }
 
@@ -146,15 +162,23 @@ describe('route-map', function () {
 	var app = startServer();
 
 	describe('GET /sampleRoute/samplePage', function () {
-		it('it should return the sample page', function (done) {
+		it('should return the sample page', function (done) {
 			request(app)
 			.get('/sampleRoute/samplePage')
 			.expect('sample page', done);
 		});
 	});
 
+	describe('GET /sampleRoute/completePage', function () {
+		it('should return the complete page', function (done) {
+			request(app)
+			.get('/sampleRoute/completePage')
+			.expect('complete page', done);
+		});
+	});
+
 	describe('GET /sampleRoute/samplePage?p1=v1', function () {
-		it('it should return the sample page with parameters', function (done) {
+		it('should return the sample page with parameters', function (done) {
 			request(app)
 			.get('/sampleRoute/samplePage?p1=v1')
 			.expect('sample page', done);
@@ -162,7 +186,7 @@ describe('route-map', function () {
 	});
 
 	describe('GET /sampleRoute', function () {
-		it('it should return the default page', function (done) {
+		it('should return the default page', function (done) {
 			request(app)
 			.get('/sampleRoute')
 			.expect('Moved Temporarily. Redirecting to /sampleRoute/samplePage', done);
@@ -170,7 +194,7 @@ describe('route-map', function () {
 	});
 
 	describe('GET /invalidRoute', function () {
-		it('it should return the 404 page not found error', function (done) {
+		it('should respond with 404', function (done) {
 			request(app)
 			.get('/invalidRoute')
 			.expect('<html><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL /invalidRoute was not found.</p></body></html>', done);
@@ -178,10 +202,18 @@ describe('route-map', function () {
 	});
 
 	describe('GET /sampleRoute/invalidPage', function () {
-		it('it should return the 404 procedure not found error', function (done) {
+		it('should respond with 404', function (done) {
 			request(app)
 			.get('/sampleRoute/invalidPage')
 			.expect('<html><head><title>Failed to parse target procedure</title></head><body><h1>Failed to parse target procedure</h1>\n<p>\nprocedure not found<br/>\n</p>\n</body></html>', done);
+		});
+	});
+
+	describe('GET /sampleRoute/internalError', function () {
+		it('should respond with 500', function (done) {
+			request(app)
+			.get('/sampleRoute/internalError')
+			.expect('{}', done);
 		});
 	});
 

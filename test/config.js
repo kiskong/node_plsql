@@ -228,7 +228,7 @@ describe('config', function () {
 		mkdirp(path.resolve(path.resolve(path.join(__dirname, '../conf'))));
 		fileCopy(SAMPLE_FILE_SRC, SAMPLE_FILE_DST);
 
-		it('should create a sample configuration file', function () {
+		it('should create and load a sample configuration file', function () {
 			fileDelete(TEST_CONFIGURATION_FILENAME);
 
 			config.createSample(TEST_CONFIGURATION_FILENAME);
@@ -239,7 +239,19 @@ describe('config', function () {
 			fileDelete(TEST_CONFIGURATION_FILENAME);
 		});
 
-		it('should not be able to create a sample configuration file without name', function () {
+		it('should throw an error when trying to load an invalid configuration file', function () {
+			fileDelete(TEST_CONFIGURATION_FILENAME);
+
+			fs.writeFileSync(TEST_CONFIGURATION_FILENAME, '[this is no valid jason or yaml file}');
+
+			assert.throws(function () {
+				config.load(TEST_CONFIGURATION_FILENAME);
+			});
+
+			fileDelete(TEST_CONFIGURATION_FILENAME);
+		});
+
+		it('should throw an error when trying to create a sample configuration file without name', function () {
 			fileDelete(TEST_CONFIGURATION_FILENAME);
 
 			assert.throws(function () {
