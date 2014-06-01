@@ -16,7 +16,7 @@
 var debug = require('debug')('test/node_plsql');
 var request = require('supertest');
 var util = require('util');
-var node_plsql = require('../lib/node_plsql');
+var node_plsql = require('../../lib/node_plsql');
 
 
 /**
@@ -117,6 +117,14 @@ function startServer()
 			databasePassword: 'samplePassword',
 			databaseConnectString: 'sampleConnectString',
 			documentTableName: 'sampleDoctable'
+		},
+		{
+			route: 'secondRoute',
+			defaultPage: 'secondPage',
+			databaseUsername: 'secondUsername',
+			databasePassword: 'secondPassword',
+			databaseConnectString: 'sampleConnectString',
+			documentTableName: 'secondDoctable'
 		}],
 		callbacks: {
 			databaseConnect: databaseConnect,

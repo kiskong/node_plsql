@@ -19,7 +19,7 @@ module.exports = function (grunt) {
 				dest: 'coverage/'
 			},
 			needed_files_for_tests: {
-				src: ['package.json', 'conf/*'],
+				src: ['package.json'],
 				dest: 'coverage/'
 			}
 		},

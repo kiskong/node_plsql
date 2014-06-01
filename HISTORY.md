@@ -42,3 +42,7 @@ v0.0.5 - May 31, 2014
 * Added integration test framework. (Dieter Oberkofler)
 * Added proper error handling for 404 and 500 error messages. (Dieter Oberkofler)
 * Added proper error handling for Oracle error messages. (Dieter Oberkofler)
+
+v0.0.6 - ??? ??, 2014
+
+* 0.0.6 (Dieter Oberkofler)
