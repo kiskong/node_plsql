@@ -8,9 +8,9 @@
 /* global describe: false, it:false */
 
 
-//------------------------------------------------------------------------------
-// Requirements
-//------------------------------------------------------------------------------
+/**
+* Module dependencies.
+*/
 
 var fs = require('fs');
 var path = require('path');
@@ -19,6 +19,25 @@ var config = require('../lib/config');
 var mkdirp = require('mkdirp');
 
 
+/**
+* Module constants.
+*/
+
+var TEST_CONFIGURATION_FILENAME = '_mocha.json';
+
+
+/**
+* Module variables.
+*/
+
+
+/**
+* File copy
+*
+* @param {String} from Source file.
+* @param {String} to Destination file.
+* @api private
+*/
 function fileCopy(from, to)
 {
 	'use strict';
@@ -27,10 +46,53 @@ function fileCopy(from, to)
 	fs.writeFileSync(to, content);
 }
 
+/**
+* File delete
+*
+* @param {String} filename Filename.
+* @api private
+*/
+function fileDelete(filename)
+{
+	'use strict';
 
-//------------------------------------------------------------------------------
-// Tests
-//------------------------------------------------------------------------------
+	if (fs.existsSync(filename)) {
+		fs.unlinkSync(filename);
+	}
+}
+
+/**
+* Make the given filename absolute
+*
+* @param {String} filename Relative filename.
+* @return {String} Absolute file path relative to the directory where this script resides.
+* @api private
+*/
+function absoluteFilename(filename)
+{
+	'use strict';
+
+	return path.resolve(path.join(__dirname, filename));
+}
+
+/**
+* Copy the sample configuration file
+*
+* @param {String} filename Relative filename.
+* @return {String} Absolute file path relative to the directory where this script resides.
+* @api private
+*/
+function absoluteFilename(filename)
+{
+	'use strict';
+
+	return path.resolve(path.join(__dirname, filename));
+}
+
+
+/**
+* Tests.
+*/
 describe('config', function () {
 	'use strict';
 
@@ -153,12 +215,9 @@ describe('config', function () {
 		});
 	});
 
-	/*
-
 	describe('when creating a new configuration file', function () {
-		var SAMPLE_FILE_SRC = path.resolve(path.join(__dirname, '../../conf/sample.json')),
-			SAMPLE_FILE_DST = path.resolve(path.join(__dirname, '../conf/sample.json')),
-			FILE_PATH = '_mocha.json';
+		var SAMPLE_FILE_SRC = absoluteFilename('../../conf/sample.json'),
+			SAMPLE_FILE_DST = absoluteFilename('../conf/sample.json');
 
 		// Delete the sample configuration file
 		if (fs.existsSync(SAMPLE_FILE_DST)) {
@@ -169,57 +228,41 @@ describe('config', function () {
 		mkdirp(path.resolve(path.resolve(path.join(__dirname, '../conf'))));
 		fileCopy(SAMPLE_FILE_SRC, SAMPLE_FILE_DST);
 
-		// Remove any remaining test files
-		if (fs.existsSync(FILE_PATH)) {
-			fs.unlinkSync(FILE_PATH);
-		}
-
 		it('should create a sample configuration file', function () {
-			if (fs.existsSync(FILE_PATH)) {
-				fs.unlinkSync(FILE_PATH);
-			}
+			fileDelete(TEST_CONFIGURATION_FILENAME);
 
-			config.createSample(FILE_PATH);
+			config.createSample(TEST_CONFIGURATION_FILENAME);
 
-			var obj = config.load(FILE_PATH);
+			var obj = config.load(TEST_CONFIGURATION_FILENAME);
 			assert.isObject(obj);
 
-			if (fs.existsSync(FILE_PATH)) {
-				fs.unlinkSync(FILE_PATH);
-			}
+			fileDelete(TEST_CONFIGURATION_FILENAME);
 		});
 
 		it('should not be able to create a sample configuration file without name', function () {
-			if (fs.existsSync(FILE_PATH)) {
-				fs.unlinkSync(FILE_PATH);
-			}
+			fileDelete(TEST_CONFIGURATION_FILENAME);
 
 			assert.throws(function () {
 				config.createSample('undefined_folder/test.json');
 			});
 
-			if (fs.existsSync(FILE_PATH)) {
-				fs.unlinkSync(FILE_PATH);
-			}
+			fileDelete(TEST_CONFIGURATION_FILENAME);
 		});
 
 		it('should not be able to find the sample configuration file', function () {
-			// Delete the sample configuration file
+			fileDelete(TEST_CONFIGURATION_FILENAME);
+
 			if (fs.existsSync(SAMPLE_FILE_DST)) {
 				fs.unlinkSync(SAMPLE_FILE_DST);
 			}
 
 			assert.throws(function () {
-				config.createSample(FILE_PATH);
+				config.createSample(TEST_CONFIGURATION_FILENAME);
 			});
 
-			if (fs.existsSync(FILE_PATH)) {
-				fs.unlinkSync(FILE_PATH);
-			}
+			fileDelete(TEST_CONFIGURATION_FILENAME);
 		});
 
 	});
-
-	*/
 
 });

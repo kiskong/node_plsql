@@ -12,7 +12,6 @@
 * Module dependencies.
 */
 
-//var assert = require('chai').assert;
 var debug = require('debug')('test/node_plsql');
 var request = require('supertest');
 var util = require('util');
