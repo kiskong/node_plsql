@@ -15,6 +15,7 @@
 var assert = require('chai').assert;
 var utilities = require('../lib/utilities');
 
+var mkdirp = require('mkdirp');
 var path = require('path');
 var fs = require('fs');
 
@@ -49,8 +50,15 @@ describe('fileCopy', function () {
 	'use strict';
 
 	describe('when copying an existing file', function () {
-		var SRC = 'test.old',
-			DST = 'test.new';
+		var SRC = 'temp/test.old',
+			DST = 'temp/test.new';
+
+		mkdirp('temp', function (err) {
+			/* istanbul ignore if */
+			if (err) {
+				throw err;
+			}
+		});
 
 		utilities.fileDelete(SRC);
 		utilities.fileDelete(DST);

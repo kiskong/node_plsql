@@ -1,4 +1,5 @@
-/build/*
+build
+temp
 uploads
 coverage
 coverage.html
@@ -9,4 +10,3 @@ node_modules
 *.log
 *.tgz
 _*.*
-test.*

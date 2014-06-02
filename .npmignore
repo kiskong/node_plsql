@@ -1,3 +1,4 @@
+temp
 uploads
 coverage
 coverage.html
@@ -7,4 +8,3 @@ coverage.html
 *.log
 *.tgz
 _*.*
-test.*
