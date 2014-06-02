@@ -7,5 +7,4 @@ coverage.html
 *.log
 *.tgz
 _*.*
-
-
+test.*
