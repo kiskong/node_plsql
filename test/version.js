@@ -8,9 +8,9 @@
 /* global describe: false, it:false */
 
 
-//------------------------------------------------------------------------------
-// Requirements
-//------------------------------------------------------------------------------
+/**
+* Module dependencies.
+*/
 
 var assert = require('chai').assert;
 var version = require('../lib/version');
@@ -18,9 +18,20 @@ var version = require('../lib/version');
 var path = require('path');
 var fs = require('fs');
 
-//------------------------------------------------------------------------------
-// Tests
-//------------------------------------------------------------------------------
+
+/**
+* Module constants.
+*/
+
+
+/**
+* Module variables.
+*/
+
+
+/**
+* Tests.
+*/
 describe('version', function () {
 	'use strict';
 

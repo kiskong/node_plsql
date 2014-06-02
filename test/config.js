@@ -13,10 +13,9 @@
 */
 
 var fs = require('fs');
-var path = require('path');
 var assert = require('chai').assert;
+var utilities = require('../lib/utilities');
 var config = require('../lib/config');
-var mkdirp = require('mkdirp');
 
 
 /**
@@ -29,67 +28,6 @@ var TEST_CONFIGURATION_FILENAME = '_mocha.json';
 /**
 * Module variables.
 */
-
-
-/**
-* File copy
-*
-* @param {String} from Source file.
-* @param {String} to Destination file.
-* @api private
-*/
-function fileCopy(from, to)
-{
-	'use strict';
-
-	console.log('Copying file "' + from + '" to "' + to + '"...');
-
-	var content = fs.readFileSync(from);
-	fs.writeFileSync(to, content);
-}
-
-/**
-* File delete
-*
-* @param {String} filename Filename.
-* @api private
-*/
-function fileDelete(filename)
-{
-	'use strict';
-
-	if (fs.existsSync(filename)) {
-		fs.unlinkSync(filename);
-	}
-}
-
-/**
-* Make the given filename absolute
-*
-* @param {String} filename Relative filename.
-* @return {String} Absolute file path relative to the directory where this script resides.
-* @api private
-*/
-function absoluteFilename(filename)
-{
-	'use strict';
-
-	return path.resolve(path.join(__dirname, filename));
-}
-
-/**
-* Copy the sample configuration file
-*
-* @param {String} filename Relative filename.
-* @return {String} Absolute file path relative to the directory where this script resides.
-* @api private
-*/
-function absoluteFilename(filename)
-{
-	'use strict';
-
-	return path.resolve(path.join(__dirname, filename));
-}
 
 
 /**
@@ -218,27 +156,9 @@ describe('config', function () {
 	});
 
 	describe('when creating a new configuration file', function () {
-		/*
-		var SAMPLE_FILE_SRC = absoluteFilename('../../conf/sample.json'),
-			SAMPLE_FILE_DST = absoluteFilename('../conf/sample.json');
-
-		// Delete the sample configuration file
-		if (fs.existsSync(SAMPLE_FILE_DST)) {
-			fs.unlinkSync(SAMPLE_FILE_DST);
-		}
-
-		console.log('==========> __dirname=(' + __dirname + ')');
-		console.log('==========> SAMPLE_FILE_SRC=(' + SAMPLE_FILE_SRC + ')');
-		console.log('==========> SAMPLE_FILE_DST=(' + SAMPLE_FILE_DST + ')');
-
-		// Copy the sample file
-		mkdirp(path.resolve(path.resolve(path.join(__dirname, '../conf'))));
-		fileDelete(SAMPLE_FILE_DST);
-		fileCopy(SAMPLE_FILE_SRC, SAMPLE_FILE_DST);
-		*/
 
 		it('should create and load a sample configuration file', function () {
-			fileDelete(TEST_CONFIGURATION_FILENAME);
+			utilities.fileDelete(TEST_CONFIGURATION_FILENAME);
 
 			config.createSample(TEST_CONFIGURATION_FILENAME);
 
@@ -247,7 +167,7 @@ describe('config', function () {
 		});
 
 		it('should throw an error when trying to load an invalid configuration file', function () {
-			fileDelete(TEST_CONFIGURATION_FILENAME);
+			utilities.fileDelete(TEST_CONFIGURATION_FILENAME);
 
 			fs.writeFileSync(TEST_CONFIGURATION_FILENAME, '[this is no valid jason or yaml file}');
 
@@ -257,26 +177,23 @@ describe('config', function () {
 		});
 
 		it('should throw an error when trying to create a sample configuration file without name', function () {
-			fileDelete(TEST_CONFIGURATION_FILENAME);
+			utilities.fileDelete(TEST_CONFIGURATION_FILENAME);
 
 			assert.throws(function () {
 				config.createSample('undefined_folder/test.json');
 			});
 		});
 
-		/*
 		it('should not be able to find the sample configuration file', function () {
-			fileDelete(TEST_CONFIGURATION_FILENAME);
+			utilities.fileDelete(TEST_CONFIGURATION_FILENAME);
 
-			if (fs.existsSync(SAMPLE_FILE_DST)) {
-				fs.unlinkSync(SAMPLE_FILE_DST);
-			}
+			var original = config.setSampleFilename('this_does_not_exist_for_sure');
 
 			assert.throws(function () {
 				config.createSample(TEST_CONFIGURATION_FILENAME);
+				config.setSampleFilename(original);
 			});
 		});
-		*/
 
 	});
 
