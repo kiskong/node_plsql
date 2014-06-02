@@ -13,7 +13,7 @@
 */
 
 var debug = require('debug')('test/node_plsql');
-//var assert = require('chai').assert;
+var assert = require('chai').assert;
 var request = require('supertest');
 var util = require('util');
 var node_plsql = require('../lib/node_plsql');
@@ -175,19 +175,17 @@ function startServer()
 * Tests.
 */
 
-/*
 describe('start server', function () {
 	'use strict';
 
 	describe('with an invalid configuration', function () {
-		it('throws an exception', function (done) {
+		it('throws an exception', function () {
 			assert.throws(function () {
 				node_plsql.start({});
 			});
 		});
 	});
 });
-*/
 
 describe('route-map', function () {
 	'use strict';

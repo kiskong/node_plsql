@@ -31,6 +31,52 @@ var TEST_CONFIGURATION_FILENAME = '_mocha.json';
 
 
 /**
+* Return a valid configuration object
+*
+* @return {Object}
+* @api private
+*/
+function getValidConf()
+{
+	'use strict';
+
+	return {
+		server: {
+			port: 8999,
+			static: [{
+				mountPath: '/',
+				physicalDirectory: __dirname + '/static'
+			}],
+			suppressOutput: true,
+			requestLogging: true,
+			oracleConnectionPool: true,
+			oracleDebug: false
+		},
+		services: [{
+			route: 'sampleRoute',
+			defaultPage: 'samplePage',
+			databaseUsername: 'sampleUsername',
+			databasePassword: 'samplePassword',
+			databaseConnectString: 'sampleConnectString',
+			documentTableName: 'sampleDoctable'
+		},
+		{
+			route: 'secondRoute',
+			defaultPage: 'secondPage',
+			databaseUsername: 'secondUsername',
+			databasePassword: 'secondPassword',
+			databaseConnectString: 'sampleConnectString',
+			documentTableName: 'secondDoctable'
+		}],
+		callbacks: {
+			databaseConnect: function () {},
+			databaseInvoke: function () {}
+		}
+	};
+}
+
+
+/**
 * Tests.
 */
 describe('config', function () {
@@ -38,124 +84,53 @@ describe('config', function () {
 
 	describe('when validating a configuration', function () {
 		it('is a valid configuration', function () {
-			var TEST_CONF = {
-				server: {
-					port: 8999,
-					static: [{
-						mountPath: '/',
-						physicalDirectory: __dirname + '/static'
-					}],
-					suppressOutput: true,
-					requestLogging: true,
-					oracleConnectionPool: true,
-					oracleDebug: false
-				},
-				services: [{
-					route: 'sampleRoute',
-					defaultPage: 'samplePage',
-					databaseUsername: 'sampleUsername',
-					databasePassword: 'samplePassword',
-					databaseConnectString: 'sampleConnectString',
-					documentTableName: 'sampleDoctable'
-				},
-				{
-					route: 'secondRoute',
-					defaultPage: 'secondPage',
-					databaseUsername: 'secondUsername',
-					databasePassword: 'secondPassword',
-					databaseConnectString: 'sampleConnectString',
-					documentTableName: 'secondDoctable'
-				}],
-				callbacks: {
-					databaseConnect: function () {},
-					databaseInvoke: function () {}
-				}
-			};
+			var conf = getValidConf();
 
-			assert.strictEqual(config.validate(TEST_CONF), undefined);
+			assert.strictEqual(config.validate(conf), undefined);
 		});
 
 		it('is an invalid configuration because of the missing port', function () {
-			var TEST_CONF = {
-				server: {
-				},
-				services: [{
-					route: 'sampleRoute',
-					defaultPage: 'samplePage',
-					databaseUsername: 'sampleUsername',
-					databasePassword: 'samplePassword',
-					databaseConnectString: 'sampleConnectString',
-					documentTableName: 'sampleDoctable'
-				}]
-			};
+			var conf = getValidConf();
 
-			assert.strictEqual(config.validate(TEST_CONF), 'Configuration object must containt a numeric property "server.port"');
+			delete conf.server.port;
+			assert.strictEqual(config.validate(conf), 'Configuration object must containt a numeric property "server.port"');
 		});
 
 		it('is an invalid configuration because of the port that is not of type number', function () {
-			var TEST_CONF = {
-				server: {
-					port: true,
-				},
-				services: [{
-					route: 'sampleRoute',
-					defaultPage: 'samplePage',
-					databaseUsername: 'sampleUsername',
-					databasePassword: 'samplePassword',
-					databaseConnectString: 'sampleConnectString',
-					documentTableName: 'sampleDoctable'
-				}]
-			};
+			var conf = getValidConf();
 
-			assert.strictEqual(config.validate(TEST_CONF), 'Configuration object must containt a numeric property "server.port"');
+			conf.server.port = true;
+			assert.strictEqual(config.validate(conf), 'Configuration object must containt a numeric property "server.port"');
+		});
+
+		it('is an invalid configuration because of an invalid "server.suppressOutput" property', function () {
+			var conf = getValidConf();
+
+			conf.server.suppressOutput = 0;
+			assert.strictEqual(config.validate(conf), 'Configuration object property "server.suppressOutput" must be a boolean');
 		});
 
 		it('is an invalid configuration because we miss a documentTableName', function () {
-			var TEST_CONF = {
-				server: {
-					port: 8999,
-				},
-				services: [{
-					route: 'sampleRoute',
-					defaultPage: 'samplePage',
-					databaseUsername: 'sampleUsername',
-					databasePassword: 'samplePassword',
-					databaseConnectString: 'sampleConnectString',
-					documentTableName: ''
-				}]
-			};
+			var conf = getValidConf();
 
-			assert.strictEqual(config.validate(TEST_CONF), 'Configuration object must contain a "documentTableName" for each service!');
+			conf.services[0].documentTableName = '';
+			assert.strictEqual(config.validate(conf), 'Configuration object must contain a "documentTableName" for each service!');
 		});
 
 		it('is an invalid configuration because not all services have the same databaseConnectString', function () {
-			var TEST_CONF = {
-				server: {
-					port: 8999,
-				},
-				services: [{
-					route: 'sampleRoute',
-					defaultPage: 'samplePage',
-					databaseUsername: 'sampleUsername',
-					databasePassword: 'samplePassword',
-					databaseConnectString: 'sampleConnectString',
-					documentTableName: 'sampleDoctable'
-				},
-				{
-					route: 'secondRoute',
-					defaultPage: 'secondPage',
-					databaseUsername: 'secondUsername',
-					databasePassword: 'secondPassword',
-					databaseConnectString: 'otherConnectString',
-					documentTableName: 'secondDoctable'
-				}]
-			};
+			var conf = getValidConf();
 
-			assert.strictEqual(config.validate(TEST_CONF), 'Configuration object is only allowed to containt a single database!');
+			conf.services[0].databaseConnectString = 'abc';
+			assert.strictEqual(config.validate(conf), 'Configuration object is only allowed to containt a single database!');
 		});
 	});
 
-	describe('when creating a new configuration file', function () {
+	describe('configuration file', function () {
+
+		it('should load no configuration file', function () {
+			var obj = config.load();
+			assert.isObject(obj);
+		});
 
 		it('should create and load a sample configuration file', function () {
 			utilities.fileDelete(TEST_CONFIGURATION_FILENAME);

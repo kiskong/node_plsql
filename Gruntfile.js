@@ -5,6 +5,7 @@ module.exports = function (grunt) {
 
 	// Explicitely set the DEBUG environment variable when running grunt
 	process.env.DEBUG = '';
+	process.env.NOLOG = '1';
 
 	// Project configuration.
 	grunt.initConfig({
