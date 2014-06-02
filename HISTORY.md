@@ -43,6 +43,12 @@ v0.0.5 - May 31, 2014
 * Added proper error handling for 404 and 500 error messages. (Dieter Oberkofler)
 * Added proper error handling for Oracle error messages. (Dieter Oberkofler)
 
-v0.0.6 - ??? ??, 2014
+v0.0.6 - skipped
 
-* 0.0.6 (Dieter Oberkofler)
+v0.0.7 - ??? ??, 2014
+
+* 0.0.7 (Dieter Oberkofler)
+* Switched from blanket to istanbul for code coverage. (Dieter Oberkofler)
+* Improved code coverage to 99%. (Dieter Oberkofler)
+* update "body-parser" to 1.3.0 (Dieter Oberkofler)
+* update "connect-multiparty" to 1.0.5 (Dieter Oberkofler)

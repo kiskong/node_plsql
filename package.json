@@ -65,9 +65,9 @@
     "test": "grunt test"
   },
   "dependencies": {
-    "body-parser": "^1.2.2",
+    "body-parser": "^1.3.0",
     "compression": "^1.0.3",
-    "connect-multiparty": "^1.0.4",
+    "connect-multiparty": "^1.0.5",
     "cookie-parser": "^1.1.0",
     "debug": "^0.8.1",
     "express": "^4.4.0",
@@ -82,22 +82,18 @@
     "underscore": "^1.6.0"
   },
   "devDependencies": {
+    "body-parser": "^1.3.0",
     "chai": ">=1.9.1",
+    "connect-multiparty": "^1.0.5",
     "grunt": ">=0.4.5",
-    "grunt-blanket": ">=0.0.8",
     "grunt-contrib-clean": ">=0.5.0",
     "grunt-contrib-copy": ">=0.5.0",
     "grunt-contrib-jshint": ">=0.10.0",
     "grunt-contrib-watch": ">=0.6.1",
     "grunt-jscs-checker": ">=0.4.4",
     "grunt-jsonlint": ">=1.0.4",
+    "grunt-mocha-istanbul": ">=1.4.1",
     "grunt-mocha-test": ">=0.10.2",
-    "supertest": ">=0.13.0",
-    "travis-cov": ">=0.2.5"
-  },
-  "config": {
-    "travis-cov": {
-      "threshold": 80
-    }
+    "supertest": ">=0.13.0"
   }
 }

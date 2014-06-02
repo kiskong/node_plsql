@@ -8,18 +8,27 @@
 /* global describe: false, it:false */
 
 
-//------------------------------------------------------------------------------
-// Requirements
-//------------------------------------------------------------------------------
+/**
+* Module dependencies.
+*/
 
 var assert = require('chai').assert;
 var dump = require('../lib/dump');
 
-var debug = require('debug')('test-dump.js');
 
-//------------------------------------------------------------------------------
-// Tests
-//------------------------------------------------------------------------------
+/**
+* Module constants.
+*/
+
+
+/**
+* Module variables.
+*/
+
+
+/**
+* Tests.
+*/
 describe('dump', function () {
 	'use strict';
 
@@ -43,6 +52,12 @@ describe('dump', function () {
 
 	describe('when calling dump.debug()', function () {
 		it('it should at least be there and not break', function () {
+			// Emulate the debug module
+			var debug = function () {};
+			debug.enable = function () {};
+			debug.disable = function () {};
+			debug.enabled = true;
+
 			dump.debug('title', 'text\ntext', debug);
 		});
 	});

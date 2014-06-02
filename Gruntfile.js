@@ -8,27 +8,6 @@ module.exports = function (grunt) {
 
 	// Project configuration.
 	grunt.initConfig({
-		clean: {
-			coverage: {
-				src: ['coverage/']
-			}
-		},
-		copy: {
-			coverage: {
-				src: ['test/**'],
-				dest: 'coverage/'
-			},
-			needed_files_for_tests: {
-				src: ['package.json', 'conf/*'],
-				dest: 'coverage/'
-			}
-		},
-		blanket: {
-			coverage: {
-				src: ['lib/'],
-				dest: 'coverage/lib/'
-			}
-		},
 		jscs: {
 			src: [
 				'Gruntfile.js',
@@ -56,27 +35,33 @@ module.exports = function (grunt) {
 				src: ['package.json']
 			}
 		},
+
 		mochaTest: {
 			test: {
 				options: {
 					require: 'test/support/env',
 					reporter: 'spec'
 				},
-				src: ['coverage/test/**/*.js']
-			},
+				src: ['test/**/*.js']
+			}
+		},
+		mocha_istanbul: {
 			coverage: {
+				src: ['test', 'test/acceptance'], // the folder, not the files,
 				options: {
-					reporter: 'html-cov',
-					quiet: true,
-					captureFile: 'coverage.html'
-				},
-				src: ['coverage/test/**/*.js']
+				}
 			},
-			'travis-cov': {
+			coveralls: {
+				src: ['test', 'test/acceptance'], // the folder, not the files,
 				options: {
-					reporter: 'travis-cov'
-				},
-				src: ['coverage/test/**/*.js']
+					coverage: true,
+					check: {
+						lines: 90,
+						statements: 90
+					},
+					root: './lib', // define where the cover task should consider the root of libraries that are covered by tests
+					reportFormats: ['lcov']
+				}
 			}
 		},
 		watch: {
@@ -95,8 +80,11 @@ module.exports = function (grunt) {
 		}
 	});
 
+	grunt.event.on('coverage', function (lcovFileContents, done) {
+		done();
+	});
+
 	// These plugins provide necessary tasks.
-	grunt.loadNpmTasks('grunt-blanket');
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-contrib-copy');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
@@ -105,6 +93,8 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-jsonlint');
 	grunt.loadNpmTasks('grunt-mocha-test');
 
+	grunt.loadNpmTasks('grunt-mocha-istanbul');
+
 	// Default task.
 	grunt.registerTask('default', ['lint', 'test']);
 
@@ -112,5 +102,9 @@ module.exports = function (grunt) {
 	grunt.registerTask('lint', ['jscs', 'jshint', 'jsonlint']);
 
 	// "test" task.
-	grunt.registerTask('test', ['clean', 'blanket', 'copy', 'mochaTest']);
+	grunt.registerTask('test', ['mochaTest', 'coveralls']);
+
+	// "code coverage" tasks.
+	grunt.registerTask('coveralls', ['mocha_istanbul:coveralls']);
+	grunt.registerTask('coverage', ['mocha_istanbul:coverage']);
 };
