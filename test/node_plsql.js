@@ -154,7 +154,6 @@ function startServer()
 		},
 		{
 			route: 'secondRoute',
-			defaultPage: 'secondPage',
 			databaseUsername: 'secondUsername',
 			databasePassword: 'secondPassword',
 			databaseConnectString: 'sampleConnectString',
