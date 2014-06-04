@@ -110,8 +110,8 @@ describe('header', function () {
 		});
 	});
 
-	describe('when calling parseHeader()', function () {
-		it('the header text should return the following object', function () {
+	describe('when calling parseHeader() with an invalid cookie header', function () {
+		it('should return the following object', function () {
 			var testHeaders = [{
 				text: '',
 				header: {},
@@ -120,6 +120,12 @@ describe('header', function () {
 			},
 			{
 				text: '\n\n',
+				header: {},
+				other: {},
+				cookie: []
+			},
+			{
+				text: 'this is not a header line because the is no colon',
 				header: {},
 				other: {},
 				cookie: []
@@ -164,6 +170,12 @@ describe('header', function () {
 					'key': 'c2',
 					'value': 'another value'
 				}]
+			},
+			{
+				text: 'Set-Cookie: =v1\nSet-Cookie: c2:another value',
+				header: {},
+				other: {},
+				cookie: []
 			},
 			{
 				text: 'Status: 400 error status\nContent-type: text/html\nX-DB-Content-length: 4711\nSet-Cookie: c1=v1\nSet-Cookie: c2=another value\nsome attribute: some value',
