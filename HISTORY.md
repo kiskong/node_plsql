@@ -45,10 +45,13 @@ v0.0.5 - May 31, 2014
 
 v0.0.6 - skipped
 
-v0.0.7 - ??? ??, 2014
+v0.0.7 - June 12, 2014
 
 * 0.0.7 (Dieter Oberkofler)
 * Switched from blanket to istanbul for code coverage. (Dieter Oberkofler)
-* Improved code coverage to 99%. (Dieter Oberkofler)
-* update "body-parser" to 1.3.0 (Dieter Oberkofler)
+* Improved code coverage to 100%. (Dieter Oberkofler)
+* update "body-parser" to 1.3.1 (Dieter Oberkofler)
 * update "connect-multiparty" to 1.0.5 (Dieter Oberkofler)
+* update "compression" to 1.0.7 (Dieter Oberkofler)
+* update "debug" to 1.0.2 (Dieter Oberkofler)
+* update "serve-static" to 1.2.3 (Dieter Oberkofler)
