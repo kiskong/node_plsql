@@ -11,11 +11,11 @@ and serve the content using a Node.js HTTP Server (express).
 IMPORTANT: Make sure that you read the [installation guide](https://github.com/doberkofler/node_plsql/blob/master/INSTALL.md) before trying to install!
 
 Prerequisites:
-  Python 2.7 (not v3.x), needed by node-gyp
-  C++ Compiler toolchain (GCC, Visual Studio or similar)
-  Oracle Instant Client and SDK
-  Special environment variables
-  Special symlinks and libaio on Linux
+* Python 2.7 (not v3.x), needed by node-gyp
+* C++ Compiler toolchain (GCC, Visual Studio or similar)
+* Oracle Instant Client and SDK
+* Special environment variables
+* Special symlinks and libaio on Linux
 
 See the [installation guide](https://github.com/doberkofler/node_plsql/blob/master/INSTALL.md) on how to install this package.
 
