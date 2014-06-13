@@ -23,6 +23,8 @@ This document outlines the high-level goals for each significant milestone relea
 * Improve test framework
 * Improve error handling
 
-## [v0.0.8]
-* Add admin console
+## [v0.0.9]
+* Add status page
+
+## [v0.0.10]
 * Add basic authentication

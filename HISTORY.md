@@ -56,3 +56,8 @@ v0.0.7 - June 12, 2014
 * update "debug" to 1.0.2 (Dieter Oberkofler)
 * update "express" to 4.4.3 (Dieter Oberkofler)
 * update "serve-static" to 1.2.3 (Dieter Oberkofler)
+
+v0.0.8 - June 13, 2014
+
+* 0.0.8 (Dieter Oberkofler)
+* Just fixed a formatting error in README. (Dieter Oberkofler)
