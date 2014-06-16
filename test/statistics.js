@@ -81,6 +81,10 @@ describe('statistics', function () {
 				s = statistics.get(app);
 			});
 
+			assert.throws(function () {
+				s = statistics.requestCompleted(app);
+			});
+
 			app.statistics = {};
 			s = statistics.get(app);
 			assert.strictEqual(s.startup, '');
