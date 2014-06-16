@@ -274,4 +274,11 @@ describe('route-map', function () {
 		});
 	});
 
+	describe('GET /status', function () {
+		it('should show the status page', function (done) {
+			var test = request(app).get('/status');
+			test.expect(200, done);
+		});
+	});
+
 });

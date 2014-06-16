@@ -1,0 +1,21 @@
+<% include header %>
+
+<table class="status">
+  <tr>
+  	<th>Server startup time:</th><td><%= stats.startup %></td>
+  </tr>
+  <tr>
+  	<th>Server has been running for:</th><td><%= stats.running %></td>
+  </tr>
+  <tr>
+  	<th>Number of requests:</th><td><%= stats.requestStartedCount %></td>
+  </tr>
+  <tr>
+    <th>Number of active requests:</th><td><%= stats.activeRequestCount %></td>
+  </tr>
+  <tr>
+  	<th>Average duration of requests:</th><td><%= stats.averageRequestTime %></td>
+  </tr>
+</table>
+
+<% include footer %>

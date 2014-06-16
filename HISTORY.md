@@ -61,3 +61,9 @@ v0.0.8 - June 13, 2014
 
 * 0.0.8 (Dieter Oberkofler)
 * Just fixed a formatting error in README. (Dieter Oberkofler)
+
+v0.0.9 - ??? ??, 2014
+
+* 0.0.9 (Dieter Oberkofler)
+* Added a basic status page. (Dieter Oberkofler)
+
