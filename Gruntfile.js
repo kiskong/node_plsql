@@ -29,14 +29,13 @@ module.exports = function (grunt) {
 					'lib/**/*.js',
 					'test/**/*.js'
 				]
-			},
+			}
 		},
 		jsonlint: {
 			package: {
 				src: ['package.json']
 			}
 		},
-
 		mochaTest: {
 			test: {
 				options: {

@@ -234,7 +234,7 @@ describe('route-map', function () {
 			var test = request(app).post('/sampleRoute/multipart_form_data');
 			test.set('Content-Type', 'multipart/form-data; boundary=foo');
 			test.write('--foo\r\n');
-			test.write('Content-Disposition: form-data; name="user[name]"\r\n');
+			test.write('Content-Disposition: form-data; name="user_name"\r\n');
 			test.write('\r\n');
 			test.write('Tobi');
 			test.write('\r\n--foo\r\n');

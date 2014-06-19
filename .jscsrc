@@ -23,6 +23,13 @@
 	/*"requireSpaceBeforeBlockStatements": true,*/
 	/*"disallowSpaceBeforeBlockStatements": null,*/
 	"requireParenthesesAroundIIFE": true,
+	"requireSpacesInConditionalExpression": {
+		"afterTest": true,
+		"beforeConsequent": true,
+		"afterConsequent": true,
+		"beforeAlternate": true
+	},
+	"disallowSpacesInConditionalExpression": null,
 	"requireSpacesInFunctionExpression": null,
 	"disallowSpacesInFunctionExpression": null,
 	"requireSpacesInAnonymousFunctionExpression": {
@@ -56,25 +63,6 @@
 	"requireCommaBeforeLineBreak": null,
 	"requireAlignedObjectValues": null,
 	"requireOperatorBeforeLineBreak": null,
-	"disallowLeftStickedOperators": [
-		"?",
-		"+",
-		"-",
-		"/",
-		"*",
-		"=",
-		"==",
-		"===",
-		"!=",
-		"!==",
-		">",
-		">=",
-		"<",
-		"<="
-	],
-	"requireRightStickedOperators": ["!"],
-	"disallowRightStickedOperators": null,
-	"requireLeftStickedOperators": [","],
 	"disallowSpaceAfterPrefixUnaryOperators": ["++", "--", "+", "-", "~", "!"],
 	"requireSpaceAfterPrefixUnaryOperators": null,
 	"disallowSpaceBeforePostfixUnaryOperators": ["++", "--"],
@@ -113,18 +101,21 @@
 	"validateIndentation": "\t",
 	"disallowMixedSpacesAndTabs": true,
 	"disallowTrailingWhitespace": true,
-	/*"disallowTrailingComma": true,
-	"requireTrailingComma": null,*/
+	"disallowTrailingComma": true,
+	"requireTrailingComma": null,
 	"disallowKeywordsOnNewLine": ["else"],
 	"requireKeywordsOnNewLine": null,
 	"requireLineFeedAtFileEnd": true,
 	"requireCapitalizedConstructors": true,
 	"safeContextKeyword": [ "that" ],
 	"requireDotNotation": true,
+	"requireYodaConditions": null,
 	"disallowYodaConditions": true,
 	"validateJSDoc": {
 		"checkParamNames": true,
 		"checkRedundantParams": true,
 		"requireParamTypes": true
-	}
+	},
+	"requireSpaceAfterLineComment": null,
+	"disallowSpaceAfterLineComment": null
 }

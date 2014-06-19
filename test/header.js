@@ -183,7 +183,7 @@ describe('header', function () {
 					'statusCode': 400,
 					'statusDescription': 'error status',
 					'contentType': 'text/html',
-					'contentLength': 4711,
+					'contentLength': 4711
 				},
 				other: {
 					'some attribute': 'some value'

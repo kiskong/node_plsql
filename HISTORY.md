@@ -67,3 +67,8 @@ v0.0.9 - June 16, 2014
 * 0.0.9 (Dieter Oberkofler)
 * Added a basic status page. (Dieter Oberkofler)
 * Fixed a logging error. (Dieter Oberkofler)
+
+v0.0.10 - ??? ??, 2014
+
+* 0.0.10 (Dieter Oberkofler)
+* update "cookie-parser" to 1.3.1 (Dieter Oberkofler)
