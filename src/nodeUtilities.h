@@ -17,31 +17,31 @@ namespace nodeUtilities
 {
 
 ///////////////////////////////////////////////////////////////////////////
-inline bool isArgString(const v8::Arguments& args, int index)
+inline bool isArgString(_NAN_METHOD_ARGS_TYPE args, int index)
 {
 	return (index >= 0 && index < args.Length() && args[index]->IsString());
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline bool isArgBoolean(const v8::Arguments& args, int index)
+inline bool isArgBoolean(_NAN_METHOD_ARGS_TYPE args, int index)
 {
 	return (index >= 0 && index < args.Length() && args[index]->IsBoolean());
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline bool isArgInt32(const v8::Arguments& args, int index)
+inline bool isArgInt32(_NAN_METHOD_ARGS_TYPE args, int index)
 {
 	return (index >= 0 && index < args.Length() && args[index]->IsInt32());
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline bool isArgObject(const v8::Arguments& args, int index)
+inline bool isArgObject(_NAN_METHOD_ARGS_TYPE args, int index)
 {
 	return (index >= 0 && index < args.Length() && args[index]->IsObject());
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline bool getArgString(const v8::Arguments& args, int index, std::string* result)
+inline bool getArgString(_NAN_METHOD_ARGS_TYPE args, int index, std::string* result)
 {
 	assert(result);
 
@@ -58,7 +58,7 @@ inline bool getArgString(const v8::Arguments& args, int index, std::string* resu
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline bool getArgBoolean(const v8::Arguments& args, int index, bool* result)
+inline bool getArgBoolean(_NAN_METHOD_ARGS_TYPE args, int index, bool* result)
 {
 	assert(result);
 
@@ -74,7 +74,7 @@ inline bool getArgBoolean(const v8::Arguments& args, int index, bool* result)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline bool getArgInteger(const v8::Arguments& args, int index, long* result)
+inline bool getArgInteger(_NAN_METHOD_ARGS_TYPE args, int index, long* result)
 {
 	assert(result);
 
@@ -90,7 +90,7 @@ inline bool getArgInteger(const v8::Arguments& args, int index, long* result)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline bool getArgInteger(const v8::Arguments& args, int index, double* result)
+inline bool getArgInteger(_NAN_METHOD_ARGS_TYPE args, int index, double* result)
 {
 	assert(result);
 
@@ -106,7 +106,7 @@ inline bool getArgInteger(const v8::Arguments& args, int index, double* result)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline bool getArgObject(const v8::Arguments& args, int index, v8::Local<v8::Object>* object)
+inline bool getArgObject(_NAN_METHOD_ARGS_TYPE args, int index, v8::Local<v8::Object>* object)
 {
 	if (index >= 0 && index < args.Length() && args[index]->IsObject())
 	{
@@ -121,13 +121,13 @@ inline bool getArgObject(const v8::Arguments& args, int index, v8::Local<v8::Obj
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline bool isArgArray(const v8::Arguments& args, int index)
+inline bool isArgArray(_NAN_METHOD_ARGS_TYPE args, int index)
 {
 	return (index >= 0 && index < args.Length() && args[index]->IsArray());
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline bool getArgArray(const v8::Arguments& args, int index, v8::Local<v8::Array>* array)
+inline bool getArgArray(_NAN_METHOD_ARGS_TYPE args, int index, v8::Local<v8::Array>* array)
 {
 	if (index >= 0 && index < args.Length() && args[index]->IsArray())
 	{

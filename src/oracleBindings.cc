@@ -59,9 +59,9 @@ private:
 	static void doRequestAfter(uv_work_t* req, int status);
 
 	// Helper
-	static std::string requestParseArguments(const v8::Arguments& args, std::string* username, std::string* password, std::string* procedure, propertyListType* parameters, propertyListType* cgi, fileListType* files, std::string* doctablename, v8::Local<v8::Function>* cb);
-	static std::string getConfig(const v8::Arguments& args, Config* config);
-	static inline OracleBindings* getObject(const v8::Arguments& args);
+	static std::string requestParseArguments(_NAN_METHOD_ARGS_TYPE args, std::string* username, std::string* password, std::string* procedure, propertyListType* parameters, propertyListType* cgi, fileListType* files, std::string* doctablename, v8::Local<v8::Function>* cb);
+	static std::string getConfig(_NAN_METHOD_ARGS_TYPE args, Config* config);
+	static inline OracleBindings* getObject(_NAN_METHOD_ARGS_TYPE args);
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -291,7 +291,7 @@ void OracleBindings::doRequestAfter(uv_work_t* req, int status)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-std::string OracleBindings::requestParseArguments(const v8::Arguments& args, std::string* username, std::string* password, std::string* procedure, propertyListType* parameters, propertyListType* cgi, fileListType* files, std::string* doctablename, Local<Function>* cb)
+std::string OracleBindings::requestParseArguments(_NAN_METHOD_ARGS_TYPE args, std::string* username, std::string* password, std::string* procedure, propertyListType* parameters, propertyListType* cgi, fileListType* files, std::string* doctablename, Local<Function>* cb)
 {
 	// Check the number and types of arguments
 	if (args.Length() != 8)
@@ -473,7 +473,7 @@ std::string OracleBindings::requestParseArguments(const v8::Arguments& args, std
 }
 
 ///////////////////////////////////////////////////////////////////////////
-std::string OracleBindings::getConfig(const Arguments& args, Config* config)
+std::string OracleBindings::getConfig(_NAN_METHOD_ARGS_TYPE args, Config* config)
 {
 	bool retCode;
 
@@ -519,7 +519,7 @@ std::string OracleBindings::getConfig(const Arguments& args, Config* config)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline OracleBindings* OracleBindings::getObject(const Arguments& args)
+inline OracleBindings* OracleBindings::getObject(_NAN_METHOD_ARGS_TYPE args)
 {
 	return ObjectWrap::Unwrap<OracleBindings>(args.This());
 }
