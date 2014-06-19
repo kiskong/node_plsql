@@ -144,28 +144,28 @@ inline bool getArgArray(_NAN_METHOD_ARGS_TYPE args, int index, v8::Local<v8::Arr
 ///////////////////////////////////////////////////////////////////////////
 inline bool isObjString(const v8::Local<v8::Object>& object, const std::string& key)
 {
-	v8::Local<v8::Value> value = object->Get(NanNew<String>(key.c_str()));
+	v8::Local<v8::Value> value = object->Get(NanNew<v8::String>(key.c_str()));
 	return value->IsString();
 }
 
 ///////////////////////////////////////////////////////////////////////////
 inline bool isObjBoolean(const v8::Local<v8::Object>& object, const std::string& key)
 {
-	v8::Local<v8::Value> value = object->Get(NanNew<String>(key.c_str()));
+	v8::Local<v8::Value> value = object->Get(NanNew<v8::String>(key.c_str()));
 	return value->IsBoolean();
 }
 
 ///////////////////////////////////////////////////////////////////////////
 inline bool isObjInteger(const v8::Local<v8::Object>& object, const std::string& key)
 {
-	v8::Local<v8::Value> value = object->Get(NanNew<String>(key.c_str()));
+	v8::Local<v8::Value> value = object->Get(NanNew<v8::String>(key.c_str()));
 	return value->IsNumber();
 }
 
 ///////////////////////////////////////////////////////////////////////////
 inline bool isObjNumber(const v8::Local<v8::Object>& object, const std::string& key)
 {
-	v8::Local<v8::Value> value = object->Get(NanNew<String>(key.c_str()));
+	v8::Local<v8::Value> value = object->Get(NanNew<v8::String>(key.c_str()));
 	return value->IsNumber();
 }
 
@@ -174,7 +174,7 @@ inline bool getObjString(const v8::Local<v8::Object>& object, const std::string&
 {
 	assert(result);
 
-	v8::Local<v8::Value> value = object->Get(NanNew<String>(key.c_str()));
+	v8::Local<v8::Value> value = object->Get(NanNew<v8::String>(key.c_str()));
 	if (!value->IsString())
 	{
 		return false;
@@ -191,7 +191,7 @@ inline bool getObjBoolean(const v8::Local<v8::Object>& object, const std::string
 {
 	assert(result);
 
-	v8::Local<v8::Value> value = object->Get(NanNew<String>(key.c_str()));
+	v8::Local<v8::Value> value = object->Get(NanNew<v8::String>(key.c_str()));
 	if (!value->IsBoolean())
 	{
 		return false;
@@ -207,7 +207,7 @@ inline int getObjInteger(const v8::Local<v8::Object>& object, const std::string&
 {
 	assert(result);
 
-	v8::Local<v8::Value> value = object->Get(NanNew<String>(key.c_str()));
+	v8::Local<v8::Value> value = object->Get(NanNew<v8::String>(key.c_str()));
 	if (!value->IsNumber())
 	{
 		return false;
@@ -223,7 +223,7 @@ inline double getObjNumber(const v8::Local<v8::Object>& object, const std::strin
 {
 	assert(result);
 
-	v8::Local<v8::Value> value = object->Get(NanNew<String>(key.c_str()));
+	v8::Local<v8::Value> value = object->Get(NanNew<v8::String>(key.c_str()));
 	if (!value->IsNumber())
 	{
 		return false;
