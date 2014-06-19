@@ -48,11 +48,12 @@ private:
 	OracleObject*	itsOracleObject;
 
 	// Function exported to node
-	static v8::Handle<v8::Value> New(const v8::Arguments& args);
-	static v8::Handle<v8::Value> create(const v8::Arguments& args);
-	static v8::Handle<v8::Value> destroy(const v8::Arguments& args);
-	static v8::Handle<v8::Value> executeSync(const v8::Arguments& args);
-	static v8::Handle<v8::Value> request(const v8::Arguments& args);
+
+	static NAN_METHOD(New);
+	static NAN_METHOD(create);
+	static NAN_METHOD(destroy);
+	static NAN_METHOD(executeSync);
+	static NAN_METHOD(request);
 
 	static void doRequest(uv_work_t* req);
 	static void doRequestAfter(uv_work_t* req, int status);
@@ -106,7 +107,7 @@ void OracleBindings::Init(Handle<Object> target)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-Handle<Value> OracleBindings::New(const Arguments& args)
+NAN_METHOD(OracleBindings::New)
 {
 	HandleScope scope;
 
@@ -127,7 +128,7 @@ Handle<Value> OracleBindings::New(const Arguments& args)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-Handle<Value> OracleBindings::create(const Arguments& args)
+NAN_METHOD(OracleBindings::create)
 {
 	HandleScope scope;
 	OracleBindings* obj = getObject(args);
@@ -142,7 +143,7 @@ Handle<Value> OracleBindings::create(const Arguments& args)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-Handle<Value> OracleBindings::destroy(const Arguments& args)
+NAN_METHOD(OracleBindings::destroy)
 {
 	HandleScope scope;
 	OracleBindings* obj = getObject(args);
@@ -157,7 +158,7 @@ Handle<Value> OracleBindings::destroy(const Arguments& args)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-Handle<Value> OracleBindings::executeSync(const Arguments& args)
+NAN_METHOD(OracleBindings::executeSync)
 {
 	HandleScope scope;
 	OracleBindings* obj = getObject(args);
@@ -204,7 +205,7 @@ Handle<Value> OracleBindings::executeSync(const Arguments& args)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-Handle<Value> OracleBindings::request(const Arguments& args)
+NAN_METHOD(OracleBindings::request)
 {
 	HandleScope scope;
 	OracleBindings* obj = getObject(args);

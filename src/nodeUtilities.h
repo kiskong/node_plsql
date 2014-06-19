@@ -1,7 +1,17 @@
 #ifndef NODEUTILITIES__H
 #define NODEUTILITIES__H
 
-#include <node.h>
+#if defined(_MSC_VER)
+# pragma warning(push)
+# pragma warning(disable: 4267)		// '=' : conversion from ... to ..., possible loss of data
+# pragma warning(disable: 4244)		// 'return' : conversion from ... to ..., possible loss of data
+#endif
+
+#include <nan.h>
+
+#if defined(_MSC_VER)
+# pragma warning(pop)
+#endif
 
 namespace nodeUtilities
 {

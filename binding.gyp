@@ -31,7 +31,7 @@
             "USE_LINUX=1",
             "USE_ORACLE_DUMMY=<(use_oracle_dummy)"
           ],
-          "link_settings": {"libraries": [ "-L<(oci_lib_dir)"] },
+          "link_settings": {"libraries": ["-L<(oci_lib_dir)"]},
           "libraries": [ "<(oci_library)" ]
         }],
         ["OS=='win'", {
@@ -64,9 +64,12 @@
           "link_settings": {"libraries": [ "<(oci_lib_dir)\oci.lib"] }
         }]
       ],
-      "include_dirs": [ "<(oci_include_dir)" ],
-      "cflags!": [ "-fno-exceptions" ],
-      "cflags_cc!": [ "-fno-exceptions" ]
+      "include_dirs": [
+        "<(oci_include_dir)",
+        "<!(node -e \"require('nan')\")"
+      ],
+      "cflags!": ["-fno-exceptions"],
+      "cflags_cc!": ["-fno-exceptions"]
     }
   ]
 }
