@@ -92,24 +92,24 @@ OracleBindings::~OracleBindings()
 void OracleBindings::Init(Handle<Object> target)
 {
 	// Prepare constructor template
-	Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-	tpl->SetClassName(String::NewSymbol("OracleBindings"));
+	Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(New);
+	tpl->SetClassName(NanNew<String>("OracleBindings"));
 	tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
 	// Prototype
-	tpl->PrototypeTemplate()->Set(String::NewSymbol("create"),			FunctionTemplate::New(create)->GetFunction());
-	tpl->PrototypeTemplate()->Set(String::NewSymbol("destroy"),			FunctionTemplate::New(destroy)->GetFunction());
-	tpl->PrototypeTemplate()->Set(String::NewSymbol("executeSync"),		FunctionTemplate::New(executeSync)->GetFunction());
-	tpl->PrototypeTemplate()->Set(String::NewSymbol("request"),			FunctionTemplate::New(request)->GetFunction());
+	tpl->PrototypeTemplate()->Set(NanNew<String>("create"),			NanNew<FunctionTemplate>(create)->GetFunction());
+	tpl->PrototypeTemplate()->Set(NanNew<String>("destroy"),		NanNew<FunctionTemplate>(destroy)->GetFunction());
+	tpl->PrototypeTemplate()->Set(NanNew<String>("executeSync"),	NanNew<FunctionTemplate>(executeSync)->GetFunction());
+	tpl->PrototypeTemplate()->Set(NanNew<String>("request"),		NanNew<FunctionTemplate>(request)->GetFunction());
 
 	Persistent<Function> constructor = Persistent<Function>::New(tpl->GetFunction());
-	target->Set(String::NewSymbol("OracleBindings"), constructor);
+	target->Set(NanNew<String>("OracleBindings"), constructor);
 }
 
 ///////////////////////////////////////////////////////////////////////////
 NAN_METHOD(OracleBindings::New)
 {
-	HandleScope scope;
+	NanScope();
 
 	// Load the configuration object
 	Config config;
@@ -117,7 +117,7 @@ NAN_METHOD(OracleBindings::New)
 	if (!error.empty())
 	{
 		nodeUtilities::ThrowTypeError(error);
-		return scope.Close(Undefined());
+		NanReturnUndefined();
 	}
 
 	// Create the object and warp it
@@ -130,44 +130,42 @@ NAN_METHOD(OracleBindings::New)
 ///////////////////////////////////////////////////////////////////////////
 NAN_METHOD(OracleBindings::create)
 {
-	HandleScope scope;
+	NanScope();
 	OracleBindings* obj = getObject(args);
 
 	if (!obj->itsOracleObject->create())
 	{
 		nodeUtilities::ThrowError(obj->itsOracleObject->getOracleError().what());
-		return scope.Close(Undefined());
 	}
 
-	return scope.Close(Undefined());
+	NanReturnUndefined();
 }
 
 ///////////////////////////////////////////////////////////////////////////
 NAN_METHOD(OracleBindings::destroy)
 {
-	HandleScope scope;
+	NanScope();
 	OracleBindings* obj = getObject(args);
 
 	if (!obj->itsOracleObject->destroy())
 	{
 		nodeUtilities::ThrowError(obj->itsOracleObject->getOracleError().what());
-		return scope.Close(Undefined());
 	}
 
-	return scope.Close(Undefined());
+	NanReturnUndefined();
 }
 
 ///////////////////////////////////////////////////////////////////////////
 NAN_METHOD(OracleBindings::executeSync)
 {
-	HandleScope scope;
+	NanScope();
 	OracleBindings* obj = getObject(args);
 
 	// Check the number and types of arguments
 	if (args.Length() != 3)
 	{
 		nodeUtilities::ThrowError("The function executeSync requires exactly 3 arguments!");
-		return scope.Close(Undefined());
+		NanReturnUndefined();
 	}
 
 	// Get the username
@@ -175,7 +173,7 @@ NAN_METHOD(OracleBindings::executeSync)
 	if (!nodeUtilities::getArgString(args, 0, &username) || username.empty())
 	{
 		nodeUtilities::ThrowError("The parameter username must be a non-empty string!");
-		return scope.Close(Undefined());
+		NanReturnUndefined();
 	}
 
 	// Get the password
@@ -183,7 +181,7 @@ NAN_METHOD(OracleBindings::executeSync)
 	if (!nodeUtilities::getArgString(args, 1, &password))
 	{
 		nodeUtilities::ThrowError("The parameter password must be a string!");
-		return scope.Close(Undefined());
+		NanReturnUndefined();
 	}
 
 	// Get the sql statement
@@ -191,23 +189,23 @@ NAN_METHOD(OracleBindings::executeSync)
 	if (!nodeUtilities::getArgString(args, 2, &sql) || sql.empty())
 	{
 		nodeUtilities::ThrowError("The parameter sql must be a non-empty string!");
-		return scope.Close(Undefined());
+		NanReturnUndefined();
 	}
 
 	// Execute the sql statement
 	if (!obj->itsOracleObject->execute(username, password, sql))
 	{
 		nodeUtilities::ThrowError(obj->itsOracleObject->getOracleError().what());
-		return scope.Close(Undefined());
+		NanReturnUndefined();
 	}
 
-	return scope.Close(Undefined());
+	NanReturnUndefined();
 }
 
 ///////////////////////////////////////////////////////////////////////////
 NAN_METHOD(OracleBindings::request)
 {
-	HandleScope scope;
+	NanScope();
 	OracleBindings* obj = getObject(args);
 
 	// Parse the arguments
@@ -223,7 +221,7 @@ NAN_METHOD(OracleBindings::request)
 	if (!error.empty())
 	{
 		nodeUtilities::ThrowTypeError("OracleBindings::request: " + error);
-		return scope.Close(Undefined());
+		NanReturnUndefined();
 	}
 
 	// Allocate the request type
@@ -247,7 +245,7 @@ NAN_METHOD(OracleBindings::request)
 	req->data = rh;
 	uv_queue_work(uv_default_loop(), req, doRequest, (uv_after_work_cb)doRequestAfter);
 
-	return v8::Undefined();
+	NanReturnUndefined();
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -270,7 +268,7 @@ void OracleBindings::doRequestAfter(uv_work_t* req, int status)
 {
 	RequestHandle* rh = static_cast<RequestHandle*>(req->data);
 
-	HandleScope scope;
+	NanScope();
 
 	// Convert to UTF16
 	oci_text page(rh->page);
