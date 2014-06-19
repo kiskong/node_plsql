@@ -276,7 +276,7 @@ void OracleBindings::doRequestAfter(uv_work_t* req, int status)
 
 	// Prepare arguments
 	Local<Value> argv[3];
-	argv[0] = Local<Value>::New(v8::String::New(rh->error.c_str()));											//	error
+	argv[0] = Local<Value>::New(NanNew<String>(rh->error.c_str()));											//	error
 	argv[1] = String::New(reinterpret_cast<const uint16_t*>(page.text()));								//	page content
 
 	// Invoke callback
