@@ -116,7 +116,7 @@ NAN_METHOD(OracleBindings::New)
 	std::string error = getConfig(args, &config);
 	if (!error.empty())
 	{
-		nodeUtilities::ThrowTypeError(error);
+		NanThrowTypeError(error.c_str());
 		NanReturnUndefined();
 	}
 
@@ -135,7 +135,7 @@ NAN_METHOD(OracleBindings::create)
 
 	if (!obj->itsOracleObject->create())
 	{
-		nodeUtilities::ThrowError(obj->itsOracleObject->getOracleError().what());
+		NanThrowError(obj->itsOracleObject->getOracleError().what().c_str());
 	}
 
 	NanReturnUndefined();
@@ -149,7 +149,7 @@ NAN_METHOD(OracleBindings::destroy)
 
 	if (!obj->itsOracleObject->destroy())
 	{
-		nodeUtilities::ThrowError(obj->itsOracleObject->getOracleError().what());
+		NanThrowError(obj->itsOracleObject->getOracleError().what().c_str());
 	}
 
 	NanReturnUndefined();
@@ -164,7 +164,7 @@ NAN_METHOD(OracleBindings::executeSync)
 	// Check the number and types of arguments
 	if (args.Length() != 3)
 	{
-		nodeUtilities::ThrowError("The function executeSync requires exactly 3 arguments!");
+		NanThrowError("The function executeSync requires exactly 3 arguments!");
 		NanReturnUndefined();
 	}
 
@@ -172,7 +172,7 @@ NAN_METHOD(OracleBindings::executeSync)
 	std::string username;
 	if (!nodeUtilities::getArgString(args, 0, &username) || username.empty())
 	{
-		nodeUtilities::ThrowError("The parameter username must be a non-empty string!");
+		NanThrowError("The parameter username must be a non-empty string!");
 		NanReturnUndefined();
 	}
 
@@ -180,7 +180,7 @@ NAN_METHOD(OracleBindings::executeSync)
 	std::string password;
 	if (!nodeUtilities::getArgString(args, 1, &password))
 	{
-		nodeUtilities::ThrowError("The parameter password must be a string!");
+		NanThrowError("The parameter password must be a string!");
 		NanReturnUndefined();
 	}
 
@@ -188,14 +188,14 @@ NAN_METHOD(OracleBindings::executeSync)
 	std::string sql;
 	if (!nodeUtilities::getArgString(args, 2, &sql) || sql.empty())
 	{
-		nodeUtilities::ThrowError("The parameter sql must be a non-empty string!");
+		NanThrowError("The parameter sql must be a non-empty string!");
 		NanReturnUndefined();
 	}
 
 	// Execute the sql statement
 	if (!obj->itsOracleObject->execute(username, password, sql))
 	{
-		nodeUtilities::ThrowError(obj->itsOracleObject->getOracleError().what());
+		NanThrowError(obj->itsOracleObject->getOracleError().what().c_str());
 		NanReturnUndefined();
 	}
 
@@ -220,7 +220,8 @@ NAN_METHOD(OracleBindings::request)
 	std::string error = requestParseArguments(args, &username, &password, &procedure, &parameters, &cgi, &files, &doctablename, &cb);
 	if (!error.empty())
 	{
-		nodeUtilities::ThrowTypeError("OracleBindings::request: " + error);
+		std::string text("OracleBindings::request: " + error);
+		NanThrowTypeError(text.c_str());
 		NanReturnUndefined();
 	}
 

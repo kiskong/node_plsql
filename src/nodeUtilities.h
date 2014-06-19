@@ -236,18 +236,6 @@ inline double getObjNumber(const v8::Local<v8::Object>& object, const std::strin
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline void ThrowError(const std::string& text)
-{
-	v8::ThrowException(v8::Exception::Error(v8::String::New(text.c_str())));
-}
-
-///////////////////////////////////////////////////////////////////////////
-inline void ThrowTypeError(const std::string& text)
-{
-	v8::ThrowException(v8::Exception::TypeError(v8::String::New(text.c_str())));
-}
-
-///////////////////////////////////////////////////////////////////////////
 // convert an object containing only properties of type string to a list of
 //	propertyType entries.
 bool objectAsStringLists(const v8::Local<v8::Object>& object, propertyListType* list);
