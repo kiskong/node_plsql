@@ -37,7 +37,7 @@ public:
 class OracleBindings : public node::ObjectWrap
 {
 public:
-	static void Init(v8::Handle<v8::Object> target);
+	static void Init(v8::Handle<v8::Object> exports);
 
 private:
 	// Constructor/Destructor
@@ -55,6 +55,8 @@ private:
 	static NAN_METHOD(executeSync);
 	static NAN_METHOD(request);
 
+	static v8::Persistent<v8::Function> constructor;
+
 	static void doRequest(uv_work_t* req);
 	static void doRequestAfter(uv_work_t* req, int status);
 
@@ -65,15 +67,15 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////
+v8::Persistent<v8::Function> OracleBindings::constructor;
+
+///////////////////////////////////////////////////////////////////////////
 void init(v8::Handle<v8::Object> exports)
 {
 	OracleBindings::Init(exports);
 }
 
 NODE_MODULE(oracleBindings, init)
-
-///////////////////////////////////////////////////////////////////////////
-using namespace v8;
 
 ///////////////////////////////////////////////////////////////////////////
 OracleBindings::OracleBindings(const Config& config)
@@ -89,21 +91,21 @@ OracleBindings::~OracleBindings()
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void OracleBindings::Init(Handle<Object> target)
+void OracleBindings::Init(v8::Handle<v8::Object> exports)
 {
 	// Prepare constructor template
-	Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(New);
-	tpl->SetClassName(NanNew<String>("OracleBindings"));
+	v8::Local<v8::FunctionTemplate> tpl = NanNew<v8::FunctionTemplate>(New);
+	tpl->SetClassName(NanNew<v8::String>("OracleBindings"));
 	tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
 	// Prototype
-	tpl->PrototypeTemplate()->Set(NanNew<String>("create"),			NanNew<FunctionTemplate>(create)->GetFunction());
-	tpl->PrototypeTemplate()->Set(NanNew<String>("destroy"),		NanNew<FunctionTemplate>(destroy)->GetFunction());
-	tpl->PrototypeTemplate()->Set(NanNew<String>("executeSync"),	NanNew<FunctionTemplate>(executeSync)->GetFunction());
-	tpl->PrototypeTemplate()->Set(NanNew<String>("request"),		NanNew<FunctionTemplate>(request)->GetFunction());
+	tpl->PrototypeTemplate()->Set(NanNew<v8::String>("create"),			NanNew<v8::FunctionTemplate>(create)->GetFunction());
+	tpl->PrototypeTemplate()->Set(NanNew<v8::String>("destroy"),		NanNew<v8::FunctionTemplate>(destroy)->GetFunction());
+	tpl->PrototypeTemplate()->Set(NanNew<v8::String>("executeSync"),	NanNew<v8::FunctionTemplate>(executeSync)->GetFunction());
+	tpl->PrototypeTemplate()->Set(NanNew<v8::String>("request"),		NanNew<v8::FunctionTemplate>(request)->GetFunction());
 
-	Persistent<Function> constructor = Persistent<Function>::New(tpl->GetFunction());
-	target->Set(NanNew<String>("OracleBindings"), constructor);
+	NanAssignPersistent<v8::Function>(constructor, tpl->GetFunction());
+	exports->Set(NanNew<v8::String>("OracleBindings"), tpl->GetFunction());
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -120,11 +122,15 @@ NAN_METHOD(OracleBindings::New)
 		NanReturnUndefined();
 	}
 
-	// Create the object and warp it
-	OracleBindings* obj = new OracleBindings(config);
-	obj->Wrap(args.This());
-
-	return args.This();
+	if (args.IsConstructCall()) {
+		// Create the object and warp it
+		OracleBindings* obj = new OracleBindings(config);
+		obj->Wrap(args.This());
+		NanReturnValue(args.This());
+	} else {
+		v8::Local<v8::Function> cons = NanNew<v8::Function>(constructor);
+		NanReturnValue(cons->NewInstance());
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -209,14 +215,14 @@ NAN_METHOD(OracleBindings::request)
 	OracleBindings* obj = getObject(args);
 
 	// Parse the arguments
-	std::string			username;
-	std::string			password;
-	std::string			procedure;
-	propertyListType	parameters;
-	propertyListType	cgi;
-	fileListType		files;
-	std::string			doctablename;
-	Local<Function>		cb;
+	std::string				username;
+	std::string				password;
+	std::string				procedure;
+	propertyListType		parameters;
+	propertyListType		cgi;
+	fileListType			files;
+	std::string				doctablename;
+	v8::Local<v8::Function>	cb;
 	std::string error = requestParseArguments(args, &username, &password, &procedure, &parameters, &cgi, &files, &doctablename, &cb);
 	if (!error.empty())
 	{
@@ -238,7 +244,7 @@ NAN_METHOD(OracleBindings::request)
 	rh->cgi				=	cgi;
 	rh->files			=	files;
 	rh->doctablename	=	doctablename;
-	rh->callback		=	Persistent<Function>::New(cb);
+	rh->callback		=	v8::Persistent<v8::Function>::New(cb);
 
 	// Invoke function on the thread pool
 	uv_work_t* req = new uv_work_t();
@@ -275,12 +281,12 @@ void OracleBindings::doRequestAfter(uv_work_t* req, int status)
 	oci_text page(rh->page);
 
 	// Prepare arguments
-	Local<Value> argv[3];
-	argv[0] = Local<Value>::New(NanNew<String>(rh->error.c_str()));											//	error
-	argv[1] = String::New(reinterpret_cast<const uint16_t*>(page.text()));								//	page content
+	v8::Local<v8::Value> argv[3];
+	argv[0] = v8::Local<v8::Value>::New(NanNew<v8::String>(rh->error.c_str()));											//	error
+	argv[1] = v8::String::New(reinterpret_cast<const uint16_t*>(page.text()));								//	page content
 
 	// Invoke callback
-	node::MakeCallback(Context::GetCurrent()->Global(), rh->callback, 2, argv);
+	node::MakeCallback(v8::Context::GetCurrent()->Global(), rh->callback, 2, argv);
 
 	// Properly cleanup, or death by millions of tiny leaks
 	rh->callback.Dispose();
@@ -292,7 +298,7 @@ void OracleBindings::doRequestAfter(uv_work_t* req, int status)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-std::string OracleBindings::requestParseArguments(_NAN_METHOD_ARGS_TYPE args, std::string* username, std::string* password, std::string* procedure, propertyListType* parameters, propertyListType* cgi, fileListType* files, std::string* doctablename, Local<Function>* cb)
+std::string OracleBindings::requestParseArguments(_NAN_METHOD_ARGS_TYPE args, std::string* username, std::string* password, std::string* procedure, propertyListType* parameters, propertyListType* cgi, fileListType* files, std::string* doctablename, v8::Local<v8::Function>* cb)
 {
 	// Check the number and types of arguments
 	if (args.Length() != 8)
@@ -337,7 +343,7 @@ std::string OracleBindings::requestParseArguments(_NAN_METHOD_ARGS_TYPE args, st
 	}
 	else
 	{
-		Local<Object> object;
+		v8::Local<v8::Object> object;
 		if (!nodeUtilities::getArgObject(args, 3, &object))
 		{
 			return "The fourth parameter must be an object!";
@@ -358,7 +364,7 @@ std::string OracleBindings::requestParseArguments(_NAN_METHOD_ARGS_TYPE args, st
 	}
 	else
 	{
-		Local<Object> object;
+		v8::Local<v8::Object> object;
 		if (!nodeUtilities::getArgObject(args, 4, &object))
 		{
 			return "The fifth parameter must be an object!";
@@ -384,7 +390,7 @@ std::string OracleBindings::requestParseArguments(_NAN_METHOD_ARGS_TYPE args, st
 	else
 	{
 		// Get the array
-		Local<Array> array;
+		v8::Local<v8::Array> array;
 		if (!nodeUtilities::getArgArray(args, 5, &array))
 		{
 			return "The sixt parameter must be an array of objects!";
@@ -404,7 +410,7 @@ std::string OracleBindings::requestParseArguments(_NAN_METHOD_ARGS_TYPE args, st
 			}
 
 			// Cast the value to an object
-			v8::Local<Object> object = v8::Local<v8::Object>::Cast(value);
+			v8::Local<v8::Object> object = v8::Local<v8::Object>::Cast(value);
 
 			// Now get the properties of the object
 
@@ -467,7 +473,7 @@ std::string OracleBindings::requestParseArguments(_NAN_METHOD_ARGS_TYPE args, st
 	}
 	else
 	{
-		*cb = Local<Function>::Cast(args[7]);
+		*cb = v8::Local<v8::Function>::Cast(args[7]);
 	}
 
 	return "";
@@ -485,7 +491,7 @@ std::string OracleBindings::getConfig(_NAN_METHOD_ARGS_TYPE args, Config* config
 	}
 
 	// Get the configuration object
-	Local<Object> object;
+	v8::Local<v8::Object> object;
 	retCode = nodeUtilities::getArgObject(args, 0, &object);
 	if (!retCode)
 	{
