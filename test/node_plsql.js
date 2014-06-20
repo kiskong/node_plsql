@@ -94,6 +94,9 @@ function databaseInvoke(databaseHandle, username, password, procedure, args, cgi
 	debug('databaseInvoke: \n' + util.inspect(arguments, {showHidden: false, depth: null, colors: true}) + '\"');
 
 	switch (proc) {
+	case 'emptypage':
+		callback(null, '', {});
+		break;
 	case 'samplepage':
 		callback(null, getPage('sample page'), {'Content-Type': 'text/html'});
 		break;
@@ -191,6 +194,13 @@ describe('route-map', function () {
 	'use strict';
 
 	var app = startServer();
+
+	describe('GET /sampleRoute/emptyPage', function () {
+		it('GET /sampleRoute/emptyPage should return an empty page', function (done) {
+			var test = request(app).get('/sampleRoute/emptyPage');
+			test.expect(200, '', done);
+		});
+	});
 
 	describe('GET /sampleRoute/samplePage', function () {
 		it('GET /sampleRoute/samplePage should return the sample page', function (done) {
