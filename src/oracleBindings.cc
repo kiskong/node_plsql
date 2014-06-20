@@ -273,17 +273,17 @@ void OracleBindings::doRequest(uv_work_t* req)
 // (doing v8 things in here will make bad happen)
 void OracleBindings::doRequestAfter(uv_work_t* req, int status)
 {
-	RequestHandle* rh = static_cast<RequestHandle*>(req->data);
-
 	NanScope();
+
+	RequestHandle* rh = static_cast<RequestHandle*>(req->data);
 
 	// Convert to UTF16
 	oci_text page(rh->page);
 
 	// Prepare arguments
 	v8::Local<v8::Value> argv[3];
-	argv[0] = v8::Local<v8::Value>::New(NanNew<v8::String>(rh->error.c_str()));											//	error
-	argv[1] = v8::String::New(reinterpret_cast<const uint16_t*>(page.text()));								//	page content
+	argv[0] = v8::Local<v8::Value>::New(NanNew<v8::String>(rh->error.c_str()));		//	error
+	argv[1] = NanNew<v8::String>(reinterpret_cast<const uint16_t*>(page.text()));	//	page content
 
 	// Invoke callback
 	node::MakeCallback(v8::Context::GetCurrent()->Global(), rh->callback, 2, argv);
