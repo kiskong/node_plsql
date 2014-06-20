@@ -10,30 +10,6 @@ class OracleObject;
 class Config;
 
 ///////////////////////////////////////////////////////////////////////////
-class RequestHandle
-{
-public:
-	RequestHandle() : oracleObject(0) {}
-
-	// Input parameter
-	OracleObject*					oracleObject;
-	std::string						username;
-	std::string						password;
-	std::string						procedure;
-	propertyListType				parameters;
-	propertyListType				cgi;
-	fileListType					files;
-	std::string						doctablename;
-
-	// Results
-	std::wstring					page;
-	std::string						error;
-
-	// Callback function
-	v8::Persistent<v8::Function>	callback;
-};
-
-///////////////////////////////////////////////////////////////////////////
 class OracleBindings : public node::ObjectWrap
 {
 public:
@@ -68,6 +44,82 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////
 v8::Persistent<v8::Function> OracleBindings::constructor;
+
+///////////////////////////////////////////////////////////////////////////
+class RequestWorker : public NanAsyncWorker
+{
+public:
+	RequestWorker(NanCallback* callback, OracleObject* oracleObject, const std::string& username, const std::string& password, const std::string& procedure,  const propertyListType& parameters, const propertyListType& cgi, const fileListType& files, const std::string& doctablename);
+	~RequestWorker();
+
+	// Executed inside the worker-thread.
+	// It is not safe to access V8, or V8 data structures here, so everything we need for input and output should go on `this`.
+	void Execute();
+
+	// Executed when the async work is complete.
+	// This function will be run inside the main event loop so it is safe to use V8 again
+	void HandleOKCallback();
+
+private:
+	// Input parameter
+	OracleObject*					m_oracleObject;
+	std::string						m_username;
+	std::string						m_password;
+	std::string						m_procedure;
+	propertyListType				m_parameters;
+	propertyListType				m_cgi;
+	fileListType					m_files;
+	std::string						m_doctablename;
+
+	// Results
+	std::wstring					m_page;
+	std::string						m_error;
+};
+
+///////////////////////////////////////////////////////////////////////////
+RequestWorker::RequestWorker(NanCallback* callback, OracleObject* oracleObject, const std::string& username, const std::string& password, const std::string& procedure,  const propertyListType& parameters, const propertyListType& cgi, const fileListType& files, const std::string& doctablename)
+	:	NanAsyncWorker(callback)
+	,	m_oracleObject(oracleObject)
+	,	m_username(username)
+	,	m_password(password)
+	,	m_procedure(procedure)
+	,	m_parameters(parameters)
+	,	m_cgi(cgi)
+	,	m_files(files)
+	,	m_doctablename(doctablename)
+{
+}
+
+///////////////////////////////////////////////////////////////////////////
+RequestWorker::~RequestWorker()
+{
+}
+
+///////////////////////////////////////////////////////////////////////////
+void RequestWorker::Execute()
+{
+	if (!m_oracleObject->request(m_username, m_password, m_cgi, m_files, m_doctablename, m_procedure, m_parameters, &m_page))
+	{
+		m_error = m_oracleObject->getOracleError().what();
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////
+void RequestWorker::HandleOKCallback()
+{
+	NanScope();
+
+	// Convert to UTF16
+	oci_text page(m_page);
+
+	v8::Local<v8::Value> argv[] = {
+		NanNull(),
+		NanNew<v8::String>(m_error.c_str()),
+		NanNew<v8::String>(reinterpret_cast<const uint16_t*>(page.text()))
+    };
+
+	callback->Call(3, argv);
+}
 
 ///////////////////////////////////////////////////////////////////////////
 void init(v8::Handle<v8::Object> exports)
@@ -231,70 +283,9 @@ NAN_METHOD(OracleBindings::request)
 		NanReturnUndefined();
 	}
 
-	// Allocate the request type
-	RequestHandle* rh = new RequestHandle;
-	assert(rh);
-
-	// Initialize the request type
-	rh->oracleObject	=	obj->itsOracleObject;
-	rh->username		=	username;
-	rh->password		=	password;
-	rh->procedure		=	procedure;
-	rh->parameters		=	parameters;
-	rh->cgi				=	cgi;
-	rh->files			=	files;
-	rh->doctablename	=	doctablename;
-	rh->callback		=	v8::Persistent<v8::Function>::New(cb);
-
-	// Invoke function on the thread pool
-	uv_work_t* req = new uv_work_t();
-	assert(req);
-	req->data = rh;
-	uv_queue_work(uv_default_loop(), req, doRequest, (uv_after_work_cb)doRequestAfter);
-
+	NanCallback* callback = new NanCallback(cb);
+	NanAsyncQueueWorker(new RequestWorker(callback, obj->itsOracleObject, username, password, procedure, parameters, cgi, files, doctablename));
 	NanReturnUndefined();
-}
-
-///////////////////////////////////////////////////////////////////////////
-// This function happens on the thread pool.
-// (doing v8 things in here will make bad happen)
-void OracleBindings::doRequest(uv_work_t* req)
-{
-	RequestHandle* rh = static_cast<RequestHandle*>(req->data);
-
-	if (!rh->oracleObject->request(rh->username, rh->password, rh->cgi, rh->files, rh->doctablename, rh->procedure, rh->parameters, &rh->page))
-	{
-		rh->error = rh->oracleObject->getOracleError().what();
-	}
-}
-
-///////////////////////////////////////////////////////////////////////////
-// This function happens on the thread pool.
-// (doing v8 things in here will make bad happen)
-void OracleBindings::doRequestAfter(uv_work_t* req, int status)
-{
-	NanScope();
-
-	RequestHandle* rh = static_cast<RequestHandle*>(req->data);
-
-	// Convert to UTF16
-	oci_text page(rh->page);
-
-	// Prepare arguments
-	v8::Local<v8::Value> argv[3];
-	argv[0] = v8::Local<v8::Value>::New(NanNew<v8::String>(rh->error.c_str()));		//	error
-	argv[1] = NanNew<v8::String>(reinterpret_cast<const uint16_t*>(page.text()));	//	page content
-
-	// Invoke callback
-	node::MakeCallback(v8::Context::GetCurrent()->Global(), rh->callback, 2, argv);
-
-	// Properly cleanup, or death by millions of tiny leaks
-	rh->callback.Dispose();
-	rh->callback.Clear();
-
-	// Unfortunately in v0.10 Buffer::New(char*, size_t) makes a copy and we don't have the Buffer::Use() api yet
-	delete rh;
-	delete req;
 }
 
 ///////////////////////////////////////////////////////////////////////////
