@@ -71,5 +71,8 @@ v0.0.9 - June 16, 2014
 v0.0.10 - ??? ??, 2014
 
 * 0.0.10 (Dieter Oberkofler)
+* Added support for Node 0.11. (Dieter Oberkofler)
+* Migrated v8 interface to nan. (Dieter Oberkofler)
+* Fixed a small intermittent problem caused by using mkdirp in async mode. (Dieter Oberkofler)
 * update "cookie-parser" to 1.3.1 (Dieter Oberkofler)
 * update "body-parser" to 1.4.3 (Dieter Oberkofler)
