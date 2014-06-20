@@ -53,7 +53,7 @@ describe('fileCopy', function () {
 		var SRC = 'temp/test.old',
 			DST = 'temp/test.new';
 
-		mkdirp('temp', function (err) {
+		mkdirp.sync('temp', function (err) {
 			/* istanbul ignore if */
 			if (err) {
 				throw err;
