@@ -1,6 +1,18 @@
 #include "global.h"
 
 ///////////////////////////////////////////////////////////////////////////
+bool isDebug()
+{
+    char* env = getenv("DEBUG");
+    if (!env)
+    {
+        return false;
+    }
+
+    return (stricmp(env, "*") == 0 || stricmp(env, "oracleBindings") == 0);
+}
+
+///////////////////////////////////////////////////////////////////////////
 void replace(std::string& str, const std::string& from, const std::string& to)
 {
     for (;;)

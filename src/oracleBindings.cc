@@ -75,18 +75,6 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////
-static bool isDebug()
-{
-	char* env = getenv("DEBUG");
-	if (!env)
-	{
-		return false;
-	}
-
-	return (stricmp(env, "*") == 0 || stricmp(env, "oracleBindings") == 0);
-}
-
-///////////////////////////////////////////////////////////////////////////
 RequestWorker::RequestWorker(NanCallback* callback, OracleObject* oracleObject, const std::string& username, const std::string& password, const std::string& procedure,  const propertyListType& parameters, const propertyListType& cgi, const fileListType& files, const std::string& doctablename)
 	:	NanAsyncWorker(callback)
 	,	m_oracleObject(oracleObject)
