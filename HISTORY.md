@@ -72,3 +72,4 @@ v0.0.10 - ??? ??, 2014
 
 * 0.0.10 (Dieter Oberkofler)
 * update "cookie-parser" to 1.3.1 (Dieter Oberkofler)
+* update "body-parser" to 1.4.3 (Dieter Oberkofler)
