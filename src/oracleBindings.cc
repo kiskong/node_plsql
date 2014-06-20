@@ -143,15 +143,16 @@ void RequestWorker::HandleOKCallback()
 	NanScope();
 
 	// Convert to UTF16
-	oci_text page(m_page);
+	oci_text oci_page(m_page);
 
-	v8::Local<v8::Value> argv[] = {
-		NanNull(),
-		NanNew<v8::String>(m_error.c_str()),
-		NanNew<v8::String>(reinterpret_cast<const uint16_t*>(page.text()))
-    };
+	// Prepare arguments
+	v8::Local<v8::Value> argv[3];
+	argv[0] = NanNew<v8::String>(m_error.c_str());
+	argv[1] = NanNew<v8::String>(reinterpret_cast<const uint16_t*>(oci_page.text()));
+	argv[2] = NanNull();
 
-	callback->Call(3, argv);
+	// Invoke callback
+	callback->Call(2, argv);
 
 	if (isDebug())
 	{
