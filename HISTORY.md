@@ -68,7 +68,7 @@ v0.0.9 - June 16, 2014
 * Added a basic status page. (Dieter Oberkofler)
 * Fixed a logging error. (Dieter Oberkofler)
 
-v0.0.10 - ??? ??, 2014
+v0.0.10 - June 20, 2014
 
 * 0.0.10 (Dieter Oberkofler)
 * Added support for Node 0.11. (Dieter Oberkofler)

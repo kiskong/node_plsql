@@ -27,4 +27,7 @@ This document outlines the high-level goals for each significant milestone relea
 * Add status page
 
 ## [v0.0.10]
+* Support for nodejs 0.11
+
+## [v0.0.11]
 * Add basic authentication
