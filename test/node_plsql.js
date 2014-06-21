@@ -16,6 +16,8 @@ var debug = require('debug')('test/node_plsql');
 var assert = require('chai').assert;
 var request = require('supertest');
 var util = require('util');
+var fs = require('fs');
+var mkdirp = require('mkdirp');
 var node_plsql = require('../lib/node_plsql');
 
 
@@ -140,7 +142,11 @@ function startServer()
 			port: 8999,
 			static: [{
 				mountPath: '/',
-				physicalDirectory: __dirname + '/static'
+				physicalDirectory: './'
+			},
+			{
+				mountPath: '/temp/',
+				physicalDirectory: './temp'
 			}],
 			suppressOutput: true,
 			requestLogging: true,
@@ -168,6 +174,11 @@ function startServer()
 		}
 	};
 
+	// create a static file
+	mkdirp.sync('temp');
+	fs.writeFileSync('temp/index.html', 'content of index.html');
+
+	// Start server
 	var app = node_plsql.start(config);
 
 	return app;
@@ -253,6 +264,20 @@ describe('route-map', function () {
 			test.write('some text here');
 			test.write('\r\n--foo--');
 			test.expect(200, 'foo.txt', done);
+		});
+	});
+
+	describe('GET /test/node_plsql.js', function () {
+		it('should return the static file /test/node_plsql.js', function (done) {
+			var test = request(app).get('/test/node_plsql.js');
+			test.expect(200, done);
+		});
+	});
+
+	describe('GET /temp/index.html', function () {
+		it('should return the static file /temp/index.html', function (done) {
+			var test = request(app).get('/temp/index.html');
+			test.expect(200, 'content of index.html', done);
 		});
 	});
 
