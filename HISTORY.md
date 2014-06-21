@@ -77,8 +77,10 @@ v0.0.10 - June 20, 2014
 * update "cookie-parser" to 1.3.1 (Dieter Oberkofler)
 * update "body-parser" to 1.4.3 (Dieter Oberkofler)
 
-v0.0.11 - ??? ??, 2014
+v0.0.11 - June 21, 2014
 
 * 0.0.11 (Dieter Oberkofler)
+* Fixed usage mkdirp in async mode in test. (Dieter Oberkofler)
+* Added unit tests for static files. (Dieter Oberkofler)
 * update "compression" to 1.0.8 (Dieter Oberkofler)
 * update "express" to 4.4.4 (Dieter Oberkofler)
