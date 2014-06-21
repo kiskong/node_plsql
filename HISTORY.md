@@ -76,3 +76,9 @@ v0.0.10 - June 20, 2014
 * Fixed a small intermittent problem caused by using mkdirp in async mode. (Dieter Oberkofler)
 * update "cookie-parser" to 1.3.1 (Dieter Oberkofler)
 * update "body-parser" to 1.4.3 (Dieter Oberkofler)
+
+v0.0.11 - ??? ??, 2014
+
+* 0.0.11 (Dieter Oberkofler)
+* update "compression" to 1.0.8 (Dieter Oberkofler)
+* update "express" to 4.4.4 (Dieter Oberkofler)
