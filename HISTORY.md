@@ -84,3 +84,13 @@ v0.0.11 - June 21, 2014
 * Added unit tests for static files. (Dieter Oberkofler)
 * update "compression" to 1.0.8 (Dieter Oberkofler)
 * update "express" to 4.4.4 (Dieter Oberkofler)
+
+v0.0.12 - ??? ??, 2014
+
+* 0.0.12 (Dieter Oberkofler)
+* update "js-yaml" to 3.1.0 (Dieter Oberkofler)
+* update "nopt" to 3.0.1 (Dieter Oberkofler)
+* update "connect-multiparty" to 1.1.0 (Dieter Oberkofler)
+* update "serve-static" to 1.3.1 (Dieter Oberkofler)
+* update "cookie-parser" to 1.3.2 (Dieter Oberkofler)
+* update "express" to 4.5.1 (Dieter Oberkofler)
