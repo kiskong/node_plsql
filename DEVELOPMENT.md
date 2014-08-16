@@ -15,14 +15,14 @@
 ##Debugging
 * Set the environment variable DEBUG to the module to debug or * for all modules before starting the server.
 
-Windows:
-```bat
-set DEBUG=*
-```
-
 MacOS/Linux:
 ```bash
 export DEBUG=*
+```
+
+Windows:
+```bat
+set DEBUG=*
 ```
 
 ## Unit test

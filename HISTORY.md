@@ -88,6 +88,12 @@ v0.0.11 - June 21, 2014
 v0.0.12 - August 16, 2014
 
 * 0.0.12 (Dieter Oberkofler)
+* Renamed the server module from lib/node_plsql.js to lib/server.js to make sure that only the client in bin is used locally. (Dieter Oberkofler)
+* Adapted server to the latest express version. (Dieter Oberkofler)
+* Added a better installation example in the README. (Dieter Oberkofler)
+* Added separate documentation for local and global installation. (Dieter Oberkofler)
+* Added missing configuration samples to the npm tarball. (Dieter Oberkofler)
+* Separated the development information into a separate DEVELOPMENT.md file. (Dieter Oberkofler)
 * update "body-parser" to 1.6.4 (Dieter Oberkofler)
 * update "compression" to 1.0.11 (Dieter Oberkofler)
 * update "connect-multiparty" to 1.2.1 (Dieter Oberkofler)

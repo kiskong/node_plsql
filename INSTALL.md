@@ -75,36 +75,92 @@ Linux:
 export LD_LIBRARY_PATH=$OCI_LIB_DIR
 ```
 
-## Install the node_plsql server
+## Install the node_plsql server locally
+
+Create and move to a new directory and then install the node_plsql module.
+
+```
+npm install node_plsql
+```
+
+### Install the PL/SQL sample application
+
+Install the PL/SQL examples using SQL*Plus and running `install.sql` in the `./node_modules/node_plsql/sql` directory while connected as a user with administrative privileges.
+
+### Configure the node_plsql server
+
+Create a sample configuration file using the --init command line parameter
+
+MacOS/Linux:
+```bash
+./node_modules/.bin/node_plsql --init=sample.json
+```
+
+Windows:
+```bat
+node_modules\.bin\node_plsql --init=sample.json
+```
+
+and then change the configuration parameters as needed.
+
+### Start the node_plsql server
+
+MacOS/Linux:
+```bash
+./node_modules/.bin/node_plsql --config=sample.json
+```
+
+Windows:
+```bat
+./node_modules/.bin/node_plsql --config=sample.json
+```
+
+## Install the node_plsql server globally
 
 ```
 npm install node_plsql --global
 ```
 
-## Install the PL/SQL sample application
+### Identify the directory where the global packages are installed
 
-Execute the SQL*Plus script install.sql in the directory sql while connected as a user with administrative privileges.
+Use `npm list --global` to see if and where the node_plsql module has been installed.
 
-## Configure the node_plsql server
+The typical directories are:
+
+MacOS/Linux: `/usr/local` or wherever node is installed
+
+Windows: `%APPDATA%\npm`
+
+### Install the PL/SQL sample application
+
+Install the PL/SQL examples using SQL*Plus and running `install.sql` in the `./node_modules/node_plsql/sql` directory while connected as a user with administrative privileges.
+
+### Configure the node_plsql server
 
 Create a sample configuration file using the --init command line parameter
 
+MacOS/Linux:
+```bash
+node_plsql --init=sample.json
 ```
+
+Windows:
+```bat
 node_plsql --init=sample.json
 ```
 
 and then change the configuration parameters as needed.
 
-## Start the node_plsql server
-
-Windows:
-```bat
-node bin\node_plsql.js --config=sample.json
-```
+### Start the node_plsql server
 
 MacOS/Linux:
 ```bash
-node bin/node_plsql.js --config=sample.json
+node_plsql --config=sample.json
+```
+
+Windows:
+```bat
+node_plsql --config=sample.json
 ```
 
 ## Connect to the node_plsql server
