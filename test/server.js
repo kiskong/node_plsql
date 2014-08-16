@@ -1,5 +1,5 @@
 /**
- * @fileoverview Test for the module "node_plsql.js"
+ * @fileoverview Test for the module "server.js"
  * @author doberkofler
  */
 
@@ -12,13 +12,13 @@
 * Module dependencies.
 */
 
-var debug = require('debug')('test/node_plsql');
+var debug = require('debug')('test/server');
 var assert = require('chai').assert;
 var request = require('supertest');
 var util = require('util');
 var fs = require('fs');
 var mkdirp = require('mkdirp');
-var node_plsql = require('../lib/node_plsql');
+var server = require('../lib/server');
 
 
 /**
@@ -179,7 +179,7 @@ function startServer()
 	fs.writeFileSync('temp/index.html', 'content of index.html');
 
 	// Start server
-	var app = node_plsql.start(config);
+	var app = server.start(config);
 
 	return app;
 }
@@ -205,7 +205,7 @@ describe('start server', function () {
 	describe('with an invalid configuration', function () {
 		it('throws an exception', function () {
 			assert.throws(function () {
-				node_plsql.start({});
+				server.start({});
 			});
 		});
 	});
@@ -216,9 +216,9 @@ describe('GET static resources', function () {
 
 	var app = startServer();
 
-	describe('GET /test/node_plsql.js', function () {
-		it('should return the static file /test/node_plsql.js', function (done) {
-			var test = request(app).get('/test/node_plsql.js');
+	describe('GET /test/server.js', function () {
+		it('should return the static file /test/server.js', function (done) {
+			var test = request(app).get('/test/server.js');
 			test.expect(200, done);
 		});
 	});
