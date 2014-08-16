@@ -1,6 +1,6 @@
 {
   "name": "node_plsql",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "author": "Dieter Oberkofler <doberkofler.github@gmail.com>",
   "description": "The Node.js PL/SQL Gateway for Oracle (nodejs, plsql)",
   "bin": {
@@ -42,6 +42,7 @@
   },
   "files": [
     "bin",
+    "conf",
     "demo",
     "lib",
     "sql",

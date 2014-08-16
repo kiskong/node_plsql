@@ -85,7 +85,7 @@ v0.0.11 - June 21, 2014
 * update "compression" to 1.0.8 (Dieter Oberkofler)
 * update "express" to 4.4.4 (Dieter Oberkofler)
 
-v0.0.12 - ??? ??, 2014
+v0.0.12 - August 16, 2014
 
 * 0.0.12 (Dieter Oberkofler)
 * update "body-parser" to 1.6.4 (Dieter Oberkofler)

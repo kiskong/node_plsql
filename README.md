@@ -24,6 +24,9 @@ See the [installation guide](https://github.com/doberkofler/node_plsql/blob/mast
 # Example
 
 ## Basic example
+* Prepare and install the prerequisites (Python, C++ compiler, Oracle, ...)
+* Setup the environment (set the needed environment variables)
+* Install node_plsql (`npm install node_plsql --global`)
 * Install the PL/SQL examples using SQL*Plus and running install.sql from the sql directory as user sys.
 * Run `node_plsql --init=sample.json` to create a new sample configuration file.
 * Change the sample JSON configuration file (sample.json) as needed and especially make sure that the Oracle configuration information is correct.
