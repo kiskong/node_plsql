@@ -192,6 +192,16 @@ function startServer()
 describe('start server', function () {
 	'use strict';
 
+	describe('with an valid configuration', function () {
+		var app;
+		it('does start', function () {
+			app = startServer();
+		});
+		it('does stop', function () {
+			app.server.close();
+		});
+	});
+
 	describe('with an invalid configuration', function () {
 		it('throws an exception', function () {
 			assert.throws(function () {
@@ -201,7 +211,46 @@ describe('start server', function () {
 	});
 });
 
-describe('route-map', function () {
+describe('GET static resources', function () {
+	'use strict';
+
+	var app = startServer();
+
+	describe('GET /test/node_plsql.js', function () {
+		it('should return the static file /test/node_plsql.js', function (done) {
+			var test = request(app).get('/test/node_plsql.js');
+			test.expect(200, done);
+		});
+	});
+
+	describe('GET /temp/index.html', function () {
+		it('should return the static file /temp/index.html', function (done) {
+			var test = request(app).get('/temp/index.html');
+			test.expect(200, 'content of index.html', done);
+		});
+	});
+
+	// Stop the server
+	app.server.close();
+});
+
+describe('GET default page', function () {
+	'use strict';
+
+	var app = startServer();
+
+	describe('GET /sampleRoute', function () {
+		it('should return the default page', function (done) {
+			var test = request(app).get('/sampleRoute');
+			test.expect(302, 'Moved Temporarily. Redirecting to /sampleRoute/samplePage', done);
+		});
+	});
+
+	// Stop the server
+	app.server.close();
+});
+
+describe('GET', function () {
 	'use strict';
 
 	var app = startServer();
@@ -241,6 +290,61 @@ describe('route-map', function () {
 		});
 	});
 
+	// Stop the server
+	app.server.close();
+});
+
+describe('GET status', function () {
+	'use strict';
+
+	var app = startServer();
+
+	describe('GET /status', function () {
+		it('should show the status page', function (done) {
+			var test = request(app).get('/status');
+			test.expect(200, done);
+		});
+	});
+
+	// Stop the server
+	app.server.close();
+});
+
+describe('GET errors', function () {
+	'use strict';
+
+	var app = startServer();
+
+	describe('GET /invalidRoute', function () {
+		it('should respond with 404', function (done) {
+			var test = request(app).get('/invalidRoute');
+			test.expect(404, '<html><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL /invalidRoute was not found.</p></body></html>', done);
+		});
+	});
+
+	describe('GET /sampleRoute/invalidPage', function () {
+		it('should respond with 404', function (done) {
+			var test = request(app).get('/sampleRoute/invalidPage');
+			test.expect(404, '<html><head><title>Failed to parse target procedure</title></head><body><h1>Failed to parse target procedure</h1>\n<p>\nprocedure not found<br/>\n</p>\n</body></html>', done);
+		});
+	});
+
+	describe('GET /sampleRoute/internalError', function () {
+		it('should respond with 500', function (done) {
+			var test = request(app).get('/sampleRoute/internalError');
+			test.expect(500, '{}', done);
+		});
+	});
+
+	// Stop the server
+	app.server.close();
+});
+
+describe('POST', function () {
+	'use strict';
+
+	var app = startServer();
+
 	describe('POST /sampleRoute/form_urlencoded', function () {
 		it('should return a form with fields', function (done) {
 			var test = request(app).post('/sampleRoute/form_urlencoded');
@@ -267,53 +371,6 @@ describe('route-map', function () {
 		});
 	});
 
-	describe('GET /test/node_plsql.js', function () {
-		it('should return the static file /test/node_plsql.js', function (done) {
-			var test = request(app).get('/test/node_plsql.js');
-			test.expect(200, done);
-		});
-	});
-
-	describe('GET /temp/index.html', function () {
-		it('should return the static file /temp/index.html', function (done) {
-			var test = request(app).get('/temp/index.html');
-			test.expect(200, 'content of index.html', done);
-		});
-	});
-
-	describe('GET /sampleRoute', function () {
-		it('should return the default page', function (done) {
-			var test = request(app).get('/sampleRoute');
-			test.expect('Moved Temporarily. Redirecting to /sampleRoute/samplePage', done);
-		});
-	});
-
-	describe('GET /invalidRoute', function () {
-		it('should respond with 404', function (done) {
-			var test = request(app).get('/invalidRoute');
-			test.expect(404, '<html><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL /invalidRoute was not found.</p></body></html>', done);
-		});
-	});
-
-	describe('GET /sampleRoute/invalidPage', function () {
-		it('should respond with 404', function (done) {
-			var test = request(app).get('/sampleRoute/invalidPage');
-			test.expect(404, '<html><head><title>Failed to parse target procedure</title></head><body><h1>Failed to parse target procedure</h1>\n<p>\nprocedure not found<br/>\n</p>\n</body></html>', done);
-		});
-	});
-
-	describe('GET /sampleRoute/internalError', function () {
-		it('should respond with 500', function (done) {
-			var test = request(app).get('/sampleRoute/internalError');
-			test.expect(500, '{}', done);
-		});
-	});
-
-	describe('GET /status', function () {
-		it('should show the status page', function (done) {
-			var test = request(app).get('/status');
-			test.expect(200, done);
-		});
-	});
-
+	// Stop the server
+	app.server.close();
 });

@@ -6,6 +6,8 @@ It is an open-source alternative to mod_plsql, the Embedded PL/SQL Gateway and t
 allowing you to develop PL/SQL web applications using the PL/SQL Web Toolkit (OWA) and Oracle Application Express (Apex),
 and serve the content using a Node.js HTTP Server (express).
 
+Please feel free to try and suggest any improvements. Your thoughts and ideas are most welcome.
+
 # Installation
 
 IMPORTANT: Make sure that you read the [installation guide](https://github.com/doberkofler/node_plsql/blob/master/INSTALL.md) before trying to install!
