@@ -1,6 +1,6 @@
 {
   "name": "node_plsql",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "author": "Dieter Oberkofler <doberkofler.github@gmail.com>",
   "description": "The Node.js PL/SQL Gateway for Oracle (nodejs, plsql)",
   "bin": {
@@ -66,36 +66,36 @@
     "test": "grunt test"
   },
   "dependencies": {
-    "body-parser": "^1.4.3",
-    "compression": "^1.0.11",
-    "connect-multiparty": "^1.2.1",
-    "cookie-parser": "^1.3.2",
-    "debug": "^1.0.4",
+    "body-parser": "^1.9.1",
+    "compression": "^1.2.0",
+    "connect-multiparty": "^1.2.5",
+    "cookie-parser": "^1.3.3",
+    "debug": "^2.1.0",
     "ejs": "^1.0.0",
-    "express": "^4.8.4",
-    "js-yaml": "^3.1.0",
+    "express": "^4.10.0",
+    "js-yaml": "^3.2.2",
     "mkdirp": "^0.5.0",
-    "morgan": "^1.2.2",
+    "morgan": "^1.4.1",
     "ms": "^0.6.2",
     "nan": "^1.3.0",
     "nopt": "^3.0.1",
-    "serve-static": "^1.5.2",
-    "strip-json-comments": "^1.0.1",
+    "serve-static": "^1.7.1",
+    "strip-json-comments": "^1.0.2",
     "tough-cookie": "^0.12.1",
-    "underscore": "^1.6.0"
+    "underscore": "^1.7.0"
   },
   "devDependencies": {
-    "chai": ">=1.9.1",
+    "chai": ">=1.9.2",
     "grunt": ">=0.4.5",
     "grunt-contrib-clean": ">=0.6.0",
-    "grunt-contrib-copy": ">=0.5.0",
+    "grunt-contrib-copy": ">=0.7.0",
     "grunt-contrib-jshint": ">=0.10.0",
     "grunt-contrib-watch": ">=0.6.1",
-    "grunt-jscs": ">=0.6.2",
+    "grunt-jscs": ">=0.8.1",
     "grunt-jsonlint": ">=1.0.4",
-    "grunt-mocha-istanbul": ">=2.0.0",
-    "grunt-mocha-test": ">=0.11.0",
-    "mocha": ">=1.21.4",
-    "supertest": ">=0.13.0"
+    "grunt-mocha-istanbul": ">=2.2.0",
+    "grunt-mocha-test": ">=0.12.2",
+    "mocha": ">=2.0.1",
+    "supertest": ">=0.14.0"
   }
 }
