@@ -115,8 +115,18 @@ v0.0.13 - October 27, 2014
 * update "cookie-parser" to 1.3.3 (Dieter Oberkofler)
 * update "debug" to 2.1.0 (Dieter Oberkofler)
 * update "express" to 4.10.0 (Dieter Oberkofler)
-* update "js-yaml" to 3.2.2 (Dieter Oberkofler)
+* update "js-yaml" to 3.2.3 (Dieter Oberkofler)
 * update "morgan" to 1.4.1 (Dieter Oberkofler)
 * update "serve-static" to 1.7.1 (Dieter Oberkofler)
 * update "strip-json-comments" to 1.0.2 (Dieter Oberkofler)
 * update "underscore" to 1.7.0 (Dieter Oberkofler)
+
+v0.0.14 - ??? ??, 2014
+
+* 0.0.14 (Dieter Oberkofler)
+* update "body-parser" to 1.9.2 (Dieter Oberkofler)
+* update "js-yaml" to 3.2.3 (Dieter Oberkofler)
+* update "nan" to 1.4.1 (Dieter Oberkofler)
+* update "chai" to 1.10.0 (Dieter Oberkofler)
+* update "morgan" to 1.5.0 (Dieter Oberkofler)
+* update "express" to 4.10.2 (Dieter Oberkofler)
