@@ -121,9 +121,10 @@ v0.0.13 - October 27, 2014
 * update "strip-json-comments" to 1.0.2 (Dieter Oberkofler)
 * update "underscore" to 1.7.0 (Dieter Oberkofler)
 
-v0.0.14 - ??? ??, 2014
+v0.1.0 - ??? ??, 2014
 
-* 0.0.14 (Dieter Oberkofler)
+* 0.1.0 (Dieter Oberkofler)
+* binaries (only node-v11-win32-x64) now hosted in S3 using node-pre-gyp (Dieter Oberkofler)
 * update "body-parser" to 1.9.2 (Dieter Oberkofler)
 * update "js-yaml" to 3.2.3 (Dieter Oberkofler)
 * update "nan" to 1.4.1 (Dieter Oberkofler)

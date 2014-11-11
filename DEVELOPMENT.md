@@ -11,8 +11,10 @@
 
 ## Deploy new npm package
 * Use `npm publish` to publish a package (WARNING: cannot be undone)
+* Use `npm pack` to create a package
+* Use `./node_modules/.bin/node-pre-gyp rebuild package publish` to publish the binaries on AWS S3
 
-##Debugging
+## Debugging
 * Set the environment variable DEBUG to the module to debug or * for all modules before starting the server.
 
 MacOS/Linux:
