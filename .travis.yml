@@ -15,8 +15,8 @@ before_script:
   - npm install -g gulp
 
 script:
-  - "grunt lint"
-  - "grunt test"
+  - "gulp lint"
+  - "gulp test"
 
 install:
   - npm install
