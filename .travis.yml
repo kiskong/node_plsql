@@ -12,7 +12,7 @@ env:
   - USE_ORACLE_DUMMY=1
 
 before_script:
-  - npm install -g grunt-cli
+  - npm install -g gulp
 
 script:
   - "grunt lint"
