@@ -74,20 +74,20 @@
     "host" : "https://nodeplsql.s3.amazonaws.com"
   },
   "dependencies": {
-    "body-parser": "^1.9.2",
-    "compression": "^1.2.0",
+    "body-parser": "^1.10.0",
+    "compression": "^1.2.2",
     "connect-multiparty": "^1.2.5",
     "cookie-parser": "^1.3.3",
     "debug": "^2.1.0",
     "ejs": "^1.0.0",
-    "express": "^4.10.2",
-    "grunt-jscs": "^0.8.1",
-    "js-yaml": "^3.2.3",
+    "express": "^4.10.6",
+    "grunt-jscs": "^1.0.0",
+    "js-yaml": "^3.2.4",
     "mkdirp": "^0.5.0",
     "morgan": "^1.5.0",
-    "ms": "^0.6.2",
+    "ms": "^0.7.0",
     "nan": "^1.4.1",
-    "node-pre-gyp": "^0.5.31",
+    "node-pre-gyp": "^0.6.1",
     "nopt": "^3.0.1",
     "serve-static": "^1.7.1",
     "strip-json-comments": "^1.0.2",
@@ -96,7 +96,7 @@
   },
   "bundledDependencies": ["node-pre-gyp"],
   "devDependencies": {
-    "aws-sdk": "^2.0.25",
+    "aws-sdk": ">=2.1.4",
     "chai": ">=1.10.0",
     "grunt": ">=0.4.5",
     "grunt-contrib-clean": ">=0.6.0",
@@ -106,8 +106,8 @@
     "grunt-jscs": ">=0.8.1",
     "grunt-jsonlint": ">=1.0.4",
     "grunt-mocha-istanbul": ">=2.2.0",
-    "grunt-mocha-test": ">=0.12.2",
+    "grunt-mocha-test": ">=0.12.4",
     "mocha": ">=2.0.1",
-    "supertest": ">=0.14.0"
+    "supertest": ">=0.15.0"
   }
 }
