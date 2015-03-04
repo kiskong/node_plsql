@@ -1,6 +1,6 @@
 [![Downloads][downloads-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Coverage Status](https://coveralls.io/repos/doberkofler/node_plsql/badge.svg)](https://coveralls.io/r/doberkofler/node_plsql)
 
-# Node PL/SQL Server: The Node.js PL/SQL Gateway for Oracle
+# The Node.js PL/SQL Gateway for Oracle
 The Node.js PL/SQL Server is a bridge between an Oracle database and a Node.js web server.
 It is an open-source alternative to mod_plsql, the Embedded PL/SQL Gateway and the APEX Listener,
 allowing you to develop PL/SQL web applications using the PL/SQL Web Toolkit (OWA) and Oracle Application Express (Apex),
