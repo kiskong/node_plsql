@@ -1,4 +1,4 @@
-[![Downloads][downloads-image]][npm-url] [![Build Status][travis-image]][travis-url]
+[![Downloads][downloads-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Coveralls Status][coveralls-image]][coveralls-url]
 
 # Node PL/SQL Server: The Node.js PL/SQL Gateway for Oracle
 The Node.js PL/SQL Server is a bridge between an Oracle database and a Node.js web server.
