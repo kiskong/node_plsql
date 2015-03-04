@@ -130,9 +130,9 @@ v0.1.1 - December 20, 2014
 * update "js-yaml" to 3.2.4 (Dieter Oberkofler)
 * update "ms" to 0.7.0 (Dieter Oberkofler)
 
-v0.2.0 - ??? ??, ????
+v0.2.0 - March 4, 2015
 * 0.2.0 (Dieter Oberkofler)
-* Support for Node.s 0.12.0
+* Support for Node.js 0.12.0
 * Migrated from jshint and esjs to eslint. (Dieter Oberkofler)
 * Updated all dependencies to latest release. (Dieter Oberkofler)
 * Internal errors (500) now whow the internal error stack. (Dieter Oberkofler)
