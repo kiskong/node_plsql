@@ -104,4 +104,4 @@ See the [history](https://github.com/doberkofler/node_plsql/blob/master/HISTORY.
 [travis-image]: https://travis-ci.org/doberkofler/node_plsql.svg?branch=master
 
 [coveralls-url]: https://coveralls.io/r/doberkofler/node_plsql
-[coveralls-image]: http://img.shields.io/coveralls/doberkofler/node_plsql/master.svg
+[coveralls-image]: https://coveralls.io/repos/doberkofler/node_plsql/badge.svg
