@@ -1,0 +1,444 @@
+{
+
+    "env": {
+        "node": true
+    },
+
+    "globals": {
+        "_": false,
+        "moment": false,
+        "ODS": false,
+        "LJS": false
+    },
+
+    "rules": {
+        //
+        //  Possible Errors
+        //  ---------------
+
+        // Disallow Dangling Commas
+        "no-comma-dangle": 2,
+
+        // Disallow Assignment in Conditional Statements
+        "no-cond-assign": 2,
+
+        // Disallow Use of console
+        "no-console": 0,
+
+        // Disallow use of constant expressions in conditions
+        "no-constant-condition": 2,
+
+        // Disallow Controls Characters in Regular Expressions
+        "no-control-regex": 2,
+
+        // Disallow debugger
+        "no-debugger": 1,
+
+        // Disallow Duplicate Keys
+        "no-dupe-keys": 2,
+
+        // Disallow Empty Block Statements
+        "no-empty": 2,
+
+        // Disallow Empty Character Classes
+        "no-empty-class": 2,
+
+        // Disallow Assignment of the Exception Parameter
+        "no-ex-assign" : 2,
+
+        // Disallow Extra Boolean Casts
+        "no-extra-boolean-cast": 2,
+
+        // Disallow Extra Parens
+        "no-extra-parens": 0,
+
+        // Disallow Extra Semicolons
+        "no-extra-semi": 2,
+
+        // Disallow Function Assignment
+        "no-func-assign": 2,
+
+        // Declarations in Program or Function Body
+        "no-inner-declarations": 2,
+
+        // Disallow Invalid Regular Expressions
+        "no-invalid-regexp": 2,
+
+        // No irregular whitespace
+        "no-irregular-whitespace": 2,
+
+        // Disallow negated left operand of in operator
+        "no-negated-in-lhs": 2,
+
+        // Disallow Global Object Function Calls
+        "no-obj-calls": 2,
+
+        // Disallow Spaces in Regular Expressions
+        "no-regex-spaces": 2,
+
+        // Disallow Use of Reserved Words as Keys
+        "no-reserved-keys": 0,
+
+        // Disallow Sparse Arrays
+        "no-sparse-arrays": 2,
+
+        // Disallow Unreachable Code
+        "no-unreachable": 2,
+
+        // Require isNaN()
+        "use-isnan": 2,
+
+        // Validates JSDoc comments are syntactically correct
+        "valid-jsdoc": [1, {
+            "requireParamDescription": false,
+            "requireReturn": false
+        }],
+
+        // Ensures that the results of typeof are compared against a valid string
+        "valid-typeof": 2,
+
+        //
+        //  Best Practices
+        //  --------------
+
+        // Treat var as Block Scoped
+        "block-scoped-var": 0,
+
+        // Limit Cyclomatic Complexity
+        "complexity": 0,
+
+        // Require Consistent Returns
+        "consistent-return": 2,
+
+        // Require Following Curly Brace Conventions
+        "curly": [2, "all"],
+
+        // Require Default Case in Switch Statements
+        "default-case": 2,
+
+        // Require Dot Notation
+        "dot-notation": [2, {"allowKeywords": true, "allowPattern": "^[a-zA-Z]+(_[a-zA-Z]+)+$"}],
+
+        // Require === and !==
+        "eqeqeq": 2,
+
+        // Require Guarding for-in
+        "guard-for-in": 2,
+
+        // Disallow Use of Alert
+        "no-alert": 0,
+
+        // Disallow Use of caller/callee
+        "no-caller": 2,
+
+        // Disallow Regexs That Look Like Division
+        "no-div-regex": 2,
+
+        // Disallow return in else
+        "no-else-return": 1,
+
+        // No empty labels
+        "no-empty-label": 2,
+
+        // Disallow Null Comparisons
+        "no-eq-null": 2,
+
+        // Disallow eval()
+        "no-eval": 2,
+
+        // Disallow Extending of Native Objects
+        "no-extend-native": 2,
+
+        // Disallow unnecessary function binding
+        "no-extra-bind": 2,
+
+        // Disallow Case Statement Fallthrough
+        "no-fallthrough": 2,
+
+        // Disallow Floating Decimals
+        "no-floating-decimal": 2,
+
+        // Disallow Implied eval()
+        "no-implied-eval": 2,
+
+        // disallow usage of __iterator__ property
+        "no-iterator": 2,
+
+        // disallow use of labeled statements
+        "no-labels": 2,
+
+        // disallow unnecessary nested blocks
+        "no-lone-blocks": 2,
+
+        // disallow creation of functions within loops
+        "no-loop-func": 2,
+
+        // disallow use of multiple spaces
+        "no-multi-spaces": 1,
+
+        // disallow use of multiline strings
+        "no-multi-str": 2,
+
+        // disallow reassignments of native objects
+        "no-native-reassign": 2,
+
+        // disallow use of new operator when not part of the assignment or comparison
+        "no-new": 2,
+
+        // disallow use of new operator for Function object
+        "no-new-func": 2,
+
+        // disallows creating new instances of String,Number, and Boolean
+        "no-new-wrappers": 2,
+
+        // disallow use of octal literals
+        "no-octal": 2,
+
+        // disallow use of octal escape sequences in string literals, such as var foo = "Copyright \251";
+        "no-octal-escape": 2,
+
+        // disallow use of process.env
+        "no-process-env": 0,
+
+        // disallow usage of __proto__ property
+        "no-proto": 2,
+
+        // disallow declaring the same variable more then once
+        "no-redeclare": 2,
+
+        // disallow use of assignment in return statement
+        "no-return-assign": 2,
+
+        // disallow use of javascript: urls.
+        "no-script-url": 2,
+
+        // disallow comparisons where both sides are exactly the same
+        "no-self-compare": 2,
+
+        // disallow use of comma operator
+        "no-sequences": 2,
+
+        // restrict what can be thrown as an exception (off by default)
+        "no-throw-literal": 2,
+
+        // disallow usage of expressions in statement position
+        "no-unused-expressions": 2,
+
+        // disallow use of void operator
+        "no-void": 2,
+
+        // disallow usage of configurable warning terms in comments - e.g. TODO or FIXME
+        "no-warning-comments": 1,
+
+        // disallow use of the with statement
+        "no-with": 2,
+
+        // require use of the second argument for parseInt()
+        "radix": 2,
+
+        // requires to declare all vars on top of their containing scope
+        "vars-on-top": 0,
+
+        // require immediate function invocation to be wrapped in parentheses
+        "wrap-iife": 2,
+
+        // require or disallow Yoda conditions
+        "yoda": [2, "never", { "exceptRange": true }],
+
+        //
+        //  Strict Mode
+        //  -----------
+
+        // controls location of Use Strict Directives
+        "strict": [2, "function"],
+
+        //
+        //  Variables
+        //  ---------
+
+        // disallow the catch clause parameter name being the same as a variable in the outer scope (off by default in the node environment)
+        "no-catch-shadow": 2,
+
+        // disallow deletion of variables
+        "no-delete-var": 2,
+
+        // disallow labels that share a name with a variable
+        "no-label-var": 2,
+
+        // disallow declaration of variables already declared in the outer scope
+        "no-shadow": 1,
+
+        // disallow shadowing of names such as arguments
+        "no-shadow-restricted-names": 2,
+
+        // disallow use of undeclared variables unless mentioned in a /*global */ block
+        "no-undef": 2,
+
+        // disallow use of undefined when initializing variables
+        "no-undef-init": 2,
+
+        // disallow use of undefined variable (off by default)
+        "no-undefined": 1,
+
+        // disallow declaration of variables that are not used in the code
+        "no-unused-vars": [1, {"vars": "all", "args": "after-used"}],
+
+        // disallow use of variables before they are defined
+        "no-use-before-define": [2, "nofunc"],
+
+        //
+        //  Stylistic Issues
+        //  ----------------
+
+        // this option sets a specific tab width for your code (off by default)
+        "indent": [1, "tab"],
+
+        // enforce one true brace style (off by default)
+        "brace-style": [1, "1tbs"],
+
+        // require camel case names
+        "camelcase": 1,
+
+        // enforce spacing before and after comma
+        "comma-spacing": [1, {before: false, after: true}],
+
+        // enforce one true comma style (off by default)
+        "comma-style": [1, "last"],
+
+        // enforces consistent naming when capturing the current execution context (off by default)
+        "consistent-this": [1, "that"],
+
+        // enforce newline at the end of file, with no multiple empty lines
+        "eol-last": 2,
+
+        // require function expressions to have a name (off by default)
+        "func-names": 0,
+
+        // enforces use of function declarations or expressions (off by default)
+        "func-style": 0,
+
+        // enforces spacing between keys and values in object literal properties
+        "key-spacing": [1, {"beforeColon": false, "afterColon": true}],
+
+        // specify the maximum depth callbacks can be nested (off by default)
+        "max-nested-callbacks": [1, 10],
+
+        // require a capital letter for constructors
+        "new-cap": 2,
+
+        // disallow the omission of parentheses when invoking a constructor with no arguments
+        "new-parens": 2,
+
+        // disallow use of the Array constructor
+        "no-array-constructor": 2,
+
+        // disallow comments inline after code (off by default)
+        "no-inline-comments": 0,
+
+        // disallow if as the only statement in an else block (off by default)
+        "no-lonely-if": 0,
+
+        // disallow mixed spaces and tabs for indentation
+        "no-mixed-spaces-and-tabs": 2,
+
+        // disallow multiple empty lines (off by default)
+        "no-multiple-empty-lines": 0,
+
+        // disallow nested ternary expressions (off by default)
+        "no-nested-ternary": 1,
+
+        // disallow use of the Object constructor
+        "no-new-object": 2,
+
+        // disallow space before semicolon
+        "no-space-before-semi": 1,
+
+        // disallow space between function identifier and application
+        "no-spaced-func": 2,
+
+        // disallow the use of ternary operators (off by default)
+        "no-ternary": 0,
+
+        // disallow trailing whitespace at the end of lines
+        "no-trailing-spaces": 2,
+
+        // disallow dangling underscores in identifiers
+        "no-underscore-dangle": 0,
+
+        // disallow wrapping of non-IIFE statements in parens
+        "no-wrap-func": 2,
+
+        // allow just one var statement per function (off by default)
+        "one-var": 0,
+
+        // require assignment operator shorthand where possible or prohibit it entirely (off by default)
+        "operator-assignment": 0,
+
+        // enforce padding within blocks (off by default)
+        "padded-blocks": 0,
+
+        // require quotes around object literal property names (off by default)
+        "quote-props": 0,
+
+        // specify whether double or single quotes should be used
+        "quotes": [2, "single"],
+
+        // require or disallow use of semicolons instead of ASI
+        semi: [2, "always"],
+
+        // sort variables within the same declaration block (off by default)
+        "sort-vars": 0,
+
+        // require a space after certain keywords (off by default)
+        "space-after-keywords": [2, "always"],
+
+        // require or disallow space before blocks (off by default)
+        "space-before-blocks": 2,
+
+        // require or disallow space before function parentheses (off by default)
+        "space-before-function-parentheses": [2, {"anonymous": "always", "named": "never"}],
+
+        // require or disallow spaces inside brackets (off by default)
+        "space-in-brackets":  2,
+
+        // require or disallow spaces inside parentheses (off by default)
+        "space-in-parens": 2,
+
+        // require spaces around operators
+        "space-infix-ops": 2,
+
+        // require a space after return, throw, and case
+        "space-return-throw-case": 2,
+
+        // Require or disallow spaces before/after unary operators (words on by default, nonwords off by default)
+        "space-unary-ops": 2,
+
+        // require or disallow a space immediately following the // in a line comment (off by default)
+        "spaced-line-comment": [1, "always"],
+
+        // require regex literals to be wrapped in parentheses (off by default)
+        "wrap-regex": 0,
+
+        //
+        //  Legacy
+        //  ------
+
+        // specify the maximum depth that blocks can be nested (off by default)
+        "max-depth": [1, 10],
+
+        // specify the maximum length of a line in your program (off by default)
+        "max-len":  [1, 2000],
+
+        // limits the number of parameters that can be used in the function declaration. (off by default)
+        "max-params": [1, 10],
+
+        // specify the maximum number of statement allowed in a function (off by default)
+        "max-statements": [1, 150],
+
+        // disallow use of bitwise operators (off by default)
+        "no-bitwise": 2,
+
+        // disallow use of unary operators, ++ and -- (off by default)
+        "no-plusplus": 0
+    }
+}

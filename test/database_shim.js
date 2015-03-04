@@ -1,10 +1,9 @@
 /**
- * @fileoverview Test for the module "database_shim.js"
+ * @fileoverview Test for the module "databaseShim.js"
  * @author doberkofler
  */
 
 
-/* jshint node: true */
 /* global describe: false, it:false */
 
 
@@ -13,7 +12,7 @@
 */
 
 var assert = require('chai').assert;
-var database_shim = require('../lib/database_shim');
+var databaseShim = require('../lib/database_shim');
 
 
 /**
@@ -29,7 +28,7 @@ var database_shim = require('../lib/database_shim');
 /**
 * Tests.
 */
-describe('database_shim', function () {
+describe('databaseShim', function () {
 	'use strict';
 
 	describe('callbacks', function () {
@@ -48,10 +47,10 @@ describe('database_shim', function () {
 					}
 				};
 
-			database_shim.connect(CONFIG);
+			databaseShim.connect(CONFIG);
 			assert.strictEqual(connectRun, true);
 
-			database_shim.invoke(CONFIG);
+			databaseShim.invoke(CONFIG);
 			assert.strictEqual(invokeRun, true);
 		});
 
@@ -64,10 +63,10 @@ describe('database_shim', function () {
 					}
 				};
 
-			database_shim.connect(CONFIG);
+			databaseShim.connect(CONFIG);
 			assert.strictEqual(connectRun, false);
 
-			database_shim.invoke(CONFIG);
+			databaseShim.invoke(CONFIG);
 			assert.strictEqual(invokeRun, false);
 		});
 

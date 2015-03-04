@@ -4,7 +4,6 @@
  */
 
 
-/* jshint node: true */
 /* global describe: false, it:false */
 
 
@@ -13,6 +12,7 @@
 */
 
 var fs = require('fs');
+var path = require('path');
 var assert = require('chai').assert;
 var utilities = require('../lib/utilities');
 var config = require('../lib/config');
@@ -30,14 +30,10 @@ var TEST_CONFIGURATION_FILENAME = '_mocha.json';
 */
 
 
-/**
+/*
 * Return a valid configuration object
-*
-* @return {Object}
-* @api private
 */
-function getValidConf()
-{
+function getValidConf() {
 	'use strict';
 
 	return {
@@ -45,7 +41,7 @@ function getValidConf()
 			port: 8999,
 			static: [{
 				mountPath: '/',
-				physicalDirectory: __dirname + '/static'
+				physicalDirectory: path.join(__dirname, 'static')
 			}],
 			suppressOutput: true,
 			requestLogging: true,
@@ -84,9 +80,10 @@ describe('config', function () {
 
 	describe('when validating a configuration', function () {
 		it('is a valid configuration', function () {
-			var conf = getValidConf();
+			var conf = getValidConf(),
+				Undefined;
 
-			assert.strictEqual(config.validate(conf), undefined);
+			assert.strictEqual(config.validate(conf), Undefined);
 		});
 
 		it('is an invalid configuration because of the missing port', function () {

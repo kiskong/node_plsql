@@ -1,16 +1,16 @@
-/*jshint node:true*/
+/*eslint-env node*/
+/*eslint strict:[2, "global"]*/
 
 'use strict';
 
 //
 //	Requirements
 //
-var //gdebug = require('gulp-debug'),
+var // gdebug = require('gulp-debug'),
 	gulp = require('gulp'),
 	gutil = require('gulp-util'),
 	istanbul = require('gulp-istanbul'),
-	jshint = require('gulp-jshint'),
-	jscs = require('gulp-jscs'),
+	eslint = require('gulp-eslint'),
 	jsonlint = require('gulp-jsonlint'),
 	mocha = require('gulp-mocha'),
 	runSequence = require('run-sequence'),
@@ -20,7 +20,7 @@ var //gdebug = require('gulp-debug'),
 //	Constants
 //
 var JS_SRC_FILES = [
-	'Gruntfile.js',
+	'Gulpfile.js',
 	'lib/**/*.js',
 	'test/**/*.js'
 ];
@@ -49,7 +49,7 @@ process.env.NODE_ENV = 'test';
 function numberOfFiles(message) {
 	var count = 0;
 
-	function countFiles(file) {
+	function countFiles(/*file*/) {
 		count++;
 	}
 
@@ -70,18 +70,17 @@ function numberOfFiles(message) {
 //	The task "jslint" will lint the js files
 //
 gulp.task('jslint', function () {
-	return	gulp.src(JS_SRC_FILES)
-		.pipe(jshint('.jshintrc'))
-		.pipe(jshint.reporter('jshint-stylish'))
-		.pipe(jshint.reporter('fail'))
-		.pipe(jscs('./.jscsrc'))
+	return gulp.src(JS_SRC_FILES)
+		.pipe(eslint())
+		.pipe(eslint.formatEach())
+		.pipe(eslint.failOnError())
 		.pipe(numberOfFiles('files lint free.'));
 });
 
 //
 // This is the "jsonlint" task that Gulp will use to lint the json files
 //
-gulp.task('jsonlint', function (callback) {
+gulp.task('jsonlint', function (/*callback*/) {
 	return gulp.src('package.json')
 		.pipe(jsonlint())
 		.pipe(jsonlint.reporter());
@@ -90,16 +89,16 @@ gulp.task('jsonlint', function (callback) {
 //
 //	The tasks "unittest" will run all unit tests in the mocha test runner
 //
-gulp.task('test:unit', function (callback) {
+gulp.task('test:unit', function (/*callback*/) {
 	return gulp.src(['test/**/*.js'], {read: false})
 		.pipe(mocha(MOCHA_OPTIONS));
 });
 
 //
-//	The tasks "coverage" will test the unit testst coverage
+//	The tasks "coverage" will analyze the coverage of the unit tests
 //
 gulp.task('test:coverage', function (callback) {
-	gulp.src(['test/**/*.js'])
+	gulp.src(['lib/**/*.js'])
 		.pipe(istanbul())				// Covering files
 		.pipe(istanbul.hookRequire())	// Force 'require' to return covered files
 		.on('finish', function () {

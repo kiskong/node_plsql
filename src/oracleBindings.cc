@@ -1,9 +1,8 @@
 #include "global.h"
 
-#include <node.h>
+#include "nodeUtilities.h"
 
 #include "oracleObject.h"
-#include "nodeUtilities.h"
 
 ///////////////////////////////////////////////////////////////////////////
 class OracleObject;

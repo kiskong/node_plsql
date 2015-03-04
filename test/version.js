@@ -4,7 +4,6 @@
  */
 
 
-/* jshint node: true */
 /* global describe: false, it:false */
 
 

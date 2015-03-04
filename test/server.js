@@ -4,7 +4,6 @@
  */
 
 
-/* jshint node: true */
 /* global describe: false, it:false */
 
 
@@ -35,11 +34,9 @@ var server = require('../lib/server');
 * Database callback when connecting to the database
 *
 * @param {Object} config Server configuration.
-* @return {Object} Database handle.
 * @api private
 */
-function databaseConnect(config)
-{
+function databaseConnect(/*config*/) {
 	'use strict';
 
 	debug('databaseConnect: \n' + util.inspect(arguments, {showHidden: false, depth: null, colors: true}) + '\"');
@@ -53,8 +50,7 @@ function databaseConnect(config)
 * @return {String} Text returned by database engine.
 * @api private
 */
-function getPage(body, header)
-{
+function getPage(body, header) {
 	'use strict';
 
 	var text = '',
@@ -87,8 +83,7 @@ function getPage(body, header)
 * @param {Function} callback Callback function (function cb(err, page)) to invoke when done.
 * @api private
 */
-function databaseInvoke(databaseHandle, username, password, procedure, args, cgi, files, doctablename, callback)
-{
+function databaseInvoke(databaseHandle, username, password, procedure, args, cgi, files, doctablename, callback) {
 	'use strict';
 
 	var proc = procedure.toLowerCase();
@@ -133,8 +128,7 @@ function databaseInvoke(databaseHandle, username, password, procedure, args, cgi
 * @return {Object} Express application.
 * @api private
 */
-function startServer()
-{
+function startServer() {
 	'use strict';
 
 	var config = {
@@ -332,7 +326,7 @@ describe('GET errors', function () {
 	describe('GET /sampleRoute/internalError', function () {
 		it('should respond with 500', function (done) {
 			var test = request(app).get('/sampleRoute/internalError');
-			test.expect(500, '{}', done);
+			test.expect(500, /Error: internal error.*/, done);
 		});
 	});
 

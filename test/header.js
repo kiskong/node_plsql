@@ -4,22 +4,21 @@
  */
 
 
-/* jshint node: true */
 /* global describe: false, it:false */
 
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // Requirements
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 
 var assert = require('chai').assert;
 var tough = require('tough-cookie');
 var header = require('../lib/header');
 
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // Tests
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 describe('header', function () {
 	'use strict';
 
@@ -27,16 +26,16 @@ describe('header', function () {
 		it('the cookie string should return an object', function () {
 			var cookie = {};
 
-			assert.strictEqual(tough.Cookie.parse('', true), undefined);
-			assert.strictEqual(tough.Cookie.parse('a', true), undefined);
-			assert.strictEqual(tough.Cookie.parse('=a', true), undefined);
+			assert.isUndefined(tough.Cookie.parse('', true));
+			assert.isUndefined(tough.Cookie.parse('a', true));
+			assert.isUndefined(tough.Cookie.parse('=a', true));
 
 			cookie = tough.Cookie.parse('c1=v1', true);
 			assert.strictEqual(cookie.key, 'c1');
 			assert.strictEqual(cookie.value, 'v1');
 
 			cookie = tough.Cookie.parse('c1="this is the value"', true);
-			assert.strictEqual(cookie, undefined);
+			assert.isUndefined(cookie);
 
 			cookie = tough.Cookie.parse('c1=this is the value', false);
 			assert.strictEqual(cookie.key, 'c1');
@@ -72,7 +71,7 @@ describe('header', function () {
 			var code = header.containsHttpHeader;
 			assert.equal(code(''), false);
 			assert.equal(code(null), false);
-			assert.equal(code(undefined), false);
+			assert.equal(code(), false);
 			assert.equal(code('Content-type:'), false);
 			assert.equal(code('Content type: '), false);
 			assert.equal(code('Location:Status: '), true);
@@ -100,9 +99,10 @@ describe('header', function () {
 				text: '',
 				header: '',
 				body: ''
-			}];
+			}],
+			i;
 
-			for (var i = 0; i < testData.length; i++) {
+			for (i = 0; i < testData.length; i++) {
 				var result = header.getHeaderAndBody(testData[i].text);
 				assert.equal(result.header, testData[i].header);
 				assert.equal(result.body, testData[i].body);
@@ -211,46 +211,48 @@ describe('header', function () {
 				}]
 			}];
 
-			var testCookies = function (expectedCookies, resultCookies) {
-				var findCookie = function (key) {
-					var i = 0;
-					for (i = 0; i < resultCookies.length; i++) {
-						if (resultCookies[i].key === key) {
-							return i;
-						}
-					}
-					return -1;
-				};
+			function findCookie(cookies, key) {
+				var i;
 
-				var i = 0,
-					f = 0,
-					k = '';
+				for (i = 0; i < cookies.length; i++) {
+					if (cookies[i].key === key) {
+						return i;
+					}
+				}
+
+				return -1;
+			}
+
+			function testCookies(expectedCookies, resultCookies) {
+				var i,
+					f,
+					k;
 
 				for (i = 0; i < expectedCookies.length; i++) {
 					for (k in expectedCookies[i]) {
 						if (expectedCookies.hasOwnProperty(k)) {
-							f = findCookie(k);
+							f = findCookie(resultCookies, k);
 							assert.notEqual(f, -1);
 							assert.property(resultCookies[f], k);
 							assert.propertyVal(resultCookies[f], k, expectedCookies[k]);
 						}
 					}
 				}
-			};
+			}
 
 			var headerMain = {},
 				headerOther = {},
 				headerCookies = [],
-				i = 0;
+				l = 0;
 
-			for (i = 0; i < testHeaders.length; i++) {
+			for (l = 0; l < testHeaders.length; l++) {
 				headerMain = {};
 				headerOther = {};
 				headerCookies = [];
-				header.parseHeader(testHeaders[i].text, headerMain, headerOther, headerCookies);
-				assert.deepEqual(headerMain, testHeaders[i].header);
-				assert.deepEqual(headerOther, testHeaders[i].other);
-				testCookies(testHeaders[i].cookie, headerCookies);
+				header.parseHeader(testHeaders[l].text, headerMain, headerOther, headerCookies);
+				assert.deepEqual(headerMain, testHeaders[l].header);
+				assert.deepEqual(headerOther, testHeaders[l].other);
+				testCookies(testHeaders[l].cookie, headerCookies);
 			}
 		});
 	});

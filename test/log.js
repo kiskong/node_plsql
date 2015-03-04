@@ -4,7 +4,6 @@
  */
 
 
-/* jshint node: true */
 /* global describe: false, it:false */
 
 
@@ -34,16 +33,17 @@ describe('log', function () {
 
 	describe('enabled', function () {
 		it('does enable', function () {
-			var original = log.enabled();
+			var original = log.enabled(),
+				Undefined;
 
 			log.enable(true);
-			assert.strictEqual(process.env.NOLOG, undefined);
+			assert.strictEqual(process.env.NOLOG, Undefined);
 
 			assert.strictEqual(log.enable(false), true);
 			assert.strictEqual(process.env.NOLOG, '1');
 
 			assert.strictEqual(log.enable(), false);
-			assert.strictEqual(process.env.NOLOG, undefined);
+			assert.strictEqual(process.env.NOLOG, Undefined);
 
 			log.enable(original);
 		});
