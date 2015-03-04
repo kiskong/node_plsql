@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/doberkofler/node_plsql.svg?branch=master)](http://travis-ci.org/doberkofler/node_plsql)
+[![Downloads][downloads-image]][npm-url] [![Build Status][travis-image]][travis-url]
 
 # Node PL/SQL Server: The Node.js PL/SQL Gateway for Oracle
 The Node.js PL/SQL Server is a bridge between an Oracle database and a Node.js web server.
@@ -96,3 +96,9 @@ This README and the [release goals](https://github.com/doberkofler/node_plsql/bl
 
 # Release History
 See the [history](https://github.com/doberkofler/node_plsql/blob/master/HISTORY.md).
+
+[travis-url]: http://travis-ci.org/doberkofler/node_plsql
+[travis-image]: https://travis-ci.org/doberkofler/node_plsql.svg?branch=master
+
+[coveralls-url]: https://coveralls.io/r/doberkofler/node_plsql
+[coveralls-image]: http://img.shields.io/coveralls/doberkofler/node_plsql/master.svg
