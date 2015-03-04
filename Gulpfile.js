@@ -8,6 +8,7 @@
 //
 var // gdebug = require('gulp-debug'),
 	gulp = require('gulp'),
+	coveralls = require('gulp-coveralls'),
 	gutil = require('gulp-util'),
 	istanbul = require('gulp-istanbul'),
 	eslint = require('gulp-eslint'),
@@ -107,6 +108,14 @@ gulp.task('test:coverage', function (callback) {
 			.pipe(istanbul.writeReports()) // Creating the reports after tests runned
 			.on('end', callback);
 		});
+});
+
+//
+//	The tasks "coveralls" will upload the coverage to te coveralls service
+//
+gulp.task('coveralls', function (/*callback*/) {
+	return gulp.src('./coverage/lcov.info')
+		.pipe(coveralls());
 });
 
 //

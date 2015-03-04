@@ -19,6 +19,7 @@ before_script:
 script:
   - "gulp lint"
   - "gulp test"
+  - "gulp coveralls"
 
 install:
   - npm install
