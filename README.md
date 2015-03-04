@@ -97,6 +97,8 @@ This README and the [release goals](https://github.com/doberkofler/node_plsql/bl
 # Release History
 See the [history](https://github.com/doberkofler/node_plsql/blob/master/HISTORY.md).
 
+[downloads-image]: http://img.shields.io/npm/dm/node_plsql.svg
+
 [travis-url]: http://travis-ci.org/doberkofler/node_plsql
 [travis-image]: https://travis-ci.org/doberkofler/node_plsql.svg?branch=master
 
