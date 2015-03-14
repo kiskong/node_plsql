@@ -16,6 +16,7 @@ var assert = require('chai').assert;
 var request = require('supertest');
 var util = require('util');
 var fs = require('fs');
+var os = require('os');
 var mkdirp = require('mkdirp');
 var server = require('../lib/server');
 
@@ -29,6 +30,49 @@ var server = require('../lib/server');
 * Module variables.
 */
 
+
+/**
+* Validate the CGI
+*
+* @param {Array} cgi Array of cgi variables to send for the PL/SQL code.
+* @api private
+*/
+function validateCGI(cgi) {
+	'use strict';
+
+	var SERVER_PORT = '8999',
+		ROUTE = 'sampleRoute',
+		DOCUMENT_TABLE_NAME = 'sampleDoctable';
+
+	assert.strictEqual(cgi.PLSQL_GATEWAY, 'node-plsql_server');
+	assert.strictEqual(cgi.GATEWAY_IVERSION, '2');
+	assert.strictEqual(cgi.SERVER_SOFTWARE, 'node.js');
+	assert.strictEqual(cgi.GATEWAY_INTERFACE, 'CGI/1.1');
+	assert.strictEqual(cgi.SERVER_PORT, SERVER_PORT);
+	assert.strictEqual(cgi.SERVER_NAME, os.hostname());
+	assert.strictEqual(cgi.REQUEST_METHOD, 'GET');
+	assert.strictEqual(cgi.PATH_INFO, 'cgi');
+	assert.strictEqual(cgi.SCRIPT_NAME, ROUTE);
+//	assert.strictEqual(cgi.REMOTE_ADDR, REMOTE_ADDRESS);
+	assert.strictEqual(cgi.SERVER_PROTOCOL, 'http/1.1');
+	assert.strictEqual(cgi.REQUEST_PROTOCOL, 'http');
+	assert.strictEqual(cgi.REMOTE_USER, '');
+//	assert.strictEqual(cgi.HTTP_USER_AGENT, 'USER-AGENT');
+//	assert.strictEqual(cgi.HTTP_HOST, 'HOST');
+//	assert.strictEqual(cgi.HTTP_ACCEPT, 'ACCEPT');
+//	assert.strictEqual(cgi.HTTP_ACCEPT_ENCODING, 'ACCEPT-ENCODING');
+//	assert.strictEqual(cgi.HTTP_ACCEPT_LANGUAGE, 'ACCEPT-LANGUAGE');
+	assert.strictEqual(cgi.HTTP_REFERER, '');
+	assert.strictEqual(cgi.WEB_AUTHENT_PREFIX, '');
+	assert.strictEqual(cgi.DAD_NAME, ROUTE);
+	assert.strictEqual(cgi.DOC_ACCESS_PATH, '');
+	assert.strictEqual(cgi.DOCUMENT_TABLE, DOCUMENT_TABLE_NAME);
+	assert.strictEqual(cgi.PATH_ALIAS, '');
+	assert.strictEqual(cgi.REQUEST_CHARSET, 'UTF8');
+	assert.strictEqual(cgi.REQUEST_IANA_CHARSET, 'UTF-8');
+	assert.strictEqual(cgi.SCRIPT_PREFIX, '');
+	assert.isUndefined(cgi.HTTP_COOKIE);
+}
 
 /**
 * Database callback when connecting to the database
@@ -111,6 +155,10 @@ function databaseInvoke(databaseHandle, username, password, procedure, args, cgi
 		break;
 	case 'multipart_form_data':
 		callback(null, getPage('foo.txt', {'Content-Type': 'text/html'}));
+		break;
+	case 'cgi':
+		validateCGI(cgi);
+		callback(null, getPage('cgi'), {'Content-Type': 'text/html'});
 		break;
 	case 'invalidpage':
 		callback('procedure not found');
@@ -251,36 +299,36 @@ describe('GET', function () {
 
 	describe('GET /sampleRoute/emptyPage', function () {
 		it('GET /sampleRoute/emptyPage should return an empty page', function (done) {
-			var test = request(app).get('/sampleRoute/emptyPage');
-			test.expect(200, '', done);
+			request(app).get('/sampleRoute/emptyPage')
+				.expect(200, '', done);
 		});
 	});
 
 	describe('GET /sampleRoute/samplePage', function () {
 		it('GET /sampleRoute/samplePage should return the sample page', function (done) {
-			var test = request(app).get('/sampleRoute/samplePage');
-			test.expect(200, 'sample page', done);
+			request(app).get('/sampleRoute/samplePage')
+				.expect(200, 'sample page', done);
 		});
 	});
 
 	describe('GET /sampleRoute/completePage', function () {
 		it('should return the complete page', function (done) {
-			var test = request(app).get('/sampleRoute/completePage?para=value');
-			test.expect(200, 'complete page', done);
+			request(app).get('/sampleRoute/completePage?para=value')
+				.expect(200, 'complete page', done);
 		});
 	});
 
 	describe('GET /sampleRoute/redirect', function () {
 		it('should redirect to another page', function (done) {
-			var test = request(app).get('/sampleRoute/redirect');
-			test.expect(302, done);
+			request(app).get('/sampleRoute/redirect')
+				.expect(302, done);
 		});
 	});
 
 	describe('GET /sampleRoute/json', function () {
 		it('should parse JSON', function (done) {
-			var test = request(app).get('/sampleRoute/json');
-			test.expect(200, '{"name":"johndoe"}', done);
+			request(app).get('/sampleRoute/json')
+				.expect(200, '{"name":"johndoe"}', done);
 		});
 	});
 
@@ -362,6 +410,22 @@ describe('POST', function () {
 			test.write('some text here');
 			test.write('\r\n--foo--');
 			test.expect(200, 'foo.txt', done);
+		});
+	});
+
+	// Stop the server
+	app.server.close();
+});
+
+describe('CGI', function () {
+	'use strict';
+
+	var app = startServer();
+
+	describe('GET /sampleRoute/cgi', function () {
+		it('GET /sampleRoute/cgi should validate the cgi', function (done) {
+			request(app).get('/sampleRoute/cgi')
+				.expect(200, 'cgi', done);
 		});
 	});
 
