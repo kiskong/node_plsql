@@ -12,6 +12,7 @@
 */
 
 var assert = require('chai').assert;
+var fs = require('fs');
 var log = require('../lib/log');
 
 
@@ -57,6 +58,19 @@ describe('log', function () {
 			log.log();
 
 			log.enable(original);
+		});
+	});
+
+	describe('error', function () {
+		it('does log an error', function () {
+			var timestamp = 'timestamp:' + log.getTimestamp(),
+				data;
+
+			log.error();
+			log.error(timestamp);
+
+			data = fs.readFileSync('error.log', {encoding: 'utf8'});
+			assert.ok(data.indexOf(timestamp) !== 0);
 		});
 	});
 

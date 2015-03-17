@@ -67,9 +67,10 @@ describe('cgi', function () {
 			service = {
 				route: ROUTE,
 				documentTableName: DOCUMENT_TABLE_NAME
-			};
+			},
+			cgi;
 
-			var cgi = createCGI(serverConfig, req, service);
+			cgi = createCGI(serverConfig, req, service);
 			assert.strictEqual(28, Object.keys(cgi).length);
 			assert.deepEqual(cgi, {
 				'PLSQL_GATEWAY': 'node-plsql_server',
@@ -101,6 +102,11 @@ describe('cgi', function () {
 				'SCRIPT_PREFIX': '',
 				'HTTP_COOKIE': 'cookie1=value1;cookie2=value2;'
 			});
+
+			service.documentTableName = '';
+			cgi = createCGI(serverConfig, req, service);
+			assert.strictEqual(cgi.DOCUMENT_TABLE, '');
+
 		});
 	});
 

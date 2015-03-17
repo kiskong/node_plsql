@@ -306,11 +306,6 @@ bool OracleObject::uploadFile(ocip::Connection* connection, const fileType& file
 	OCILobLocator* locp = 0;
 	OCIBind* bindp = 0;
 
-	std::string m_filename;
-	std::string m_path;
-	std::string m_encoding;
-	std::string m_mimetype;
-
 	ocip::Statement statement(connection);
 
 	// Allocate lob descriptor
@@ -330,7 +325,12 @@ bool OracleObject::uploadFile(ocip::Connection* connection, const fileType& file
 	}
 
 	// Prepare statement
-	if (!statement.prepare("INSERT INTO " + doctablename + " (name, mime_type, doc_size, dad_charset, last_updated, content_type, content, blob_content) VALUES (:1, :2, :3, 'ascii', SYSDATE, 'BLOB', NULL, :4)"))
+	std::string sql = "INSERT INTO " + doctablename + " (name, mime_type, doc_size, dad_charset, last_updated, content_type, blob_content) VALUES (:1, :2, :3, 'ascii', SYSDATE, 'BLOB', :4)";
+	if (m_Config.m_debug)
+	{
+		std::cout << "OracleObject::uploadFile: insert blob. sql=\"" << sql << "\"." << std::endl << std::flush;
+	}
+	if (!statement.prepare(sql))
 	{
 		m_OracleError = statement.reportError("oci_statement_prepare", __FILE__, __LINE__);
 		return false;
@@ -384,7 +384,7 @@ bool OracleObject::uploadFile(ocip::Connection* connection, const fileType& file
 	// Execute statement
 	if (!statement.execute(1))
 	{
-		m_OracleError = statement.reportError("oci_statement_execute", __FILE__, __LINE__);
+		m_OracleError = statement.reportError("insert BLOB content\nsql: " + sql, __FILE__, __LINE__);
 		return false;
 	}
 

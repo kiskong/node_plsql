@@ -55,7 +55,10 @@ public:
 
 	// Executed when the async work is complete.
 	// This function will be run inside the main event loop so it is safe to use V8 again
-	void HandleOKCallback();
+	virtual void HandleOKCallback();
+
+	// Callback function with an Error object wrapping the `errmsg` string
+	virtual void HandleErrorCallback();
 
 private:
 	// Input parameter
@@ -144,6 +147,15 @@ void RequestWorker::HandleOKCallback()
 	if (isDebug())
 	{
 		std::cout << "RequestWorker::HandleOKCallback: END" << std::endl << std::flush;
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////
+void RequestWorker::HandleErrorCallback()
+{
+	if (isDebug())
+	{
+		std::cout << "RequestWorker::HandleErrorCallback: START" << std::endl << std::flush;
 	}
 }
 

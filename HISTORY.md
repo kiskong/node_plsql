@@ -132,7 +132,19 @@ v0.1.1 - December 20, 2014
 
 v0.2.0 - March 4, 2015
 * 0.2.0 (Dieter Oberkofler)
-* Support for Node.js 0.12.0
+* Support for Node.js 0.2.0. (Dieter Oberkofler)
 * Migrated from jshint and esjs to eslint. (Dieter Oberkofler)
 * Updated all dependencies to latest release. (Dieter Oberkofler)
 * Internal errors (500) now whow the internal error stack. (Dieter Oberkofler)
+
+v0.3.0 - March 14, 2015
+* 0.3.0 (Dieter Oberkofler)
+* Impoved the CGI parameter available to the Oracle backend. (Dieter Oberkofler)
+* Support for io.js. (Dieter Oberkofler)
+* Updated all dependencies to latest release. (Dieter Oberkofler)
+
+v0.4.0 - March 17, 2015
+* 0.4.0 (Dieter Oberkofler)
+* Finalized the error logging on console and the new `error.log` file. (Dieter Oberkofler)
+* Startup aborted when no database connection can be established. (Dieter Oberkofler)
+* Updated all dependencies to latest release. (Dieter Oberkofler)
