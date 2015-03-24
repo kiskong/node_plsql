@@ -148,3 +148,11 @@ v0.4.0 - March 17, 2015
 * Finalized the error logging on console and the new `error.log` file. (Dieter Oberkofler)
 * Startup aborted when no database connection can be established. (Dieter Oberkofler)
 * Updated all dependencies to latest release. (Dieter Oberkofler)
+
+v0.5.0 - March 24, 2015
+* 0.5.0 (Dieter Oberkofler)
+* Added support for associative array arguments. (Dieter Oberkofler)
+* Better support of APEX applications. (Dieter Oberkofler)
+* No PL/SQL code needs to be installed during server startup. (Dieter Oberkofler)
+* Improved error messages from SQL statement fails. (Dieter Oberkofler)
+* Updated all dependencies to latest release. (Dieter Oberkofler)
