@@ -10,6 +10,7 @@ BEGIN
 	openPage('PLSQL-SERVER - Index Page');
 	htp.p('<ul>');
 	htp.p('<li><a href="sample.pageSimple?text=some-text">Simple page</a></li>');
+	htp.p('<li><a href="sample.pageArray?text=some-text'||CHR(38)||'text=more-text'||CHR(38)||'text=last-text">Array passing</a></li>');
 	htp.p('<li><a href="!sample.pageFlexible?p1=v1'||CHR(38)||'p2=v2'||CHR(38)||'p3=v3">Flexible parameter passing</a></li>');
 	htp.p('<li><a href="sample.pageCGI">CGI</a></li>');
 	htp.p('<li><a href="sample.pageCookie">Cookies</a></li>');
@@ -29,6 +30,19 @@ BEGIN
 	htp.p('<p>'||text||'</p>');
 	closePage();
 END pageSimple;
+
+PROCEDURE pageArray(text IN vc_arr DEFAULT empty_vc_arr)
+IS
+BEGIN
+	openPage('PLSQL-SERVER - Array parameter passing');
+	htp.p('<table>');
+	htp.p('<tr><th>value</th></tr>');
+	FOR i IN 1 .. text.COUNT LOOP
+		htp.p('<tr><td>'||text(i)||'</td></tr>');
+	END LOOP;
+	htp.p('</table>');
+	closePage();
+END pageArray;
 
 PROCEDURE pageFlexible(name_array IN owa.vc_arr, value_array IN owa.vc_arr)
 IS

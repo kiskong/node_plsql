@@ -46,7 +46,7 @@ v8::Persistent<v8::Function> OracleBindings::m_constructor;
 class RequestWorker : public NanAsyncWorker
 {
 public:
-	RequestWorker(NanCallback* callback, OracleObject* oracleObject, const std::string& username, const std::string& password, const std::string& procedure,  const propertyListType& parameters, const propertyListType& cgi, const fileListType& files, const std::string& doctablename);
+	RequestWorker(NanCallback* callback, OracleObject* oracleObject, const std::string& username, const std::string& password, const std::string& procedure,  const parameterListType& parameters, const propertyListType& cgi, const fileListType& files, const std::string& doctablename);
 	~RequestWorker();
 
 	// Executed inside the worker-thread.
@@ -66,7 +66,7 @@ private:
 	std::string						m_username;
 	std::string						m_password;
 	std::string						m_procedure;
-	propertyListType				m_parameters;
+	parameterListType				m_parameters;
 	propertyListType				m_cgi;
 	fileListType					m_files;
 	std::string						m_doctablename;
@@ -77,7 +77,7 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////
-RequestWorker::RequestWorker(NanCallback* callback, OracleObject* oracleObject, const std::string& username, const std::string& password, const std::string& procedure,  const propertyListType& parameters, const propertyListType& cgi, const fileListType& files, const std::string& doctablename)
+RequestWorker::RequestWorker(NanCallback* callback, OracleObject* oracleObject, const std::string& username, const std::string& password, const std::string& procedure,  const parameterListType& parameters, const propertyListType& cgi, const fileListType& files, const std::string& doctablename)
 	:	NanAsyncWorker(callback)
 	,	m_oracleObject(oracleObject)
 	,	m_username(username)
@@ -357,7 +357,7 @@ NAN_METHOD(OracleBindings::request)
 	std::string				username;
 	std::string				password;
 	std::string				procedure;
-	propertyListType		parameters;
+	parameterListType		parameters;
 	propertyListType		cgi;
 	fileListType			files;
 	std::string				doctablename;
@@ -397,7 +397,7 @@ NAN_METHOD(OracleBindings::request)
 		NanThrowError("Argument 4 must be an object with the parameters of the procedure procedure!");
 		NanReturnUndefined();
 	}
-	if (!nodeUtilities::objectAsStringLists(parametersObject, &parameters))
+	if (!nodeUtilities::objectAsParameterList(parametersObject, &parameters))
 	{
 		NanThrowError("Argument 4 must be an object with all properties of type string!");
 		NanReturnUndefined();

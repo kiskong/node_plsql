@@ -1,6 +1,45 @@
 #include "global.h"
 
 ///////////////////////////////////////////////////////////////////////////
+std::string parameterType::value() const
+{
+    assert(m_type == Scalar);
+    assert(m_values.size() == 1);
+
+	return m_values.front();
+}
+
+///////////////////////////////////////////////////////////////////////////
+std::list<std::string> parameterType::values() const
+{
+    assert(m_type == Array);
+
+    return m_values;
+}
+
+///////////////////////////////////////////////////////////////////////////
+std::string parameterType::to_string() const
+{
+	std::string s("\"" + m_name + "\": ");
+
+	switch (m_type)
+	{
+		case Scalar:
+			s += "\"" + m_values.front() + "\"";
+			break;
+		case Array:
+			s += ::to_string(m_values);
+			break;
+		case Null:
+			s += "null";
+		default:
+			break;
+	}
+
+	return s;
+}
+
+///////////////////////////////////////////////////////////////////////////
 bool isDebug()
 {
     char* env = getenv("DEBUG");
@@ -87,4 +126,64 @@ void convert(const propertyListType& properties, stringListType* names, stringLi
 
 	assert(properties.size() == names->size());
 	assert(properties.size() == values->size());
+}
+
+///////////////////////////////////////////////////////////////////////////
+std::string to_string(const std::list<std::string>& list)
+{
+	std::list<std::string>::const_iterator it;
+	std::string s;
+
+	s = "[";
+	for (it = list.begin(); it != list.end(); ++it)
+	{
+		if (it != list.begin())
+		{
+			s += ",";
+		}
+		s += "\"" + *it + "\"";
+	}
+	s += "]";
+
+	return s;
+}
+
+///////////////////////////////////////////////////////////////////////////
+std::string to_string(const propertyListType& list)
+{
+	propertyListConstIteratorType it;
+	std::string s;
+
+	s = "{\n";
+	for (it = list.begin(); it != list.end(); ++it)
+	{
+		if (it != list.begin())
+		{
+			s += ",";
+		}
+		s += "\"" + it->name + "\": \"" + it->value +"\"\n";
+	}
+	s += "}";
+
+	return s;
+}
+
+///////////////////////////////////////////////////////////////////////////
+std::string to_string(const parameterListType& list)
+{
+	parameterListConstIteratorType it;
+	std::string s;
+
+	s = "{\n";
+	for (it = list.begin(); it != list.end(); ++it)
+	{
+		if (it != list.begin())
+		{
+			s += ",";
+		}
+		s += it->to_string() + "\n";
+	}
+	s += "}";
+
+	return s;
 }

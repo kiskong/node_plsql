@@ -236,9 +236,19 @@ inline double getObjNumber(const v8::Local<v8::Object>& object, const std::strin
 }
 
 ///////////////////////////////////////////////////////////////////////////
+// convert an object containing an array of strings to a stringListType
+bool objectAsStringList(const v8::Local<v8::Array>& arr, stringListType* list);
+
+
+///////////////////////////////////////////////////////////////////////////
 // convert an object containing only properties of type string to a list of
 //	propertyType entries.
 bool objectAsStringLists(const v8::Local<v8::Object>& object, propertyListType* list);
+
+///////////////////////////////////////////////////////////////////////////
+// convert an object containing properties of type string or list of string
+// to a list of parameterType entries.
+bool objectAsParameterList(const v8::Local<v8::Object>& object, parameterListType* list);
 
 } // namespace
 

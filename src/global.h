@@ -49,9 +49,53 @@ typedef std::list<propertyType>::iterator propertyListIteratorType;
 typedef std::list<propertyType>::const_iterator propertyListConstIteratorType;
 
 ///////////////////////////////////////////////////////////////////////////
+class parameterType
+{
+public:
+	enum dataType {Null, Scalar, Array};
+
+	parameterType() : m_type(Null) {}
+	parameterType(const std::string& name, const std::string& value)
+		:	m_type(Scalar)
+		,	m_name(name)
+	{
+		m_values.push_back(value);
+	}
+	parameterType(const std::string& name, const std::list<std::string>& values)
+		:	m_type(Array)
+		,	m_name(name)
+	{
+		std::list<std::string>::const_iterator it;
+		for (it = values.begin(); it != values.end(); ++it)
+		{
+			m_values.push_back(*it);
+		}
+
+		assert(values.size() == m_values.size());
+	}
+
+	dataType type() const {return m_type;}
+	std::string name() const {return m_name;}
+	std::string value() const;
+	std::list<std::string> values() const;
+	std::string to_string() const;
+
+private:
+	dataType				m_type;
+	std::string 			m_name;
+	std::list<std::string> 	m_values;
+};
+typedef std::list<parameterType> parameterListType;
+typedef std::list<parameterType>::iterator parameterListIteratorType;
+typedef std::list<parameterType>::const_iterator parameterListConstIteratorType;
+
+///////////////////////////////////////////////////////////////////////////
 bool isDebug();
 void replace(std::string& str, const std::string& from, const std::string& to);
 void hexDump(const char* desc, const void* addr, int len);
 void convert(const propertyListType& properties, stringListType* names, stringListType* values);
+std::string to_string(const std::list<std::string>& list);
+std::string to_string(const propertyListType& list);
+std::string to_string(const parameterListType& list);
 
 #endif // GLOBAL__H

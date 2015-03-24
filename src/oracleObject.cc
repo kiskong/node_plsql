@@ -3,28 +3,10 @@
 #include "oracleObject.h"
 
 ///////////////////////////////////////////////////////////////////////////
-static bool loadFileContent(const std::string filename, std::vector<unsigned char>& fileContents)
-{
-	std::ifstream file(filename.c_str(), std::ios_base::in | std::ios_base::binary);
-	if (!file.is_open())
-	{
-		return false;
-	}
-
-	// Get the file size
-	file.seekg(0, file.end);
-	int length = static_cast<int>(file.tellg());
-	file.seekg(0, file.beg);
-
-    fileContents.resize(length);
-
-	if (!file.read(reinterpret_cast<char*>(&fileContents[0]), length))
-	{
-		return false;
-	}
-
-	return true;
-}		
+static std::string getSql(const std::string& procedure, const parameterListType& parameters);
+static void bind(ocip::Statement& statement, bool isVariable, const parameterListType& parameters);
+static std::string getParameterName(long position);
+static bool loadFileContent(const std::string filename, std::vector<unsigned char>& fileContents);
 
 ///////////////////////////////////////////////////////////////////////////
 OracleObject::OracleObject(const Config& config)
@@ -158,7 +140,7 @@ bool OracleObject::execute(const std::string& username, const std::string& passw
 }
 
 ///////////////////////////////////////////////////////////////////////////
-bool OracleObject::request(const std::string& username, const std::string& password, const propertyListType& cgi, const fileListType& files, const std::string& doctablename, const std::string& procedure, const propertyListType& parameters, std::wstring* page)
+bool OracleObject::request(const std::string& username, const std::string& password, const propertyListType& cgi, const fileListType& files, const std::string& doctablename, const std::string& procedure, const parameterListType& parameters, std::wstring* page)
 {
 	// 1. Connect with database
 	ocip::Connection* connection = createConnection();
@@ -415,60 +397,28 @@ bool OracleObject::uploadFile(ocip::Connection* connection, const fileType& file
 }
 
 ///////////////////////////////////////////////////////////////////////////
-bool OracleObject::requestRun(ocip::Connection* connection, const std::string& procedure, const propertyListType& parameters)
+bool OracleObject::requestRun(ocip::Connection* connection, const std::string& procedure, const parameterListType& parameters)
 {
 	if (m_Config.m_debug)
 	{
-		std::cout << "OracleObject::requestRun(" << procedure << ")" << std::flush << std::endl;
+		std::cout << "OracleObject::requestRun" << std::endl <<
+			"procedure: " << procedure << std::endl <<
+			"parameter: " << std::endl << ::to_string(parameters) << std::endl << std::flush;
 	}
 
-	// Build the proper sql command
-	std::string sql;
-	if (procedure[0] == '!')
-	{
-		sql = "BEGIN " + procedure.substr(1) + "(name_array=>:n, value_array=>:v); END;";
-	}
-	else
-	{
-		propertyListConstIteratorType it;
-		sql = "BEGIN " + procedure + "(";
-		for (it = parameters.begin(); it != parameters.end(); ++it)
-		{
-			if (it != parameters.begin())
-			{
-				sql += ",";
-			}
-			sql += it->name + "=>\'" + it->value + "\'";
-		}
-		sql += "); END;";
-	}
+	// Create statement
+	ocip::Statement statement(connection);
 
 	// Prepare statement
-	ocip::Statement statement(connection);
+	std::string sql(getSql(procedure, parameters));
 	if (!statement.prepare(sql))
 	{
 		m_OracleError = statement.reportError("oci_statement_prepare", __FILE__, __LINE__);
 		return false;
 	}
 
-	// Bind values
-	if (procedure[0] == '!')
-	{
-		// Convert the list of properties into two separate lists with names and values
-		stringListType names;
-		stringListType values;
-		convert(parameters, &names, &values);
-
-		// Bind array of CGI names
-		ocip::ParameterArray* bNames = new ocip::ParameterArray("n", ocip::String, ocip::Input);
-		statement.addParameter(bNames);
-		bNames->value(names);
-
-		// Bind array of CGI values
-		ocip::ParameterArray* bValues = new ocip::ParameterArray("v", ocip::String, ocip::Input);
-		statement.addParameter(bValues);
-		bValues->value(values);
-	}
+	// Bind values for statement
+	bind(statement, (procedure[0] == '!'), parameters);
 
 	// Execute statement
 	if (!statement.execute(1))
@@ -562,4 +512,132 @@ ocip::Connection* OracleObject::createConnection()
 	assert(connection);
 
 	return connection;
+}
+
+///////////////////////////////////////////////////////////////////////////
+static std::string getSql(const std::string& procedure, const parameterListType& parameters)
+{
+	std::string sql;
+
+	if (procedure[0] == '!')
+	{
+		sql = "BEGIN " + procedure.substr(1) + "(name_array=>:n, value_array=>:v); END;";
+	}
+	else
+	{
+		parameterListConstIteratorType it;
+		long pos = 1;
+		for (it = parameters.begin(); it != parameters.end(); ++it)
+		{
+			switch (it->type())
+			{
+				case parameterType::Scalar:
+				case parameterType::Array:
+					if (pos > 1)
+					{
+						sql += ",";
+					}
+					sql += it->name() + "=>:" + getParameterName(pos);
+					++pos;
+					break;
+				case parameterType::Null:
+				default:
+					break;
+			}
+		}
+		sql = "BEGIN " + procedure + "(" + sql + "); END;";
+	}
+
+	return sql;
+}
+
+///////////////////////////////////////////////////////////////////////////
+static void bind(ocip::Statement& statement, bool isVariable, const parameterListType& parameters)
+{
+	if (isVariable)
+	{
+		stringListType names;
+		stringListType values;
+		parameterListConstIteratorType it;
+		for (it = parameters.begin(); it != parameters.end(); ++it)
+		{
+			names.push_back(it->name());
+			values.push_back(it->value());
+		}
+		assert(parameters.size() == names.size());
+		assert(parameters.size() == values.size());
+
+		// Bind array of parameter names
+		ocip::ParameterArray* bNames = new ocip::ParameterArray("n", ocip::String, ocip::Input);
+		statement.addParameter(bNames);
+		bNames->value(names);
+
+		// Bind array of parameter values
+		ocip::ParameterArray* bValues = new ocip::ParameterArray("v", ocip::String, ocip::Input);
+		statement.addParameter(bValues);
+		bValues->value(values);
+	}
+	else
+	{
+		parameterListConstIteratorType it;
+		long pos = 1;
+		for (it = parameters.begin(); it != parameters.end(); ++it)
+		{
+			switch (it->type())
+			{
+				case parameterType::Scalar:
+					{
+					ocip::ParameterValue* bValue = new ocip::ParameterValue(getParameterName(pos), ocip::String, ocip::Input);
+					statement.addParameter(bValue);
+					bValue->value(it->value());
+					++pos;
+					}
+					break;
+				case parameterType::Array:
+					{
+					ocip::ParameterArray* bValues = new ocip::ParameterArray(getParameterName(pos), ocip::String, ocip::Input);
+					statement.addParameter(bValues);
+					bValues->value(it->values());
+					++pos;
+					}
+					break;
+				case parameterType::Null:
+				default:
+					break;
+			}
+		}
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////
+static std::string getParameterName(long position)
+{
+	std::ostringstream s;
+	s << position;
+
+	return "p" + s.str();
+}
+
+///////////////////////////////////////////////////////////////////////////
+static bool loadFileContent(const std::string filename, std::vector<unsigned char>& fileContents)
+{
+	std::ifstream file(filename.c_str(), std::ios_base::in | std::ios_base::binary);
+	if (!file.is_open())
+	{
+		return false;
+	}
+
+	// Get the file size
+	file.seekg(0, file.end);
+	int length = static_cast<int>(file.tellg());
+	file.seekg(0, file.beg);
+
+    fileContents.resize(length);
+
+	if (!file.read(reinterpret_cast<char*>(&fileContents[0]), length))
+	{
+		return false;
+	}
+
+	return true;
 }

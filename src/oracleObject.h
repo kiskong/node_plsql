@@ -42,7 +42,7 @@ public:
 	bool execute(const std::string& username, const std::string& password, const std::string& sql);
 
 	// Request page
-	bool request(const std::string& username, const std::string& password, const propertyListType& cgi, const fileListType& files, const std::string& tableName, const std::string& procedure, const propertyListType& parameters, std::wstring* page);
+	bool request(const std::string& username, const std::string& password, const propertyListType& cgi, const fileListType& files, const std::string& tableName, const std::string& procedure, const parameterListType& parameters, std::wstring* page);
 
 	// Return error object
 	oracleError getOracleError() const {return m_OracleError;}
@@ -57,7 +57,7 @@ private:
 	bool requestInit(ocip::Connection* connection, const propertyListType& cgi);
 	bool requestUploadFiles(ocip::Connection* connection, const fileListType& files, const std::string& doctablename);
 	bool uploadFile(ocip::Connection* connection, const fileType& file, const std::string& doctablename);
-	bool requestRun(ocip::Connection* connection, const std::string& procedure, const propertyListType& parameters);
+	bool requestRun(ocip::Connection* connection, const std::string& procedure, const parameterListType& parameters);
 	bool requestPage(ocip::Connection* connection, std::wstring* page);
 
 	ocip::Connection* createConnection();

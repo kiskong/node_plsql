@@ -8,3 +8,5 @@ coverage.html
 *.log
 *.tgz
 _*.*
+*.sublime-project
+*.sublime-workspace
