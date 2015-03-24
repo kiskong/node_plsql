@@ -9,6 +9,48 @@ static std::string getParameterName(long position);
 static bool loadFileContent(const std::string filename, std::vector<unsigned char>& fileContents);
 
 ///////////////////////////////////////////////////////////////////////////
+static char* SQL_GET_PAGE =
+"DECLARE\n"
+"	MAX_LINES_TO_FETCH	CONSTANT	INTEGER			:=	2147483647;\n"
+"	TRASHHOLD			CONSTANT	BINARY_INTEGER	:=	32767;\n"
+"	iRows							INTEGER			:=	MAX_LINES_TO_FETCH;\n"
+"	pageBuf							htp.htbuf_arr;\n"
+"	textSize						BINARY_INTEGER;\n"
+"	i								BINARY_INTEGER;\n"
+"	pageLOB							CLOB;\n"
+"	pageTXT							VARCHAR2(32767);\n"
+"BEGIN\n"
+"	owa.get_page(thepage=>pageBuf, irows=>iRows);\n"
+"	IF (NOT iRows < MAX_LINES_TO_FETCH) THEN\n"
+"		RAISE VALUE_ERROR;\n"
+"	END IF;\n"
+"	dbms_lob.createtemporary(lob_loc=>pageLOB, cache=>TRUE, dur=>dbms_lob.session);\n"
+"	FOR i IN 1 .. iRows LOOP\n"
+"		textSize := LENGTH(pageBuf(i));\n"
+"		IF (textSize > 0) THEN\n"
+"			IF (LENGTH(pageTXT) + textSize < TRASHHOLD) THEN\n"
+"				pageTXT := pageTXT || pageBuf(i);\n"
+"			ELSE\n"
+"				IF (pageTXT IS NOT NULL) THEN\n"
+"					dbms_lob.writeappend(lob_loc=>pageLOB, amount=>LENGTH(pageTXT), buffer=>pageTXT);\n"
+"					pageTXT := NULL;\n"
+"				END IF;\n"
+"				IF (textSize < TRASHHOLD) THEN\n"
+"					pageTXT := pageTXT || pageBuf(i);\n"
+"				ELSE\n"
+"					dbms_lob.writeappend(lob_loc=>pageLOB, amount=>textSize, buffer=>pageBuf(i));\n"
+"				END IF;\n"
+"			END IF;\n"
+"		END IF;\n"
+"	END LOOP;\n"
+"	IF (pageTXT IS NOT NULL) THEN\n"
+"		dbms_lob.writeappend(lob_loc=>pageLOB, amount=>LENGTH(pageTXT), buffer=>pageTXT);\n"
+"	END IF;\n"
+"	:page := pageLOB;\n"
+"	dbms_lob.freetemporary(lob_loc=>pageLOB);\n"
+"END;";
+
+///////////////////////////////////////////////////////////////////////////
 OracleObject::OracleObject(const Config& config)
 	:	m_Config(config)
 	,	m_environment(0)
@@ -453,7 +495,8 @@ bool OracleObject::requestPage(ocip::Connection* connection, std::wstring* page)
 	}
 
 	// Prepare statement
-	if (!statement.prepare("BEGIN node_plsql.get_page(:page); END;"))
+//	if (!statement.prepare("BEGIN node_plsql.get_page(:page); END;"))
+	if (!statement.prepare(SQL_GET_PAGE))
 	{
 		m_OracleError = statement.reportError("oci_statement_prepare", __FILE__, __LINE__);
 		return false;
