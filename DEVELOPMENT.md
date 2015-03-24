@@ -12,6 +12,9 @@
 ## Deploy new npm package
 * Use `npm publish` to publish a package (WARNING: cannot be undone)
 * Use `npm pack` to create a package
+
+## Deploy new prebuild binary
+* Set `node_pre_gyp_accessKeyId` and `node_pre_gyp_secretAccessKey` environment variables
 * Use `./node_modules/.bin/node-pre-gyp rebuild package publish` to publish the binaries on AWS S3
 
 ## Debugging
@@ -27,5 +30,9 @@ Windows:
 set DEBUG=*
 ```
 
+## Linting
+* `gulp lint`
+
+
 ## Unit test
-* `grunt`
+* `gulp test`
