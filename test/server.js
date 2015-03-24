@@ -144,6 +144,9 @@ function databaseInvoke(databaseHandle, username, password, procedure, args, cgi
 	case 'completepage':
 		callback(null, getPage('complete page', {'Content-Type': 'text/html', 'Set-Cookie': 'C1=V1'}));
 		break;
+	case 'arraypage':
+		callback(null, getPage('array page\n' + util.inspect(args), {'Content-Type': 'text/html'}));
+		break;
 	case 'redirect':
 		callback(null, getPage('', {'Location': 'www.google.com'}));
 		break;
@@ -315,6 +318,14 @@ describe('GET', function () {
 		it('should return the complete page', function (done) {
 			request(app).get('/sampleRoute/completePage?para=value')
 				.expect(200, 'complete page', done);
+		});
+	});
+
+	describe('GET /sampleRoute/arrayPage', function () {
+		var args = {para: ['value1', 'value2']};
+		it('should return the array page', function (done) {
+			request(app).get('/sampleRoute/arrayPage?para=value1&para=value2')
+				.expect(200, 'array page\n' + util.inspect(args), done);
 		});
 	});
 
