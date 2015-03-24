@@ -373,7 +373,10 @@ bool Statement::prepare(const std::string& sql)
 		std::cout << "Statement::prepare: sql=\"" << s << "\"" << std::flush << std::endl;
 	}
 
+	m_sql = sql;
+
 	m_oracle_status = oci_statement_prepare(m_stmtp, m_connection->hError(), sql);
+
 	return (m_oracle_status == OCI_SUCCESS);
 }
 
@@ -501,6 +504,18 @@ bool Statement::writeBLOB(OCILobLocator* locp, const std::vector<unsigned char>&
 	}
 
 	return true;
+}
+
+///////////////////////////////////////////////////////////////////////////
+oracleError Statement::reportError(const std::string& message, const std::string& file, int line)
+{
+	std::string text("sql: " + m_sql);
+	if (message.size() > 0)
+	{
+		text += "\n" + message;
+	}
+
+	return Environment::reportError(m_oracle_status, m_connection->hError(), text, file, line);
 }
 
 ///////////////////////////////////////////////////////////////////////////

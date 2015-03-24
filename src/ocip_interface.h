@@ -151,11 +151,7 @@ public:
 
 	OCIStmt* hStmt() const {return m_stmtp;}
 	OCIError* hError() const {return m_connection->hError();}
-
-	oracleError reportError(const std::string& message, const std::string& file, int line)
-	{
-		return Environment::reportError(m_oracle_status, m_connection->hError(), message, file, line);
-	}
+	oracleError reportError(const std::string& message, const std::string& file, int line);
 
 	bool openAndReadLOB(OCILobLocator* locp, std::wstring* lob);
 	bool writeBLOB(OCILobLocator* locp, const std::vector<unsigned char>& lob);
@@ -163,6 +159,7 @@ public:
 private:
 	Connection*			m_connection;
 	OCIStmt*			m_stmtp;
+	std::string			m_sql;
 	sword				m_oracle_status;
 
 	typedef std::list<Parameter*> ParameterListType;
