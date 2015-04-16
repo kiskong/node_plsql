@@ -125,17 +125,13 @@ describe('config', function () {
 	describe('configuration file', function () {
 
 		it('should load no configuration file', function () {
-			var obj = config.load();
-			assert.isObject(obj);
+			assert.isObject(config.load());
 		});
 
 		it('should create and load a sample configuration file', function () {
 			utilities.fileDelete(TEST_CONFIGURATION_FILENAME);
-
 			config.createSample(TEST_CONFIGURATION_FILENAME);
-
-			var obj = config.load(TEST_CONFIGURATION_FILENAME);
-			assert.isObject(obj);
+			assert.isObject(config.load(TEST_CONFIGURATION_FILENAME));
 		});
 
 		it('should throw an error when trying to load an invalid configuration file', function () {
@@ -157,9 +153,11 @@ describe('config', function () {
 		});
 
 		it('should not be able to find the sample configuration file', function () {
+			var original;
+
 			utilities.fileDelete(TEST_CONFIGURATION_FILENAME);
 
-			var original = config.setSampleFilename('this_does_not_exist_for_sure');
+			original = config.setSampleFilename('this_does_not_exist_for_sure');
 
 			assert.throws(function () {
 				config.createSample(TEST_CONFIGURATION_FILENAME);

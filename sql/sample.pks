@@ -17,7 +17,7 @@ PROCEDURE pageCGI;
 PROCEDURE pageCookie;
 
 PROCEDURE pageForm;
-PROCEDURE pageFormProcess(name_array IN owa.vc_arr, value_array IN owa.vc_arr);
+PROCEDURE pageFormProcess(firstname IN VARCHAR2 DEFAULT NULL, lastname IN VARCHAR2 DEFAULT NULL, age IN NUMBER DEFAULT NULL, sex IN VARCHAR2 DEFAULT NULL, vehicle IN vc_arr  DEFAULT empty_vc_arr);
 
 PROCEDURE pageFileUpload;
 PROCEDURE pageFileUploaded(name_array IN owa.vc_arr, value_array IN owa.vc_arr);

@@ -3,8 +3,9 @@
 #include "oracleObject.h"
 
 ///////////////////////////////////////////////////////////////////////////
-static std::string getSql(const std::string& procedure, const parameterListType& parameters);
+static std::string getSql(const std::string& procedure, const parameterListType& parameters, bool isVariable);
 static void bind(ocip::Statement& statement, bool isVariable, const parameterListType& parameters);
+static parameterListType enhanceParameters(const parameterListType& parameters, procType& procData);
 static std::string getParameterName(long position);
 static bool loadFileContent(const std::string filename, std::vector<unsigned char>& fileContents);
 
@@ -48,6 +49,36 @@ static char* SQL_GET_PAGE =
 "	END IF;\n"
 "	:page := pageLOB;\n"
 "	dbms_lob.freetemporary(lob_loc=>pageLOB);\n"
+"END;";
+
+static char* SQL_FIND_OBJECT =
+"DECLARE\n"
+"	TYPE vc_arr IS TABLE OF VARCHAR2(2000) INDEX BY BINARY_INTEGER;\n"
+"\n"
+"	argumentArray vc_arr;\n"
+"	dataTypeArray vc_arr;\n"
+"	schemaName    VARCHAR2(32767);\n"
+"	part1         VARCHAR2(32767);\n"
+"	part2         VARCHAR2(32767);\n"
+"	dblink        VARCHAR2(32767);\n"
+"	objectType    NUMBER;\n"
+"	objectID      NUMBER;\n"
+"BEGIN\n"
+"	dbms_utility.name_resolve(name=>:p_name, context=>1, schema=>schemaName, part1=>part1, part2=>part2, dblink=>dblink, part1_type=>objectType, object_number=>objectID);\n"
+"\n"
+"	IF (part1 IS NOT NULL) THEN\n"
+"		SELECT argument_name, data_type BULK COLLECT INTO argumentArray, dataTypeArray FROM all_arguments WHERE owner = schemaName AND package_name = part1 AND object_name = part2 AND argument_name IS NOT NULL ORDER BY overload, sequence;\n"
+"	ELSE\n"
+"		SELECT argument_name, data_type BULK COLLECT INTO argumentArray, dataTypeArray FROM all_arguments WHERE owner = schemaName AND package_name IS NULL AND object_name = part2 AND argument_name IS NOT NULL ORDER BY overload, sequence;\n"
+"	END IF;\n"
+"\n"
+"	:p_owner      := schemaName;\n"
+"	:p_objectType := objectType;\n"
+"	:p_part1      := part1;\n"
+"	:p_part2      := part2;\n"
+"	:p_arguments  := argumentArray;\n"
+"	:p_dataTypes  := dataTypeArray;\n"
+"\n"
 "END;";
 
 ///////////////////////////////////////////////////////////////////////////
@@ -249,7 +280,7 @@ bool OracleObject::requestInit(ocip::Connection* connection, const propertyListT
 
 	if (m_Config.m_debug)
 	{
-		std::cout << "OracleObject::requestInit" << std::endl;
+		std::cout << "OracleObject::requestInit: START" << std::endl;
 		for (it = cgi.begin(), i = 0; it != cgi.end(); ++it, ++i)
 		{
 			std::cout << "   " << i << ". '" << it->name << "': '" << it->value << "'" << std::endl;
@@ -264,34 +295,46 @@ bool OracleObject::requestInit(ocip::Connection* connection, const propertyListT
 	stringListType values;
 	convert(cgi, &names, &values);
 
-	// Prepare statement
-	ocip::Statement statement(connection);
-	if (!statement.prepare("BEGIN owa.init_cgi_env(:c, :n, :v); htp.init; htp.htbuf_len := 63; END;"))
-	{
-		m_OracleError = statement.reportError("oci_statement_prepare", __FILE__, __LINE__);
+	try {
+
+		// Prepare statement
+		ocip::Statement statement(connection);
+		if (!statement.prepare("BEGIN owa.init_cgi_env(:c, :n, :v); htp.init; htp.htbuf_len := 63; END;"))
+		{
+			m_OracleError = statement.reportError("Statement::execute", __FILE__, __LINE__);
+			return false;
+		}
+
+		// Bind the number of cgi entries
+		ocip::ParameterValue* bCount = new ocip::ParameterValue("c", ocip::Integer, ocip::Input);
+		statement.addParameter(bCount);
+		bCount->value(static_cast<long>(cgi.size()));
+
+		// Bind array of CGI names
+		ocip::ParameterArray* bNames = new ocip::ParameterArray("n", ocip::String, ocip::Input, names.size());
+		statement.addParameter(bNames);
+		bNames->value(names);
+
+		// Bind array of CGI values
+		ocip::ParameterArray* bValues = new ocip::ParameterArray("v", ocip::String, ocip::Input, values.size());
+		statement.addParameter(bValues);
+		bValues->value(values);
+
+		// Execute statement
+		if (!statement.execute(1))
+		{
+			m_OracleError = statement.reportError("Statement::execute", __FILE__, __LINE__);
+			return false;
+		}
+
+	} catch (const std::exception& e) {
+		m_OracleError = oracleError(e.what(), __FILE__, __LINE__);
 		return false;
 	}
 
-	// Bind the number of cgi entries
-	ocip::ParameterValue* bCount = new ocip::ParameterValue("c", ocip::Integer, ocip::Input);
-	statement.addParameter(bCount);
-	bCount->value(static_cast<long>(cgi.size()));
-
-	// Bind array of CGI names
-	ocip::ParameterArray* bNames = new ocip::ParameterArray("n", ocip::String, ocip::Input);
-	statement.addParameter(bNames);
-	bNames->value(names);
-
-	// Bind array of CGI values
-	ocip::ParameterArray* bValues = new ocip::ParameterArray("v", ocip::String, ocip::Input);
-	statement.addParameter(bValues);
-	bValues->value(values);
-
-	// Execute statement
-	if (!statement.execute(1))
+	if (m_Config.m_debug)
 	{
-		m_OracleError = statement.reportError("oci_statement_execute", __FILE__, __LINE__);
-		return false;
+		std::cout << "OracleObject::requestInit: END" << std::endl << std::flush;
 	}
 
 	return true;
@@ -323,116 +366,123 @@ bool OracleObject::uploadFile(ocip::Connection* connection, const fileType& file
 {
 	if (m_Config.m_debug)
 	{
-		std::cout << "OracleObject::uploadFile (" << file.m_path << ")" << std::endl << std::flush;
+		std::cout << "OracleObject::uploadFile: START (" << file.m_path << ")" << std::endl << std::flush;
 	}
 
 	sword status = 0;
 	OCILobLocator* locp = 0;
 	OCIBind* bindp = 0;
 
-	ocip::Statement statement(connection);
+	try {
 
-	// Allocate lob descriptor
-	status = oci_lob_descriptor_allocate(connection->hEnv(), &locp);
-	if (status != OCI_SUCCESS)
-	{
-		m_OracleError = ocip::Environment::reportError(status, 0, "oci_lob_descriptor_allocate", __FILE__, __LINE__);
-		return false;
-	}
+		ocip::Statement statement(connection);
 
-	// Create temporary BLOB
-	status = oci_create_temporary_blob(connection->hSvcCtx(), connection->hError(), locp);
-	if (status != OCI_SUCCESS)
-	{
-		m_OracleError = ocip::Environment::reportError(status, 0, "oci_create_temporary_blob", __FILE__, __LINE__);
-		return false;
-	}
+		// Allocate lob descriptor
+		status = oci_lob_descriptor_allocate(connection->hEnv(), &locp);
+		if (status != OCI_SUCCESS)
+		{
+			m_OracleError = ocip::Environment::reportError(status, 0, "oci_lob_descriptor_allocate", __FILE__, __LINE__);
+			return false;
+		}
 
-	// Prepare statement
-	std::string sql = "INSERT INTO " + doctablename + " (name, mime_type, doc_size, dad_charset, last_updated, content_type, blob_content) VALUES (:1, :2, :3, 'ascii', SYSDATE, 'BLOB', :4)";
-	if (m_Config.m_debug)
-	{
-		std::cout << "OracleObject::uploadFile: insert blob. sql=\"" << sql << "\"." << std::endl << std::flush;
-	}
-	if (!statement.prepare(sql))
-	{
-		m_OracleError = statement.reportError("oci_statement_prepare", __FILE__, __LINE__);
-		return false;
-	}
+		// Create temporary BLOB
+		status = oci_create_temporary_blob(connection->hSvcCtx(), connection->hError(), locp);
+		if (status != OCI_SUCCESS)
+		{
+			m_OracleError = ocip::Environment::reportError(status, 0, "oci_create_temporary_blob", __FILE__, __LINE__);
+			return false;
+		}
 
-	// Bind parameter
-	ocip::ParameterValue* bFilename	= new ocip::ParameterValue("1", ocip::String, ocip::Input);
-	statement.addParameter(bFilename);
-
-	ocip::ParameterValue* bMimetype	= new ocip::ParameterValue("2", ocip::String, ocip::Input);
-	statement.addParameter(bMimetype);
-
-	ocip::ParameterValue* bSize	= new ocip::ParameterValue("3", ocip::Integer, ocip::Input);
-	statement.addParameter(bSize);
-
-	if (!statement.bind(&bindp, "4", SQLT_BLOB, &locp, sizeof(OCILobLocator*)))
-	{
-		m_OracleError = statement.reportError("oci_bind_by_name", __FILE__, __LINE__);
-		return false;
-	}
-
-	// Load file
-	std::vector<unsigned char> fileContents;
-	if (!loadFileContent(file.m_path, fileContents))
-	{
-		std::string error = "Unable to load file \"" + file.m_path + "\"";
+		// Prepare statement
+		std::string sql = "INSERT INTO " + doctablename + " (name, mime_type, doc_size, dad_charset, last_updated, content_type, blob_content) VALUES (:1, :2, :3, 'ascii', SYSDATE, 'BLOB', :4)";
 		if (m_Config.m_debug)
 		{
-			std::cout << "OracleObject::uploadFile: Unable to load file \"" << file.m_path << "\"!" << std::endl << std::flush;
+			std::cout << "OracleObject::uploadFile: insert blob. sql=\"" << sql << "\"." << std::endl << std::flush;
 		}
-		m_OracleError = oracleError(error, 0, 0, "", __FILE__, __LINE__);
+		if (!statement.prepare(sql))
+		{
+			m_OracleError = statement.reportError("oci_statement_prepare", __FILE__, __LINE__);
+			return false;
+		}
+
+		// Bind parameter
+		ocip::ParameterValue* bFilename	= new ocip::ParameterValue("1", ocip::String, ocip::Input);
+		statement.addParameter(bFilename);
+
+		ocip::ParameterValue* bMimetype	= new ocip::ParameterValue("2", ocip::String, ocip::Input);
+		statement.addParameter(bMimetype);
+
+		ocip::ParameterValue* bSize	= new ocip::ParameterValue("3", ocip::Integer, ocip::Input);
+		statement.addParameter(bSize);
+
+		if (!statement.bind(&bindp, "4", SQLT_BLOB, &locp, sizeof(OCILobLocator*)))
+		{
+			m_OracleError = statement.reportError("oci_bind_by_name", __FILE__, __LINE__);
+			return false;
+		}
+
+		// Load file
+		std::vector<unsigned char> fileContents;
+		if (!loadFileContent(file.m_path, fileContents))
+		{
+			std::string error = "Unable to load file \"" + file.m_path + "\"";
+			if (m_Config.m_debug)
+			{
+				std::cout << "OracleObject::uploadFile: Unable to load file \"" << file.m_path << "\"!" << std::endl << std::flush;
+			}
+			m_OracleError = oracleError(error, 0, 0, "", __FILE__, __LINE__);
+			return false;
+		}
+
+		if (m_Config.m_debug)
+		{
+			std::cout << "OracleObject::uploadFile: file loaded. name= \"" << file.m_fieldname << "\" path= \"" << file.m_path << "\" size=\"" << fileContents.size() << "\"." << std::endl << std::flush;
+		}
+
+		bFilename->value(file.m_fieldname);
+		bMimetype->value(file.m_mimetype);
+		bSize->value(static_cast<long>(fileContents.size()));
+
+		// write BLOB
+		if (!statement.writeBLOB(locp, fileContents))
+		{
+			m_OracleError = statement.reportError("write BLOB content", __FILE__, __LINE__);
+			return false;
+		}
+
+		// Execute statement
+		if (!statement.execute(1))
+		{
+			m_OracleError = statement.reportError("insert BLOB content\nsql: " + sql, __FILE__, __LINE__);
+			return false;
+		}
+
+		// Free temporary BLOB
+		/*
+		status = oci_free_temporary_lob(connection->hSvcCtx(), connection->hError(), locp);
+		if (status != OCI_SUCCESS)
+		{
+			m_OracleError = ocip::Environment::reportError(status, 0, "oci_free_temporary_lob", __FILE__, __LINE__);
+			return false;
+		}
+		*/
+
+		// Free lob descriptor
+		status = oci_lob_descriptor_free(locp);
+		if (status != OCI_SUCCESS)
+		{
+			m_OracleError = ocip::Environment::reportError(status, connection->hError(), "oci_lob_descriptor_free", __FILE__, __LINE__);
+			return false;
+		}
+
+	} catch (const std::exception& e) {
+		m_OracleError = oracleError(e.what(), __FILE__, __LINE__);
 		return false;
 	}
 
 	if (m_Config.m_debug)
 	{
-		std::cout << "OracleObject::uploadFile: file loaded. name= \"" << file.m_fieldname << "\" path= \"" << file.m_path << "\" size=\"" << fileContents.size() << "\"." << std::endl << std::flush;
-	}
-
-	bFilename->value(file.m_fieldname);
-	bMimetype->value(file.m_mimetype);
-	bSize->value(static_cast<long>(fileContents.size()));
-
-	// write BLOB
-	if (!statement.writeBLOB(locp, fileContents))
-	{
-		m_OracleError = statement.reportError("write BLOB content", __FILE__, __LINE__);
-		return false;
-	}
-
-	// Execute statement
-	if (!statement.execute(1))
-	{
-		m_OracleError = statement.reportError("insert BLOB content\nsql: " + sql, __FILE__, __LINE__);
-		return false;
-	}
-
-	// Free temporary BLOB
-	/*
-	status = oci_free_temporary_lob(connection->hSvcCtx(), connection->hError(), locp);
-	if (status != OCI_SUCCESS)
-	{
-		m_OracleError = ocip::Environment::reportError(status, 0, "oci_free_temporary_lob", __FILE__, __LINE__);
-		return false;
-	}
-	*/
-
-	// Free lob descriptor
-	status = oci_lob_descriptor_free(locp);
-	if (status != OCI_SUCCESS)
-	{
-		m_OracleError = ocip::Environment::reportError(status, connection->hError(), "oci_lob_descriptor_free", __FILE__, __LINE__);
-		return false;
-	}
-
-	if (m_Config.m_debug)
-	{
-		std::cout << "OracleObject::uploadFile: file uploaded." << std::endl << std::flush;
+		std::cout << "OracleObject::uploadFile: END" << std::endl << std::flush;
 	}
 
 	return true;
@@ -443,30 +493,72 @@ bool OracleObject::requestRun(ocip::Connection* connection, const std::string& p
 {
 	if (m_Config.m_debug)
 	{
-		std::cout << "OracleObject::requestRun" << std::endl <<
-			"procedure: " << procedure << std::endl <<
-			"parameter: " << std::endl << ::to_string(parameters) << std::endl << std::flush;
+		std::cout << "OracleObject::requestRun: START" << std::endl <<
+			"   procedure: " << procedure << std::endl <<
+			"   parameter: " << std::endl << ::to_string(parameters) << std::endl << std::flush;
 	}
 
-	// Create statement
-	ocip::Statement statement(connection);
-
-	// Prepare statement
-	std::string sql(getSql(procedure, parameters));
-	if (!statement.prepare(sql))
+	// Is the URL prefixed with a "!"-sign to indicate the use of dynamic parameters
+	std::string name(procedure);
+	bool isVariable = false;
+	if (name[0] == '!')
 	{
-		m_OracleError = statement.reportError("oci_statement_prepare", __FILE__, __LINE__);
+		name = procedure.substr(1);
+		isVariable = true;
+	}
+
+	// Resolve the object to invoke
+	procType procData;
+	if (!findObjectToInvoke(connection, name, &procData))
+	{
+		return false;
+	}
+	if (m_Config.m_debug)
+	{
+		std::cout << "findObjectToInvoke:" << std::endl <<
+			"m_owner: " << procData.m_owner << std::endl <<
+			"m_type: " << procData.m_type << std::endl <<
+			"m_name: " << procData.m_name << std::endl <<
+			"m_part1: " << procData.m_part1 << std::endl <<
+			"m_part2: " << procData.m_part2 << std::endl <<
+			"m_arguments: " << std::endl << ::to_string(procData.m_arguments) << std::endl <<
+			"m_dataTypes: " << std::endl << ::to_string(procData.m_dataTypes) << std::endl << std::flush;
+	}
+
+	// Eventually change the list of parameters based on the data types in the procedure to execute
+	parameterListType newParameters = enhanceParameters(parameters, procData);
+
+	try {
+
+		// Create statement
+		ocip::Statement statement(connection);
+
+		// Prepare statement
+		std::string sql(getSql(name, newParameters, isVariable));
+		if (!statement.prepare(sql))
+		{
+			m_OracleError = statement.reportError("oci_statement_prepare", __FILE__, __LINE__);
+			return false;
+		}
+
+		// Bind values for statement
+		bind(statement, (procedure[0] == '!'), newParameters);
+
+		// Execute statement
+		if (!statement.execute(1))
+		{
+			m_OracleError = statement.reportError("oci_statement_execute", __FILE__, __LINE__);
+			return false;
+		}
+
+	} catch (const std::exception& e) {
+		m_OracleError = oracleError(e.what(), __FILE__, __LINE__);
 		return false;
 	}
 
-	// Bind values for statement
-	bind(statement, (procedure[0] == '!'), parameters);
-
-	// Execute statement
-	if (!statement.execute(1))
+	if (m_Config.m_debug)
 	{
-		m_OracleError = statement.reportError("oci_statement_execute", __FILE__, __LINE__);
-		return false;
+		std::cout << "OracleObject::requestRun: END" << std::endl << std::flush;
 	}
 
 	return true;
@@ -484,50 +576,127 @@ bool OracleObject::requestPage(ocip::Connection* connection, std::wstring* page)
 	OCILobLocator* locp = 0;
 	OCIBind* bindp = 0;
 
-	ocip::Statement statement(connection);
+	try {
 
-	// Allocate lob descriptor
-	status = oci_lob_descriptor_allocate(connection->hEnv(), &locp);
-	if (status != OCI_SUCCESS)
-	{
-		m_OracleError = ocip::Environment::reportError(status, 0, "oci_lob_descriptor_allocate", __FILE__, __LINE__);
+		ocip::Statement statement(connection);
+
+		// Allocate lob descriptor
+		status = oci_lob_descriptor_allocate(connection->hEnv(), &locp);
+		if (status != OCI_SUCCESS)
+		{
+			m_OracleError = ocip::Environment::reportError(status, 0, "oci_lob_descriptor_allocate", __FILE__, __LINE__);
+			return false;
+		}
+
+		// Prepare statement
+		if (!statement.prepare(SQL_GET_PAGE))
+		{
+			m_OracleError = statement.reportError("oci_statement_prepare", __FILE__, __LINE__);
+			return false;
+		}
+
+		// Bind CLOB descriptor
+		if (!statement.bind(&bindp, "page", SQLT_CLOB, &locp, sizeof(OCILobLocator*)))
+		{
+			m_OracleError = statement.reportError("oci_bind_by_name", __FILE__, __LINE__);
+			return false;
+		}
+
+		// Execute statement
+		if (!statement.execute(1))
+		{
+			m_OracleError = statement.reportError("oci_statement_execute", __FILE__, __LINE__);
+			return false;
+		}
+
+		// Open CLOB and read the contents
+		if (!statement.openAndReadLOB(locp, page))
+		{
+			m_OracleError = statement.reportError("open and read CLOB content", __FILE__, __LINE__);
+			return false;
+		}
+
+		// Free lob descriptor
+		status = oci_lob_descriptor_free(locp);
+		if (status != OCI_SUCCESS)
+		{
+			m_OracleError = ocip::Environment::reportError(status, connection->hError(), "oci_lob_descriptor_free", __FILE__, __LINE__);
+			return false;
+		}
+
+	} catch (const std::exception& e) {
+		m_OracleError = oracleError(e.what(), __FILE__, __LINE__);
 		return false;
 	}
 
-	// Prepare statement
-//	if (!statement.prepare("BEGIN node_plsql.get_page(:page); END;"))
-	if (!statement.prepare(SQL_GET_PAGE))
-	{
-		m_OracleError = statement.reportError("oci_statement_prepare", __FILE__, __LINE__);
-		return false;
-	}
+	return true;
+}
 
-	// Bind CLOB descriptor
-	if (!statement.bind(&bindp, "page", SQLT_CLOB, &locp, sizeof(OCILobLocator*)))
-	{
-		m_OracleError = statement.reportError("oci_bind_by_name", __FILE__, __LINE__);
-		return false;
-	}
+///////////////////////////////////////////////////////////////////////////
+// resolve the name of the procedure to invoke
+bool OracleObject::findObjectToInvoke(ocip::Connection* connection, const std::string& name, procType* procData)
+{
+	assert(procData);
 
-	// Execute statement
-	if (!statement.execute(1))
-	{
-		m_OracleError = statement.reportError("oci_statement_execute", __FILE__, __LINE__);
-		return false;
-	}
+	try {
 
-	// Open CLOB and read the contents
-	if (!statement.openAndReadLOB(locp, page))
-	{
-		m_OracleError = statement.reportError("open and read CLOB content", __FILE__, __LINE__);
-		return false;
-	}
+		// Create statement
+		ocip::Statement statement(connection);
 
-	// Free lob descriptor
-	status = oci_lob_descriptor_free(locp);
-	if (status != OCI_SUCCESS)
-	{
-		m_OracleError = ocip::Environment::reportError(status, connection->hError(), "oci_lob_descriptor_free", __FILE__, __LINE__);
+		// Prepare statement
+		if (!statement.prepare(SQL_FIND_OBJECT))
+		{
+			m_OracleError = statement.reportError("prepare", __FILE__, __LINE__);
+			return false;
+		}
+
+		// input "name"
+		ocip::ParameterValue* pName = new ocip::ParameterValue("p_name", ocip::String, ocip::Input);
+		statement.addParameter(pName);
+		pName->value(name);
+
+		// output "p_owner"
+		ocip::ParameterValue* pOwner = new ocip::ParameterValue("p_owner", ocip::String, ocip::Input);
+		statement.addParameter(pOwner);
+
+		// output "p_objectType"
+		ocip::ParameterValue* pObjectType = new ocip::ParameterValue("p_objectType", ocip::Integer, ocip::Input);
+		statement.addParameter(pObjectType);
+
+		// output "p_part1"
+		ocip::ParameterValue* pPart1 = new ocip::ParameterValue("p_part1", ocip::String, ocip::Input);
+		statement.addParameter(pPart1);
+
+		// output "p_part2"
+		ocip::ParameterValue* pPart2 = new ocip::ParameterValue("p_part2", ocip::String, ocip::Input);
+		statement.addParameter(pPart2);
+
+		// output "arguments"
+		ocip::ParameterArray* pArguments = new ocip::ParameterArray("p_arguments", ocip::String, ocip::Output, 1000, 60);
+		statement.addParameter(pArguments);
+
+		// output "dataTypes"
+		ocip::ParameterArray* pDataTypes = new ocip::ParameterArray("p_dataTypes", ocip::String, ocip::Output, 1000, 60);
+		statement.addParameter(pDataTypes);
+
+		// Execute statement
+		if (!statement.execute(1))
+		{
+			m_OracleError = statement.reportError("execute", __FILE__, __LINE__);
+			return false;
+		}
+
+		// get the results
+		procData->m_owner = pOwner->getString();
+		procData->m_type = pObjectType->getInteger();
+		procData->m_part1 = pPart1->getString();
+		procData->m_part2 = pPart2->getString();
+		procData->m_arguments = pArguments->getString();
+		procData->m_dataTypes = pDataTypes->getString();
+		assert(procData->m_arguments.size() == procData->m_dataTypes.size());
+
+	} catch (const std::exception& e) {
+		m_OracleError = oracleError(e.what(), __FILE__, __LINE__);
 		return false;
 	}
 
@@ -558,13 +727,13 @@ ocip::Connection* OracleObject::createConnection()
 }
 
 ///////////////////////////////////////////////////////////////////////////
-static std::string getSql(const std::string& procedure, const parameterListType& parameters)
+static std::string getSql(const std::string& procedure, const parameterListType& parameters, bool isVariable)
 {
 	std::string sql;
 
-	if (procedure[0] == '!')
+	if (isVariable)
 	{
-		sql = "BEGIN " + procedure.substr(1) + "(name_array=>:n, value_array=>:v); END;";
+		sql = "BEGIN " + procedure + "(name_array=>:n, value_array=>:v); END;";
 	}
 	else
 	{
@@ -595,6 +764,62 @@ static std::string getSql(const std::string& procedure, const parameterListType&
 }
 
 ///////////////////////////////////////////////////////////////////////////
+static void pushParameter(const parameterType& parameter, stringListType* names, stringListType* values)
+{
+	stringListType strings;
+	stringListConstIteratorType it;
+
+	switch (parameter.type())
+	{
+		case parameterType::Scalar:
+			names->push_back(parameter.name());
+			values->push_back(parameter.value());
+			break;
+		case parameterType::Array:
+			strings = parameter.values();
+			for (it = strings.begin(); it != strings.end(); ++it)
+			{
+				names->push_back(parameter.name());
+				values->push_back(*it);
+			}
+			break;
+		case parameterType::Null:
+		default:
+			names->push_back(parameter.name());
+			values->push_back("");
+			break;
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////
+static parameterListType enhanceParameters(const parameterListType& parameters, procType& procData)
+{
+	assert(parameters.size() == procData.m_dataTypes.size());
+
+	parameterListType newParameters;
+
+	parameterListConstIteratorType itp;
+	stringListConstIteratorType its;
+	for (itp = parameters.begin(), its = procData.m_dataTypes.begin(); itp != parameters.end(); ++itp, ++its)
+	{
+		if (itp->type() == parameterType::Scalar && *its == "PL/SQL TABLE")
+		{
+			stringListType strings;
+			strings.push_back(itp->value());
+			newParameters.push_back(parameterType(itp->name(), strings));
+		}
+		else
+		{
+			newParameters.push_back(*itp);
+		}
+	}
+
+	assert(newParameters.size() == parameters.size());
+
+	return newParameters;
+}
+
+///////////////////////////////////////////////////////////////////////////
 static void bind(ocip::Statement& statement, bool isVariable, const parameterListType& parameters)
 {
 	if (isVariable)
@@ -604,19 +829,19 @@ static void bind(ocip::Statement& statement, bool isVariable, const parameterLis
 		parameterListConstIteratorType it;
 		for (it = parameters.begin(); it != parameters.end(); ++it)
 		{
-			names.push_back(it->name());
-			values.push_back(it->value());
+			pushParameter(*it, &names, &values);
 		}
-		assert(parameters.size() == names.size());
-		assert(parameters.size() == values.size());
+		assert(names.size() == values.size());
 
 		// Bind array of parameter names
-		ocip::ParameterArray* bNames = new ocip::ParameterArray("n", ocip::String, ocip::Input);
+		ocip::ParameterArray* bNames = new ocip::ParameterArray("n", ocip::String, ocip::Input, names.size());
+		assert(bNames);
 		statement.addParameter(bNames);
 		bNames->value(names);
 
 		// Bind array of parameter values
-		ocip::ParameterArray* bValues = new ocip::ParameterArray("v", ocip::String, ocip::Input);
+		ocip::ParameterArray* bValues = new ocip::ParameterArray("v", ocip::String, ocip::Input, values.size());
+		assert(bValues);
 		statement.addParameter(bValues);
 		bValues->value(values);
 	}
@@ -630,7 +855,9 @@ static void bind(ocip::Statement& statement, bool isVariable, const parameterLis
 			{
 				case parameterType::Scalar:
 					{
+					// std::cout << "OracleObject::bind: " << getParameterName(pos) << " is a scalar = " << it->to_string() << std::endl << std::flush;
 					ocip::ParameterValue* bValue = new ocip::ParameterValue(getParameterName(pos), ocip::String, ocip::Input);
+					assert(bValue);
 					statement.addParameter(bValue);
 					bValue->value(it->value());
 					++pos;
@@ -638,7 +865,9 @@ static void bind(ocip::Statement& statement, bool isVariable, const parameterLis
 					break;
 				case parameterType::Array:
 					{
-					ocip::ParameterArray* bValues = new ocip::ParameterArray(getParameterName(pos), ocip::String, ocip::Input);
+					// std::cout << "OracleObject::bind: " << getParameterName(pos) << " is an array = " << it->to_string() << std::endl << std::flush;
+					ocip::ParameterArray* bValues = new ocip::ParameterArray(getParameterName(pos), ocip::String, ocip::Input, it->values().size());
+					assert(bValues);
 					statement.addParameter(bValues);
 					bValues->value(it->values());
 					++pos;

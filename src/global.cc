@@ -48,7 +48,7 @@ bool isDebug()
         return false;
     }
 
-    return (stricmp(env, "*") == 0 || stricmp(env, "oracleBindings") == 0);
+    return (_stricmp(env, "*") == 0 || _stricmp(env, "oracleBindings") == 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////

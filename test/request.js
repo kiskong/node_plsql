@@ -62,9 +62,7 @@ describe('request', function () {
 	var app = {
 		databaseHandle: {
 			callbacks: {
-				databaseInvoke: function (databaseHandle, username, password, procedure, args, cgi, files, doctablename, callback) {
-					callback = callback || null;
-
+				databaseInvoke: function (databaseHandle, username, password, procedure, args/*, cgi, files, doctablename, callback*/) {
 					switch (procedure) {
 					case 'no_para':
 						assert.strictEqual(Object.keys(args).length, 0);

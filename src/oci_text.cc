@@ -49,7 +49,7 @@ oci_text::oci_text(size_t max_size)
 	,	m_size(0)
 {
 	// Allocate m_text
-	allocate(max_size);
+	_allocate(max_size);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -58,7 +58,7 @@ oci_text::oci_text(const OraText* text)
 	,	m_size(0)
 {
 	// Allocate m_text
-	const size_t bytes = allocate(stringLength(reinterpret_cast<const void*>(text), sizeof(utf16_char_t)));
+	const size_t bytes = _allocate(stringLength(reinterpret_cast<const void*>(text), sizeof(utf16_char_t)));
 
 	// Copy m_text
 	memmove(m_text, text, bytes);
@@ -69,7 +69,7 @@ oci_text::oci_text(const std::wstring& s)
 	:	m_text(0)
 	,	m_size(0)
 {
-	create(s);
+	_create(s);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -78,7 +78,7 @@ oci_text::oci_text(const std::string& s)
 	,	m_size(0)
 {
 	std::wstring ws(s.begin(), s.end());
-	create(ws);
+	_create(ws);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -107,12 +107,60 @@ oci_text& oci_text::operator=(const oci_text& t)
 	m_size = 0;
 
 	// Allocate m_text
-	const size_t bytes = allocate(t.m_size);
+	const size_t bytes = _allocate(t.m_size);
 
 	// Copy m_text
 	memmove(m_text, t.m_text, bytes);
 
 	return *this;
+}
+
+///////////////////////////////////////////////////////////////////////////
+void oci_text::replace(const std::wstring& s)
+{
+	assert(m_text);
+	assert(m_size > 0);
+
+	// Create a copy of s
+	std::wstring ws(s);
+
+	// Resize the given string to a length of maximal m_size characters
+	if (ws.size() > m_size)
+	{
+		ws.erase(m_size);
+	}
+
+	// Calculate the buffer size in bytes (including the needed 0 terminator)
+	const size_t bytes = sizeInBytes(ws.size());
+
+#ifdef USE_LINUX
+	// Convert 4 bytes to 2 bytes
+	copy4to2bytes(reinterpret_cast<const unsigned int*>(ws.c_str()), m_size, m_text, m_size);
+#else // USE_LINUX
+	memmove(reinterpret_cast<void*>(m_text), reinterpret_cast<const void*>(ws.c_str()), bytes);
+#endif // USE_LINUX
+}
+
+///////////////////////////////////////////////////////////////////////////
+void oci_text::replace(const std::string& s)
+{
+	std::wstring ws(s.begin(), s.end());
+	replace(ws);
+}
+
+///////////////////////////////////////////////////////////////////////////
+void oci_text::allocate(size_t max_size)
+{
+	// free any existing buffer
+	if (m_text)
+	{
+		free(m_text);
+	}
+	m_text = 0;
+	m_size = 0;
+
+	// allocate a new buffer
+	_allocate(max_size);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -149,13 +197,13 @@ std::string oci_text::getString() const
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void oci_text::create(const std::wstring& s)
+void oci_text::_create(const std::wstring& s)
 {
 	assert(m_text == 0);
 	assert(m_size == 0);
 
 	// Allocate m_text
-	const size_t bytes = allocate(s.size());
+	const size_t bytes = _allocate(s.size());
 	assert(bytes >= s.size());
 
 #ifdef USE_LINUX
@@ -167,7 +215,7 @@ void oci_text::create(const std::wstring& s)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-size_t oci_text::allocate(size_t max_size)
+size_t oci_text::_allocate(size_t max_size)
 {
 	assert(m_text == 0);
 	assert(m_size == 0);
@@ -175,7 +223,7 @@ size_t oci_text::allocate(size_t max_size)
 	m_size = max_size;
 
 	// Calculate the buffer size in bytes
-	const size_t bytes = (m_size + 1) * sizeof(utf16_char_t);
+	const size_t bytes = sizeInBytes(m_size);
 
 	// Allocate m_text
 	m_text = reinterpret_cast<utf16_char_t*>(malloc(bytes));
@@ -218,6 +266,34 @@ size_t oci_text::convert(const std::wstring& s, utf16_char_t* buffer, size_t max
 #endif // USE_LINUX
 
 	return bytes;
+}
+
+///////////////////////////////////////////////////////////////////////////
+std::wstring oci_text::convert_utf16_to_wstring(const utf16_char_t* buffer)
+{
+#ifdef USE_LINUX
+	// Size in bytes
+	size_t size = stringLength(buffer, sizeof(wchar_t));
+
+	size_t bytes = (size + 1) * sizeof(wchar_t);
+
+	// Allocate buffer
+	unsigned int* temp_buffer = reinterpret_cast<unsigned int*>(malloc(bytes));
+	memset(temp_buffer, 0, bytes);
+
+	// Convert 2 bytes to 4 bytes
+	copy2to4bytes(buffer, size, temp_buffer, size);
+	
+	// Create a wstring
+	std::wstring ws(reinterpret_cast<wchar_t*>(temp_buffer));
+
+	// Free the buffer
+	free(temp_buffer);
+#else
+	std::wstring ws((wchar_t*)buffer);
+#endif
+
+	return ws;
 }
 
 ///////////////////////////////////////////////////////////////////////////

@@ -50,6 +50,7 @@ describe('header', function () {
 	describe('when calling containsHttpHeader()', function () {
 		it('should find text containing with one header line', function () {
 			var code = header.containsHttpHeader;
+
 			assert.equal(code('Content-type: '), true);
 			assert.equal(code('CONTENT-TYPE: '), true);
 			assert.equal(code('content-type: '), true);
@@ -63,12 +64,14 @@ describe('header', function () {
 		});
 		it('should find text containing with multiple header lines', function () {
 			var code = header.containsHttpHeader;
+
 			assert.equal(code('Location: Status: '), true);
 			assert.equal(code('Location: \nStatus: '), true);
 			assert.equal(code('\nContent-type: \nLocation: \nStatus: \n'), true);
 		});
 		it('should not find text containing without any header lines', function () {
 			var code = header.containsHttpHeader;
+
 			assert.equal(code(''), false);
 			assert.equal(code(null), false);
 			assert.equal(code(), false);
@@ -100,10 +103,11 @@ describe('header', function () {
 				header: '',
 				body: ''
 			}],
-			i;
+			i,
+			result;
 
 			for (i = 0; i < testData.length; i++) {
-				var result = header.getHeaderAndBody(testData[i].text);
+				result = header.getHeaderAndBody(testData[i].text);
 				assert.equal(result.header, testData[i].header);
 				assert.equal(result.body, testData[i].body);
 			}
@@ -112,6 +116,11 @@ describe('header', function () {
 
 	describe('when calling parseHeader() with an invalid cookie header', function () {
 		it('should return the following object', function () {
+			var headerMain = {},
+				headerOther = {},
+				headerCookies = [],
+				l = 0;
+
 			var testHeaders = [{
 				text: '',
 				header: {},
@@ -239,11 +248,6 @@ describe('header', function () {
 					}
 				}
 			}
-
-			var headerMain = {},
-				headerOther = {},
-				headerCookies = [],
-				l = 0;
 
 			for (l = 0; l < testHeaders.length; l++) {
 				headerMain = {};

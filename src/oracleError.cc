@@ -15,6 +15,17 @@ oracleError::oracleError()
 }
 
 ///////////////////////////////////////////////////////////////////////////
+oracleError::oracleError(const std::string& message, const std::string& file, int line)
+:	itsMessage(message)
+,	itsOracleStatus(OCI_SUCCESS)
+,	itsOracleErrorCode(OCI_SUCCESS)
+,	itsOracleErrorMessage("")
+,	itsFile(file)
+,	itsLine(line)
+{
+}
+
+///////////////////////////////////////////////////////////////////////////
 oracleError::oracleError(const std::string& message, int oracleStatus, int oracleErrorCode, const std::string& oracleErrorMessage, const std::string& file, int line)
 :	itsMessage(message)
 ,	itsOracleStatus(oracleStatus)

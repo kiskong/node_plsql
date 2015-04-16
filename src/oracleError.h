@@ -6,6 +6,7 @@ class oracleError
 {
 public:
 	oracleError();
+	oracleError(const std::string& message, const std::string& file, int line);
 	oracleError(const std::string& message, int oracleStatus, int oracleErrorCode, const std::string& oracleErrorMessage, const std::string& file, int line);
 
 	const std::string what() const;

@@ -177,7 +177,6 @@ sword oci_logon(OCIEnv* envhp, OCIError* errhp, OCISvcCtx** svchp, const std::st
 		);
 }
 
-
 ///////////////////////////////////////////////////////////////////////////
 sword oci_logoff(OCISvcCtx* svchp, OCIError* errhp)
 {
@@ -250,6 +249,8 @@ sword oci_statement_prepare(OCIStmt* stmtp, OCIError* errhp, const std::string& 
 sword oci_bind_by_name(OCIStmt* stmtp, OCIBind** bindpp, OCIError* errhp, const std::string& placeholder, ub2 dty, dvoid* valuep, sb4 value_sz, sb2* indp /*= 0*/, ub4 maxarr_len /*= 0*/, ub4* curelen /*= 0*/)
 {
 	oci_text o_placeholder(placeholder);
+
+	assert(bindpp);
 
 	return OCIBindByName(
 		stmtp,					// stmtp    (IN/OUT) The statement handle to the SQL or PL/SQL statement being processed.

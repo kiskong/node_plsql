@@ -41,9 +41,6 @@ public:
 	static bool debug() {return m_debug;}
 	
 private:
-	void create();
-	void destroy();
-
 	sb4					m_mode;
 	OCIEnv*				m_envhp;
 
@@ -100,14 +97,11 @@ public:
 	~Connection();
 
 	bool connect(const std::string& username, const std::string& password, const std::string& server);
-	bool connect(const std::string& username, const std::string& password)
-	{
-		return connect(username, password, "");
-	}
+	bool connect(const std::string& username, const std::string& password);
 	bool disconnect();
 
 	bool hasPool() const {return m_poolhp != 0;}
-	bool isConnected() const {return m_isLoggedOn;}
+	bool isConnected() const {return m_isConnected;}
 
 	bool commit();
 
@@ -128,7 +122,7 @@ private:
 	sb4					m_poolNameLen;
 	bool				m_hasPool;
 	OCISvcCtx*			m_svchp;
-	bool				m_isLoggedOn;
+	bool				m_isConnected;
 
 	sword				m_oracle_status;
 
@@ -177,7 +171,7 @@ class Parameter
 public:
 	friend class Statement;
 
-	Parameter(const std::string& placeholder, DataType type, Direction direction) :	m_statement(0), m_placeholder(placeholder), m_type(type), m_direction(direction), m_bindp(0) {}
+	Parameter(const std::string& placeholder, DataType type, Direction direction, size_t maxValueLen);
 	virtual ~Parameter() {}
 
 protected:
@@ -187,6 +181,8 @@ protected:
 	std::string			m_placeholder;
 	DataType			m_type;
 	Direction			m_direction;
+	sb4					m_value_sz;
+	sb4					m_value_sz_in_bytes;
 
 	OCIBind*			m_bindp;
 
@@ -202,17 +198,21 @@ class ParameterValue : public Parameter
 public:
 	friend class Statement;
 
-	ParameterValue(const std::string& placeholder, DataType type, Direction direction);
+	ParameterValue(const std::string& placeholder, DataType type, Direction direction, size_t maxValueLen = 2000);
 	virtual ~ParameterValue();
 
-	virtual void value(long value);
-	virtual void value(const std::string& value);
+	void value(long value);
+	void value(const std::string& value);
+
+	long getInteger() const;
+	std::string getString() const;
 
 private:
-	virtual sword bind(OCIStmt* stmtp, OCIError* errhp);
+	sword bind(OCIStmt* stmtp, OCIError* errhp);
 
-	unsigned char		m_value[32767];
-	sb4					m_value_sz;
+	oci_text			m_value_string;
+	long				m_value_integer;
+
 	sb2					m_ind;
 
 	// Disable copy/assign
@@ -226,18 +226,22 @@ class ParameterArray : public Parameter
 public:
 	friend class Statement;
 
-	ParameterArray(const std::string& placeholder, DataType type, Direction direction);
+	ParameterArray(const std::string& placeholder, DataType type, Direction direction, size_t maxArrayLen, size_t maxValueLen = 2000);
 	virtual ~ParameterArray();
 
-	virtual void value(std::list<long> list);
-	virtual void value(std::list<std::string> list);
+	void value(std::list<long> list);
+	void value(std::list<std::string> list);
+
+	std::list<long> getInteger() const;
+	std::list<std::string> getString() const;
 
 private:
-	virtual sword bind(OCIStmt* stmtp, OCIError* errhp);
-	void allocate(size_t value_size, size_t array_size);
+	sword bind(OCIStmt* stmtp, OCIError* errhp);
+	sb4 valueSizeInByte(sb4 maxValueLen);
+	void allocate(sb4 valueSizeInByte, sb4 maxArrayLen);
+	void initialize(sb4 valueSizeInByte, sb4 maxArrayLen);
 
 	dvoid*				m_valuep;
-	sb4					m_value_sz;
 	sb2*				m_indp;
 	ub4					m_maxarr_len;
 	ub4					m_curelen;

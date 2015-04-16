@@ -5,6 +5,7 @@
 #if defined(_MSC_VER)
 # pragma warning(disable: 4530)		// C++ exception handler used ...
 # pragma warning(disable: 4506)		// no definition for inline function ...
+# pragma warning(disable: 4996)		// This function or variable may be unsafe.
 #endif
 
 ///////////////////////////////////////////////////////////////////////////

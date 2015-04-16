@@ -11,7 +11,7 @@ BEGIN
 	htp.p('<ul>');
 	htp.p('<li><a href="sample.pageSimple?text=some-text">Simple page</a></li>');
 	htp.p('<li><a href="sample.pageArray?text=some-text'||CHR(38)||'text=more-text'||CHR(38)||'text=last-text">Array passing</a></li>');
-	htp.p('<li><a href="!sample.pageFlexible?p1=v1'||CHR(38)||'p2=v2'||CHR(38)||'p3=v3">Flexible parameter passing</a></li>');
+	htp.p('<li><a href="!sample.pageFlexible?p1=v1'||CHR(38)||'p2=v2'||CHR(38)||'p3=v3.1'||CHR(38)||'p3=v3.2"">Flexible parameter passing</a></li>');
 	htp.p('<li><a href="sample.pageCGI">CGI</a></li>');
 	htp.p('<li><a href="sample.pageCookie">Cookies</a></li>');
 	htp.p('<li><a href="sample.pageForm">Form</a></li>');
@@ -96,10 +96,11 @@ PROCEDURE pageForm
 IS
 BEGIN
 	openPage('PLSQL-SERVER - Form');
-	htp.p('<form method="POST" action="!sample.pageFormProcess">');
+	htp.p('<form method="POST" action="sample.pageFormProcess">');
 	htp.p('<table>');
 	htp.p('<tr><td>First name:</td><td><input type="text" name="firstname"></td></tr>');
 	htp.p('<tr><td>Last name:</td><td><input type="text" name="lastname"></td></tr>');
+	htp.p('<tr><td>Age:</td><td><input type="text" name="age"></td></tr>');
 	htp.p('<tr><td colspan="2"><input type="radio" name="sex" value="male">Male</td></tr>');
 	htp.p('<tr><td colspan="2"><input type="radio" name="sex" value="female">Female</td></tr>');
 	htp.p('<tr><td colspan="2"><input type="checkbox" name="vehicle" value="Bike">I have a bike</td></tr>');
@@ -110,14 +111,22 @@ BEGIN
 	closePage();
 END pageForm;
 
-PROCEDURE pageFormProcess(name_array IN owa.vc_arr, value_array IN owa.vc_arr)
+PROCEDURE pageFormProcess(firstname IN VARCHAR2 DEFAULT NULL, lastname IN VARCHAR2 DEFAULT NULL, age IN NUMBER DEFAULT NULL, sex IN VARCHAR2 DEFAULT NULL, vehicle IN vc_arr  DEFAULT empty_vc_arr)
 IS
+	PROCEDURE line(name IN VARCHAR2, value IN VARCHAR2)
+	IS
+	BEGIN
+		htp.p('<tr><th>'||name||'</th><td>'||value||'</td></tr>');
+	END line;
 BEGIN
 	openPage('PLSQL-SERVER - Form processed');
 	htp.p('<table>');
-	htp.p('<tr><th>name</th><th>value</th></tr>');
-	FOR i IN 1 .. name_array.COUNT LOOP
-		htp.p('<tr><td>'||name_array(i)||'</td><td>'||value_array(i)||'</td></tr>');
+	line('firstname', firstname);
+	line('lastname', lastname);
+	line('age', age);
+	line('sex', sex);
+	FOR i IN 1 .. vehicle.COUNT LOOP
+		line('vehicle '||i, vehicle(i));
 	END LOOP;
 	htp.p('</table>');
 	closePage();

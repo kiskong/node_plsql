@@ -27,6 +27,27 @@ typedef std::list<fileType>::iterator fileListIteratorType;
 typedef std::list<fileType>::const_iterator fileListConstIteratorType;
 
 ///////////////////////////////////////////////////////////////////////////
+class procType
+{
+public:
+	enum ProcType
+	{
+		synonym = 5,
+		procedure = 7,
+		function = 8,
+		package = 9
+	};
+
+	std::string				m_owner;
+	long					m_type;
+	std::string				m_name;
+	std::string				m_part1;
+	std::string				m_part2;
+	std::list<std::string>	m_arguments;
+	std::list<std::string>	m_dataTypes;
+};
+
+///////////////////////////////////////////////////////////////////////////
 class OracleObject
 {
 public:
@@ -59,6 +80,8 @@ private:
 	bool uploadFile(ocip::Connection* connection, const fileType& file, const std::string& doctablename);
 	bool requestRun(ocip::Connection* connection, const std::string& procedure, const parameterListType& parameters);
 	bool requestPage(ocip::Connection* connection, std::wstring* page);
+
+	bool findObjectToInvoke(ocip::Connection* connection, const std::string& name, procType* procData);
 
 	ocip::Connection* createConnection();
 
