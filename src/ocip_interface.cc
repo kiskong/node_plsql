@@ -534,7 +534,7 @@ Parameter::Parameter(const std::string& placeholder, DataType type, Direction di
 		case String:
 			if (maxValueLen <= 0)
 			{
-				throw std::invalid_argument("The maxValueLen must be > 0 when binding an string parameter");
+				throw std::runtime_error("The maxValueLen must be > 0 when binding an string parameter");
 			}
 			else
 			{
@@ -546,7 +546,7 @@ Parameter::Parameter(const std::string& placeholder, DataType type, Direction di
 			m_value_sz_in_bytes = m_value_sz = static_cast<sb4>(sizeof(long));
 			break;
 		default:
-			throw std::invalid_argument("The parameter type (String or Integer)");
+			throw std::runtime_error("The parameter type (String or Integer)");
 			break;
 	}
 
@@ -556,7 +556,7 @@ Parameter::Parameter(const std::string& placeholder, DataType type, Direction di
 		case Output:
 			break;
 		default:
-			throw std::invalid_argument("The direction must be Input or Output");
+			throw std::runtime_error("The direction must be Input or Output");
 			break;
 	}
 }
@@ -580,7 +580,7 @@ ParameterValue::ParameterValue(const std::string& placeholder, DataType type, Di
 		case Integer:
 			break;
 		default:
-			throw std::invalid_argument("Invalid value for parameter type");
+			throw std::runtime_error("Invalid value for parameter type");
 	}
 }
 
@@ -598,7 +598,7 @@ long ParameterValue::getInteger() const
 {
 	if (m_type != Integer)
 	{
-		throw std::invalid_argument("Illegal operation for a non Integer type");
+		throw std::runtime_error("Illegal operation for a non Integer type");
 	}
 
 	return m_value_integer;
@@ -609,7 +609,7 @@ std::string ParameterValue::getString() const
 {
 	if (m_type != String)
 	{
-		throw std::invalid_argument("Illegal operation for a non String type");
+		throw std::runtime_error("Illegal operation for a non String type");
 	}
 
 	return m_value_string.getString();
@@ -756,13 +756,13 @@ void ParameterArray::value(std::list<long> list)
 
 	if (m_type != Integer)
 	{
-		throw std::invalid_argument("Illegal operation for a non Integer type");
+		throw std::runtime_error("Illegal operation for a non Integer type");
 	}
 
 	const size_t LIST_SIZE = list.size();
 	if (LIST_SIZE == 0 || LIST_SIZE > m_maxarr_len)
 	{
-		throw std::invalid_argument("The list is not allowed to be empty or greater that the maximal number of array entries");
+		throw std::runtime_error("The list is not allowed to be empty or greater that the maximal number of array entries");
 	}
 
 	// initialize buffers
@@ -790,13 +790,13 @@ void ParameterArray::value(std::list<std::string> list)
 
 	if (m_type != String)
 	{
-		throw std::invalid_argument("Illegal operation for a non Integer type");
+		throw std::runtime_error("Illegal operation for a non Integer type");
 	}
 
 	const size_t LIST_SIZE = list.size();
 	if (LIST_SIZE == 0 || LIST_SIZE > m_maxarr_len)
 	{
-		throw std::invalid_argument("The list is not allowed to be empty or greater that the maximal number of array entries");
+		throw std::runtime_error("The list is not allowed to be empty or greater that the maximal number of array entries");
 	}
 
 	// initialize buffers
