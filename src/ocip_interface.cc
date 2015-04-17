@@ -807,7 +807,7 @@ void ParameterArray::value(std::list<std::string> list)
 	for (it = list.begin(); it != list.end(); ++it)
 	{
 		std::string s(*it);
-		if (s.size() > m_value_sz)
+		if (s.size() > static_cast<size_t>(m_value_sz))
 		{
 			s.erase(m_value_sz);
 		}
