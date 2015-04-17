@@ -1,6 +1,6 @@
 {
   "name": "node_plsql",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "author": "Dieter Oberkofler <doberkofler.github@gmail.com>",
   "description": "The Node.js PL/SQL Gateway for Oracle (nodejs, plsql)",
   "bin": {
@@ -98,7 +98,7 @@
     "node-pre-gyp"
   ],
   "devDependencies": {
-    "aws-sdk": ">=2.1.23",
+    "aws-sdk": ">=2.1.24",
     "chai": ">=2.2.0",
     "gulp": ">=3.8.11",
     "gulp-coveralls": ">=0.1.3",

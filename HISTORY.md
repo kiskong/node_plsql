@@ -156,3 +156,12 @@ v0.5.0 - March 24, 2015
 * No PL/SQL code needs to be installed during server startup. (Dieter Oberkofler)
 * Improved error messages from SQL statement fails. (Dieter Oberkofler)
 * Updated all dependencies to latest release. (Dieter Oberkofler)
+
+v0.6.0 - April 16, 2015
+* 0.6.0 (Dieter Oberkofler)
+* Complete redesign of the OCI interface. (Dieter Oberkofler)
+* Added support for array binds to the OCI interface. (Dieter Oberkofler)
+* Added support for multiple parameters with the same name. (Dieter Oberkofler)
+* Added support for PL/SQL TABLE arguments in the invoked PL/SQL procedures. (Dieter Oberkofler)
+* Improved error messages from SQL statement fails. (Dieter Oberkofler)
+* Updated all dependencies to latest release. (Dieter Oberkofler)

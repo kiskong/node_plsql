@@ -1,33 +1,9 @@
-This document outlines the high-level goals for each significant milestone release of the Node.js PL/SQL Server.
+This document outlines the high-level goals and significant milestones for the Node.js PL/SQL Server 1.0.0 release.
 
-## [v0.0.1]
-* Proof of concept release
-* Support for flexible parameter passing.
-* Support for all required cgi parameters including cookies.
-* Support for static files.
-* Support for non-blocking Oracle requests.
-* Support for Oracle connection pooling.
-
-## [v0.0.2]
-* Added support for parsing multipart-form data requests.
-* Added support for form data requests.
-* Add support for file upload.
-
-## [v0.0.3]
-* Add support for darwin.
-
-## [v0.0.4]
-* Add support for default pages.
-
-## [v0.0.5]
-* Improve test framework
-* Improve error handling
-
-## [v0.0.9]
-* Add status page
-
-## [v0.0.10]
-* Support for nodejs 0.11
-
-## [v0.0.11]
-* Add basic authentication
+## Missing features
+* Support for the DAD parameter "PlsqlDocumentProcedure"
+* Support for the DAD parameter "PlsqlNLSLanguage"
+* Support for the DAD parameter "PlsqlAuthenticationMode"
+* Support for the DAD parameter "PlsqlErrorStyle"
+* Support for the DAD parameter "PlsqlPathAlias"
+* Support for the DAD parameter "PlsqlPathAliasProcedure"
