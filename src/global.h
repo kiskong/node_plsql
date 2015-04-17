@@ -17,10 +17,8 @@
 #endif
 
 #if defined(__GNUC__)
-inline size_t stricmp(const char* s1, const char* s2)
-{
-	return strcasecmp(s1, s2);
-}
+inline size_t stricmp(const char* s1, const char* s2) {return strcasecmp(s1, s2);}
+inline size_t _stricmp(const char* s1, const char* s2) {return strcasecmp(s1, s2);}
 #endif
 
 ///////////////////////////////////////////////////////////////////////////

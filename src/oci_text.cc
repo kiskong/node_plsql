@@ -130,13 +130,13 @@ void oci_text::replace(const std::wstring& s)
 		ws.erase(m_size);
 	}
 
-	// Calculate the buffer size in bytes (including the needed 0 terminator)
-	const size_t bytes = sizeInBytes(ws.size());
-
 #ifdef USE_LINUX
 	// Convert 4 bytes to 2 bytes
 	copy4to2bytes(reinterpret_cast<const unsigned int*>(ws.c_str()), m_size, m_text, m_size);
 #else // USE_LINUX
+	// Calculate the buffer size in bytes (including the needed 0 terminator)
+	const size_t bytes = sizeInBytes(ws.size());
+
 	memmove(reinterpret_cast<void*>(m_text), reinterpret_cast<const void*>(ws.c_str()), bytes);
 #endif // USE_LINUX
 }

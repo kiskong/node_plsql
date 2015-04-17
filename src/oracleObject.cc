@@ -10,7 +10,7 @@ static std::string getParameterName(long position);
 static bool loadFileContent(const std::string filename, std::vector<unsigned char>& fileContents);
 
 ///////////////////////////////////////////////////////////////////////////
-static char* SQL_GET_PAGE =
+static const char* SQL_GET_PAGE =
 "DECLARE\n"
 "	MAX_LINES_TO_FETCH	CONSTANT	INTEGER			:=	2147483647;\n"
 "	TRASHHOLD			CONSTANT	BINARY_INTEGER	:=	32767;\n"
@@ -51,7 +51,7 @@ static char* SQL_GET_PAGE =
 "	dbms_lob.freetemporary(lob_loc=>pageLOB);\n"
 "END;";
 
-static char* SQL_FIND_OBJECT =
+static const char* SQL_FIND_OBJECT =
 "DECLARE\n"
 "	TYPE vc_arr IS TABLE OF VARCHAR2(2000) INDEX BY BINARY_INTEGER;\n"
 "\n"

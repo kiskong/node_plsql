@@ -52,8 +52,7 @@ Environment::~Environment()
 		std::cout << "Environment::~Environment" << std::flush << std::endl;
 	}
 
-	sword status = oci_handle_free(OCI_HTYPE_ENV, reinterpret_cast<dvoid**>(&m_envhp));
-	// assert(status == OCI_SUCCESS);
+	oci_handle_free(OCI_HTYPE_ENV, reinterpret_cast<dvoid**>(&m_envhp));
 	m_envhp = 0;
 }
 
