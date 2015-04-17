@@ -30,6 +30,7 @@ inline size_t stricmp(const char* s1, const char* s2)
 #include <string>
 #include <vector>
 #include <list>
+#include <exception>
 
 ///////////////////////////////////////////////////////////////////////////
 typedef std::list<std::string> stringListType;
