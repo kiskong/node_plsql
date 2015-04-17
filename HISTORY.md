@@ -165,3 +165,7 @@ v0.6.0 - April 16, 2015
 * Added support for PL/SQL TABLE arguments in the invoked PL/SQL procedures. (Dieter Oberkofler)
 * Improved error messages from SQL statement fails. (Dieter Oberkofler)
 * Updated all dependencies to latest release. (Dieter Oberkofler)
+
+v0.6.1 - April 17, 2015
+* 0.6.1 (Dieter Oberkofler)
+* Fixed some problems in the build for Linux and OSX. (Dieter Oberkofler)
