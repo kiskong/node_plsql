@@ -1,6 +1,6 @@
 {
   "name": "node_plsql",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "author": "Dieter Oberkofler <doberkofler.github@gmail.com>",
   "description": "The Node.js PL/SQL Gateway for Oracle (nodejs, plsql)",
   "bin": {
@@ -47,7 +47,7 @@
     "lib",
     "sql",
     "src",
-    "test",
+    "views",
     ".jshintrc",
     "AUTHORS",
     "binding.gyp",
@@ -62,9 +62,7 @@
     "RELEASE-GOALS.md"
   ],
   "scripts": {
-    "install": "node-pre-gyp install --fallback-to-build",
-    "lint": "gulp lint",
-    "test": "gulp test"
+    "install": "node-pre-gyp install --fallback-to-build"
   },
   "binary": {
     "module_name": "oracleBindings",

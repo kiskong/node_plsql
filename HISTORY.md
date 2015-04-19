@@ -169,3 +169,8 @@ v0.6.0 - April 16, 2015
 v0.6.1 - April 17, 2015
 * 0.6.1 (Dieter Oberkofler)
 * Fixed some problems in the build for Linux and OSX. (Dieter Oberkofler)
+
+v0.6.2 - April 19, 2015
+* 0.6.2 (Dieter Oberkofler)
+* Added missing views directory to npm package. (Dieter Oberkofler)
+* Fixed a problem when using dynamic parameters. (Dieter Oberkofler)

@@ -79,6 +79,8 @@ private:
 	bool requestUploadFiles(ocip::Connection* connection, const fileListType& files, const std::string& doctablename);
 	bool uploadFile(ocip::Connection* connection, const fileType& file, const std::string& doctablename);
 	bool requestRun(ocip::Connection* connection, const std::string& procedure, const parameterListType& parameters);
+	bool executeStatic(ocip::Connection* connection, const std::string& name, const parameterListType& parameters);
+	bool executeDynamic(ocip::Connection* connection, const std::string& procedure, const parameterListType& parameters);
 	bool requestPage(ocip::Connection* connection, std::wstring* page);
 
 	bool findObjectToInvoke(ocip::Connection* connection, const std::string& name, procType* procData);

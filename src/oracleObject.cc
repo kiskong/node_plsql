@@ -3,9 +3,8 @@
 #include "oracleObject.h"
 
 ///////////////////////////////////////////////////////////////////////////
-static std::string getSql(const std::string& procedure, const parameterListType& parameters, bool isVariable);
-static void bind(ocip::Statement& statement, bool isVariable, const parameterListType& parameters);
 static parameterListType enhanceParameters(const parameterListType& parameters, procType& procData);
+static void pushParameter(const parameterType& parameter, stringListType* names, stringListType* values);
 static std::string getParameterName(long position);
 static bool loadFileContent(const std::string filename, std::vector<unsigned char>& fileContents);
 
@@ -525,26 +524,117 @@ bool OracleObject::requestRun(ocip::Connection* connection, const std::string& p
 			"m_dataTypes: " << std::endl << ::to_string(procData.m_dataTypes) << std::endl << std::flush;
 	}
 
-	// Eventually change the list of parameters based on the data types in the procedure to execute
-	parameterListType newParameters = enhanceParameters(parameters, procData);
+	bool ok;
+	if (!isVariable)
+	{
+		// Eventually change the list of parameters based on the data types in the procedure to execute
+		parameterListType newParameters = enhanceParameters(parameters, procData);
+
+		ok = executeStatic(connection, name, newParameters);
+	}
+	else
+	{
+		ok = executeDynamic(connection, name, parameters);
+	}
+
+
+	if (m_Config.m_debug)
+	{
+		std::cout << "OracleObject::requestRun: END (status: " << ok << ")" << std::endl << std::flush;
+	}
+
+	return ok;
+}
+
+///////////////////////////////////////////////////////////////////////////
+bool OracleObject::executeStatic(ocip::Connection* connection, const std::string& name, const parameterListType& parameters)
+{
+	if (m_Config.m_debug)
+	{
+		std::cout << "OracleObject::executeStatic: START" << std::endl <<
+			"   name: " << name << std::endl <<
+			"   parameter: " << std::endl << ::to_string(parameters) << std::endl << std::flush;
+	}
+
+	//
+	// 1. Build the SQL command
+	//
+	std::string sql;
+	parameterListConstIteratorType it;
+	long pos = 1;
+	for (it = parameters.begin(); it != parameters.end(); ++it)
+	{
+		switch (it->type())
+		{
+			case parameterType::Scalar:
+			case parameterType::Array:
+				if (pos > 1)
+				{
+					sql += ",";
+				}
+				sql += it->name() + "=>:" + getParameterName(pos);
+				++pos;
+				break;
+			case parameterType::Null:
+			default:
+				break;
+		}
+	}
+	sql = "BEGIN " + name + "(" + sql + "); END;";
 
 	try {
 
-		// Create statement
+		//
+		// 2. Create statement
+		//
 		ocip::Statement statement(connection);
 
-		// Prepare statement
-		std::string sql(getSql(name, newParameters, isVariable));
+		//
+		// 3. Prepare statement
+		//
 		if (!statement.prepare(sql))
 		{
 			m_OracleError = statement.reportError("oci_statement_prepare", __FILE__, __LINE__);
 			return false;
 		}
 
-		// Bind values for statement
-		bind(statement, (procedure[0] == '!'), newParameters);
+		//
+		// 4. Bind
+		//
+		pos = 1;
+		for (it = parameters.begin(); it != parameters.end(); ++it)
+		{
+			switch (it->type())
+			{
+				case parameterType::Scalar:
+					{
+					// std::cout << "OracleObject::bind: " << getParameterName(pos) << " is a scalar = " << it->to_string() << std::endl << std::flush;
+					ocip::ParameterValue* bValue = new ocip::ParameterValue(getParameterName(pos), ocip::String, ocip::Input);
+					assert(bValue);
+					statement.addParameter(bValue);
+					bValue->value(it->value());
+					++pos;
+					}
+					break;
+				case parameterType::Array:
+					{
+					// std::cout << "OracleObject::bind: " << getParameterName(pos) << " is an array = " << it->to_string() << std::endl << std::flush;
+					ocip::ParameterArray* bValues = new ocip::ParameterArray(getParameterName(pos), ocip::String, ocip::Input, it->values().size());
+					assert(bValues);
+					statement.addParameter(bValues);
+					bValues->value(it->values());
+					++pos;
+					}
+					break;
+				case parameterType::Null:
+				default:
+					break;
+			}
+		}
 
-		// Execute statement
+		//
+		// 5. Execute statement
+		//
 		if (!statement.execute(1))
 		{
 			m_OracleError = statement.reportError("oci_statement_execute", __FILE__, __LINE__);
@@ -558,7 +648,79 @@ bool OracleObject::requestRun(ocip::Connection* connection, const std::string& p
 
 	if (m_Config.m_debug)
 	{
-		std::cout << "OracleObject::requestRun: END" << std::endl << std::flush;
+		std::cout << "OracleObject::executeStatic: END" << std::endl << std::flush;
+	}
+
+	return true;
+}
+
+///////////////////////////////////////////////////////////////////////////
+bool OracleObject::executeDynamic(ocip::Connection* connection, const std::string& name, const parameterListType& parameters)
+{
+	if (m_Config.m_debug)
+	{
+		std::cout << "OracleObject::executeDynamic: START" << std::endl <<
+			"   name: " << name << std::endl <<
+			"   parameter: " << std::endl << ::to_string(parameters) << std::endl << std::flush;
+	}
+
+	try {
+
+		//
+		// 1. Create statement
+		//
+		ocip::Statement statement(connection);
+
+		//
+		// 2. Prepare statement
+		//
+		if (!statement.prepare("BEGIN " + name + "(name_array=>:n, value_array=>:v); END;"))
+		{
+			m_OracleError = statement.reportError("oci_statement_prepare", __FILE__, __LINE__);
+			return false;
+		}
+
+		//
+		// 3. Bind
+		//
+		stringListType names;
+		stringListType values;
+		parameterListConstIteratorType it;
+		for (it = parameters.begin(); it != parameters.end(); ++it)
+		{
+			pushParameter(*it, &names, &values);
+		}
+		assert(names.size() == values.size());
+
+		// Bind array of parameter names
+		ocip::ParameterArray* bNames = new ocip::ParameterArray("n", ocip::String, ocip::Input, names.size());
+		assert(bNames);
+		statement.addParameter(bNames);
+		bNames->value(names);
+
+		// Bind array of parameter values
+		ocip::ParameterArray* bValues = new ocip::ParameterArray("v", ocip::String, ocip::Input, values.size());
+		assert(bValues);
+		statement.addParameter(bValues);
+		bValues->value(values);
+
+		//
+		// 4. Execute statement
+		//
+		if (!statement.execute(1))
+		{
+			m_OracleError = statement.reportError("oci_statement_execute", __FILE__, __LINE__);
+			return false;
+		}
+
+	} catch (const std::exception& e) {
+		m_OracleError = oracleError(e.what(), __FILE__, __LINE__);
+		return false;
+	}
+
+	if (m_Config.m_debug)
+	{
+		std::cout << "OracleObject::executeDynamic: END" << std::endl << std::flush;
 	}
 
 	return true;
@@ -727,43 +889,6 @@ ocip::Connection* OracleObject::createConnection()
 }
 
 ///////////////////////////////////////////////////////////////////////////
-static std::string getSql(const std::string& procedure, const parameterListType& parameters, bool isVariable)
-{
-	std::string sql;
-
-	if (isVariable)
-	{
-		sql = "BEGIN " + procedure + "(name_array=>:n, value_array=>:v); END;";
-	}
-	else
-	{
-		parameterListConstIteratorType it;
-		long pos = 1;
-		for (it = parameters.begin(); it != parameters.end(); ++it)
-		{
-			switch (it->type())
-			{
-				case parameterType::Scalar:
-				case parameterType::Array:
-					if (pos > 1)
-					{
-						sql += ",";
-					}
-					sql += it->name() + "=>:" + getParameterName(pos);
-					++pos;
-					break;
-				case parameterType::Null:
-				default:
-					break;
-			}
-		}
-		sql = "BEGIN " + procedure + "(" + sql + "); END;";
-	}
-
-	return sql;
-}
-
-///////////////////////////////////////////////////////////////////////////
 static void pushParameter(const parameterType& parameter, stringListType* names, stringListType* values)
 {
 	stringListType strings;
@@ -794,8 +919,6 @@ static void pushParameter(const parameterType& parameter, stringListType* names,
 ///////////////////////////////////////////////////////////////////////////
 static parameterListType enhanceParameters(const parameterListType& parameters, procType& procData)
 {
-	assert(parameters.size() == procData.m_dataTypes.size());
-
 	parameterListType newParameters;
 
 	parameterListConstIteratorType itp;
@@ -817,68 +940,6 @@ static parameterListType enhanceParameters(const parameterListType& parameters, 
 	assert(newParameters.size() == parameters.size());
 
 	return newParameters;
-}
-
-///////////////////////////////////////////////////////////////////////////
-static void bind(ocip::Statement& statement, bool isVariable, const parameterListType& parameters)
-{
-	if (isVariable)
-	{
-		stringListType names;
-		stringListType values;
-		parameterListConstIteratorType it;
-		for (it = parameters.begin(); it != parameters.end(); ++it)
-		{
-			pushParameter(*it, &names, &values);
-		}
-		assert(names.size() == values.size());
-
-		// Bind array of parameter names
-		ocip::ParameterArray* bNames = new ocip::ParameterArray("n", ocip::String, ocip::Input, names.size());
-		assert(bNames);
-		statement.addParameter(bNames);
-		bNames->value(names);
-
-		// Bind array of parameter values
-		ocip::ParameterArray* bValues = new ocip::ParameterArray("v", ocip::String, ocip::Input, values.size());
-		assert(bValues);
-		statement.addParameter(bValues);
-		bValues->value(values);
-	}
-	else
-	{
-		parameterListConstIteratorType it;
-		long pos = 1;
-		for (it = parameters.begin(); it != parameters.end(); ++it)
-		{
-			switch (it->type())
-			{
-				case parameterType::Scalar:
-					{
-					// std::cout << "OracleObject::bind: " << getParameterName(pos) << " is a scalar = " << it->to_string() << std::endl << std::flush;
-					ocip::ParameterValue* bValue = new ocip::ParameterValue(getParameterName(pos), ocip::String, ocip::Input);
-					assert(bValue);
-					statement.addParameter(bValue);
-					bValue->value(it->value());
-					++pos;
-					}
-					break;
-				case parameterType::Array:
-					{
-					// std::cout << "OracleObject::bind: " << getParameterName(pos) << " is an array = " << it->to_string() << std::endl << std::flush;
-					ocip::ParameterArray* bValues = new ocip::ParameterArray(getParameterName(pos), ocip::String, ocip::Input, it->values().size());
-					assert(bValues);
-					statement.addParameter(bValues);
-					bValues->value(it->values());
-					++pos;
-					}
-					break;
-				case parameterType::Null:
-				default:
-					break;
-			}
-		}
-	}
 }
 
 ///////////////////////////////////////////////////////////////////////////
