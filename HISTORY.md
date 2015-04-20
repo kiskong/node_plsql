@@ -174,3 +174,8 @@ v0.6.2 - April 19, 2015
 * 0.6.2 (Dieter Oberkofler)
 * Added missing views directory to npm package. (Dieter Oberkofler)
 * Fixed a problem when using dynamic parameters. (Dieter Oberkofler)
+
+v0.6.3 - April 20, 2015
+* 0.6.3 (Dieter Oberkofler)
+* Fixed a problem when converting strings in the Linux build. (Dieter Oberkofler)
+* Removed unused binaries from npm package. (Dieter Oberkofler)
