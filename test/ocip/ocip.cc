@@ -224,7 +224,7 @@ void testStringOutput(ocip::Connection* connection)
 
 	ocip::ParameterValue* b1 = new ocip::ParameterValue("p1", ocip::String, ocip::Output, 2000);
 	statement.addParameter(b1);
-	b1->value("1");
+	b1->value("abcd");
 
 	// Execute statement
 	std::cout << "Execute statement..." << std::endl << std::flush;
@@ -237,7 +237,7 @@ void testStringOutput(ocip::Connection* connection)
 
 	std::string p1 = b1->getString();
 	std::cout << p1 << std::endl << std::flush;
-	assert(p1 == "(1)");
+	assert(p1 == "(abcd)");
 
 	std::cout << "END: testStringOutput" << std::endl << std::flush;
 }
