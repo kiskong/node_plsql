@@ -2,7 +2,9 @@
 
 #include "oracleObject.h"
 
-#include <tchar.h>
+#if defined(_MSC_VER)
+# include <tchar.h>
+#endif
 
 ///////////////////////////////////////////////////////////////////////////
 static const std::string	username	= "sample";
@@ -18,7 +20,11 @@ static void testIntegerArray(ocip::Connection* connection);
 static void testStringArray(ocip::Connection* connection);
 
 ///////////////////////////////////////////////////////////////////////////
+#if defined(_MSC_VER)
 int _tmain(int argc, _TCHAR* argv[])
+#else
+int main()
+#endif
 {
 	oracleError error;
 
@@ -218,12 +224,12 @@ void testIntegerArray(ocip::Connection* connection)
 		return;
 	}
 
-	ocip::ParameterArray* b1 = new ocip::ParameterArray("p1", ocip::Integer, ocip::Output);
-	statement.addParameter(b1);
 	std::list<long> list;
 	list.push_back(10);
 	list.push_back(20);
 	list.push_back(30);
+	ocip::ParameterArray* b1 = new ocip::ParameterArray("p1", ocip::Integer, ocip::Output, list.size());
+	statement.addParameter(b1);
 	b1->value(list);
 
 	// Execute statement
