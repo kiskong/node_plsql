@@ -273,9 +273,9 @@ std::wstring oci_text::convert_utf16_to_wstring(const utf16_char_t* buffer)
 {
 #ifdef USE_LINUX
 	// Size in bytes
-	size_t size = stringLength(buffer, sizeof(wchar_t));
+	size_t size = stringLength(buffer, sizeof(utf16_char_t));
 
-	size_t bytes = (size + 1) * sizeof(wchar_t);
+	size_t bytes = (size + 1) * sizeof(unsigned int);
 
 	// Allocate buffer
 	unsigned int* temp_buffer = reinterpret_cast<unsigned int*>(malloc(bytes));
