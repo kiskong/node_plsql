@@ -687,7 +687,6 @@ sword ParameterValue::bind(OCIStmt* stmtp, OCIError* errhp)
 			value_sz_in_bytes = m_value_sz;
 			break;
 		default:
-			std::cerr << "Illegal data type in ParameterValue::bind" << std::endl << std::flush;
 			throw std::runtime_error("Illegal data type in ParameterValue::bind");
 	}
 
@@ -715,7 +714,18 @@ ParameterArray::ParameterArray(const std::string& placeholder, DataType type, Di
 	}
 
 	// calculate the size in bytes for each individual entry
-	m_value_sz_in_bytes = valueSizeInByte(static_cast<ub4>(maxValueLen));
+	switch (type)
+	{
+		case String:
+			m_value_sz_in_bytes = valueSizeInByte(static_cast<ub4>(maxValueLen));
+			break;
+		case Integer:
+			m_value_sz_in_bytes = static_cast<ub4>(sizeof(long));
+			break;
+		default:
+			throw std::runtime_error("Illegal data type in ParameterArray::ParameterArray");
+	}
+	
 
 	// allocate buffers
 	allocate(m_value_sz_in_bytes, static_cast<ub4>(maxArrayLen));

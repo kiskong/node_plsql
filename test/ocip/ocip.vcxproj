@@ -156,6 +156,15 @@
     <ClCompile Include="..\..\src\oracleError.cc" />
     <ClCompile Include="ocip.cc" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\global.h" />
+    <ClInclude Include="..\..\src\ocip_interface.h" />
+    <ClInclude Include="..\..\src\oci_includes.h" />
+    <ClInclude Include="..\..\src\oci_interface.h" />
+    <ClInclude Include="..\..\src\oci_text.h" />
+    <ClInclude Include="..\..\src\oracleError.h" />
+    <ClInclude Include="..\..\src\oracleObject.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
