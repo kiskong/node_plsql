@@ -1,15 +1,21 @@
 language: node_js
 
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-4.8
+
 #os:
 #  - linux
 #  - osx
 
 node_js:
-  - "4.0"
-  - "4.1"
   - "4.2"
 
 env:
+  - CXX=g++-4.8
   - USE_ORACLE_DUMMY=1
 
 before_script:
