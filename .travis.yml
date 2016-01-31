@@ -15,8 +15,9 @@ node_js:
   - "4.2"
 
 env:
-  - CXX=g++-4.8
-  - USE_ORACLE_DUMMY=1
+  global:
+    - CXX=g++-4.8
+    - USE_ORACLE_DUMMY=1
 
 before_script:
   - npm install -g gulp
