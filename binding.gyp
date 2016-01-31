@@ -22,7 +22,7 @@
         }],
         ["OS!='win'", {
           "variables": {
-            "oci_include_dir%": "<!(if [ -z $OCI_INC_DIR ]; then echo \"/opt/instantclient/sdk/include/\"; else echo $OCI_INC_DIR; fi)",
+            "oci_inc_dir%": "<!(if [ -z $OCI_INC_DIR ]; then echo \"/opt/instantclient/sdk/include/\"; else echo $OCI_INC_DIR; fi)",
             "oci_lib_dir%": "<!(if [ -z $OCI_LIB_DIR ]; then echo \"/opt/instantclient/\"; else echo $OCI_LIB_DIR; fi)",
             "use_oracle_dummy%": "<!(if [ -z $USE_ORACLE_DUMMY ]; then echo 0; else echo 1; fi)",
             "oci_library%": "<!(if [ -z $USE_ORACLE_DUMMY ]; then echo \"-lclntsh\"; else echo \"\"; fi)"
@@ -52,7 +52,7 @@
             }
           },
           "variables": {
-            "oci_include_dir%": "<!(IF DEFINED OCI_INC_DIR (echo %OCI_INC_DIR%) ELSE (echo C:\oracle\instantclient\sdk\include))",
+            "oci_inc_dir%": "<!(IF DEFINED OCI_INC_DIR (echo %OCI_INC_DIR%) ELSE (echo C:\oracle\instantclient\sdk\include))",
             "oci_lib_dir%": "<!(IF DEFINED OCI_LIB_DIR (echo %OCI_LIB_DIR%) ELSE (echo C:\oracle\instantclient\sdk\lib\msvc))",
             "use_oracle_dummy%": "<!(if DEFINED USE_ORACLE_DUMMY (echo 1) ELSE (echo 0))"
           },
@@ -65,22 +65,11 @@
         }]
       ],
       "include_dirs": [
-        "<(oci_include_dir)",
+        "<(oci_inc_dir)",
         "<!(node -e \"require('nan')\")"
       ],
       "cflags!": ["-fno-exceptions"],
       "cflags_cc!": ["-fno-exceptions"]
-    },
-    {
-      "target_name": "action_after_build",
-      "type": "none",
-      "dependencies": [ "<(module_name)" ],
-      "copies": [
-        {
-          "files": [ "<(PRODUCT_DIR)/<(module_name).node" ],
-          "destination": "<(module_path)"
-        }
-      ]
     }
   ]
 }

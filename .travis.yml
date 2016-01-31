@@ -8,7 +8,6 @@ node_js:
   - "4.0"
   - "4.1"
   - "4.2"
-  - "iojs"
 
 env:
   - USE_ORACLE_DUMMY=1

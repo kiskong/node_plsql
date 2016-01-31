@@ -61,16 +61,6 @@
     "README.md",
     "RELEASE-GOALS.md"
   ],
-  "scripts": {
-    "install": "node-pre-gyp install --fallback-to-build"
-  },
-  "binary": {
-    "module_name": "oracleBindings",
-    "module_path": "./build/{module_name}/v{version}/{configuration}/{node_abi}-{platform}-{arch}/",
-    "remote_path": "./{module_name}/v{version}/{configuration}/",
-    "package_name": "{node_abi}-{platform}-{arch}.tar.gz",
-    "host": "https://nodeplsql.s3.amazonaws.com"
-  },
   "dependencies": {
     "body-parser": "^1.12.3",
     "colors": "^1.0.3",
@@ -85,18 +75,13 @@
     "morgan": "^1.5.2",
     "ms": "^0.7.0",
     "nan": "^2.2.0",
-    "node-pre-gyp": "^0.6.4",
     "nopt": "^3.0.1",
     "serve-static": "^1.10.2",
     "strip-json-comments": "^2.0.0",
     "tough-cookie": "^2.2.1",
     "underscore": "^1.8.3"
   },
-  "bundledDependencies": [
-    "node-pre-gyp"
-  ],
   "devDependencies": {
-    "aws-sdk": ">=2.2.33",
     "chai": ">=3.5.0",
     "gulp": ">=3.8.11",
     "gulp-coveralls": ">=0.1.3",
