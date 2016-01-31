@@ -12,7 +12,7 @@ class Config;
 class OracleBindings : public node::ObjectWrap
 {
 public:
-	static void Init(v8::Handle<v8::Object> exports);
+	static NAN_MODULE_INIT(Init);
 
 private:
 	// Constructor/Destructor
@@ -31,22 +31,22 @@ private:
 	static void doRequestAfter(uv_work_t* req, int status);
 
 	// Helper
-	static std::string getConfig(_NAN_METHOD_ARGS_TYPE args, Config* config);
-	static inline OracleBindings* getObject(_NAN_METHOD_ARGS_TYPE args);
+	static std::string getConfig(Nan::NAN_METHOD_ARGS_TYPE args, Config* config);
+	static inline OracleBindings* getObject(Nan::NAN_METHOD_ARGS_TYPE args);
 
 	// member variables
-	static v8::Persistent<v8::Function>	m_constructor;
-	OracleObject*						m_oracleObject;
+	static Nan::Persistent<v8::Function>	m_constructor;
+	OracleObject*							m_oracleObject;
 };
 
 ///////////////////////////////////////////////////////////////////////////
-v8::Persistent<v8::Function> OracleBindings::m_constructor;
+Nan::Persistent<v8::Function> OracleBindings::m_constructor;
 
 ///////////////////////////////////////////////////////////////////////////
-class RequestWorker : public NanAsyncWorker
+class RequestWorker : public Nan::AsyncWorker
 {
 public:
-	RequestWorker(NanCallback* callback, OracleObject* oracleObject, const std::string& username, const std::string& password, const std::string& procedure,  const parameterListType& parameters, const propertyListType& cgi, const fileListType& files, const std::string& doctablename);
+	RequestWorker(Nan::Callback* callback, OracleObject* oracleObject, const std::string& username, const std::string& password, const std::string& procedure,  const parameterListType& parameters, const propertyListType& cgi, const fileListType& files, const std::string& doctablename);
 	~RequestWorker();
 
 	// Executed inside the worker-thread.
@@ -77,8 +77,8 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////
-RequestWorker::RequestWorker(NanCallback* callback, OracleObject* oracleObject, const std::string& username, const std::string& password, const std::string& procedure,  const parameterListType& parameters, const propertyListType& cgi, const fileListType& files, const std::string& doctablename)
-	:	NanAsyncWorker(callback)
+RequestWorker::RequestWorker(Nan::Callback* callback, OracleObject* oracleObject, const std::string& username, const std::string& password, const std::string& procedure,  const parameterListType& parameters, const propertyListType& cgi, const fileListType& files, const std::string& doctablename)
+	:	Nan::AsyncWorker(callback)
 	,	m_oracleObject(oracleObject)
 	,	m_username(username)
 	,	m_password(password)
@@ -130,16 +130,16 @@ void RequestWorker::HandleOKCallback()
 		std::cout << "RequestWorker::HandleOKCallback: START" << std::endl << std::flush;
 	}
 
-	NanScope();
+	Nan::HandleScope scope;
 
 	// Convert to UTF16
 	oci_text oci_page(m_page);
 
 	// Prepare arguments
 	v8::Local<v8::Value> argv[3];
-	argv[0] = NanNew<v8::String>(m_error.c_str());
-	argv[1] = NanNew<v8::String>(reinterpret_cast<const uint16_t*>(oci_page.text()));
-	argv[2] = NanNull();
+	argv[0] = Nan::New(m_error).ToLocalChecked();
+	argv[1] = Nan::New(reinterpret_cast<const uint16_t*>(oci_page.text())).ToLocalChecked();
+	argv[2] = Nan::Null();
 
 	// Invoke callback
 	callback->Call(2, argv);
@@ -196,7 +196,7 @@ OracleBindings::~OracleBindings()
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void OracleBindings::Init(v8::Handle<v8::Object> exports)
+NAN_MODULE_INIT(OracleBindings::Init)
 {
 	if (isDebug())
 	{
@@ -204,18 +204,18 @@ void OracleBindings::Init(v8::Handle<v8::Object> exports)
 	}
 
 	// Prepare constructor template
-	v8::Local<v8::FunctionTemplate> tpl = NanNew<v8::FunctionTemplate>(New);
-	tpl->SetClassName(NanNew<v8::String>("OracleBindings"));
+	v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
+	tpl->SetClassName(Nan::New("OracleBindings").ToLocalChecked());
 	tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
 	// Prototype
-	tpl->PrototypeTemplate()->Set(NanNew<v8::String>("create"),			NanNew<v8::FunctionTemplate>(create)->GetFunction());
-	tpl->PrototypeTemplate()->Set(NanNew<v8::String>("destroy"),		NanNew<v8::FunctionTemplate>(destroy)->GetFunction());
-	tpl->PrototypeTemplate()->Set(NanNew<v8::String>("executeSync"),	NanNew<v8::FunctionTemplate>(executeSync)->GetFunction());
-	tpl->PrototypeTemplate()->Set(NanNew<v8::String>("request"),		NanNew<v8::FunctionTemplate>(request)->GetFunction());
+	Nan::SetPrototypeMethod(tpl, "create",		create);
+	Nan::SetPrototypeMethod(tpl, "destroy",		destroy);
+	Nan::SetPrototypeMethod(tpl, "executeSync",	executeSync);
+	Nan::SetPrototypeMethod(tpl, "request",		request);
 
-	NanAssignPersistent<v8::Function>(m_constructor, tpl->GetFunction());
-	exports->Set(NanNew<v8::String>("OracleBindings"), tpl->GetFunction());
+	m_constructor.Reset(Nan::GetFunction(tpl).ToLocalChecked());
+	Nan::Set(target, Nan::New("OracleBindings").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -226,25 +226,25 @@ NAN_METHOD(OracleBindings::New)
 		std::cout << "OracleBindings::New" << std::endl << std::flush;
 	}
 
-	NanScope();
+	Nan::HandleScope scope;
 
 	// Load the configuration object
 	Config config;
-	std::string error = getConfig(args, &config);
+	std::string error = getConfig(info, &config);
 	if (!error.empty())
 	{
-		NanThrowTypeError(error.c_str());
-		NanReturnUndefined();
+		Nan::ThrowTypeError(error.c_str());
+		//NanReturnUndefined();
 	}
 
-	if (args.IsConstructCall()) {
+	if (info.IsConstructCall()) {
 		// Create the object and warp it
 		OracleBindings* obj = new OracleBindings(config);
-		obj->Wrap(args.This());
-		NanReturnValue(args.This());
+		obj->Wrap(info.This());
+		info.GetReturnValue().Set(info.This());
 	} else {
-		v8::Local<v8::Function> cons = NanNew<v8::Function>(m_constructor);
-		NanReturnValue(cons->NewInstance());
+		v8::Local<v8::Function> cons = Nan::New<v8::Function>(m_constructor);
+		info.GetReturnValue().Set(cons->NewInstance());
 	}
 }
 
@@ -256,16 +256,16 @@ NAN_METHOD(OracleBindings::create)
 		std::cout << "OracleBindings::create" << std::endl << std::flush;
 	}
 
-	NanScope();
+	Nan::HandleScope scope;
 
-	OracleBindings* obj = getObject(args);
+	OracleBindings* obj = getObject(info);
 
 	if (!obj->m_oracleObject->create())
 	{
-		NanThrowError(obj->m_oracleObject->getOracleError().what().c_str());
+		Nan::ThrowError(obj->m_oracleObject->getOracleError().what().c_str());
 	}
 
-	NanReturnUndefined();
+	//NanReturnUndefined();
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -276,16 +276,16 @@ NAN_METHOD(OracleBindings::destroy)
 		std::cout << "OracleBindings::destroy" << std::endl << std::flush;
 	}
 
-	NanScope();
+	Nan::HandleScope scope;
 
-	OracleBindings* obj = getObject(args);
+	OracleBindings* obj = getObject(info);
 
 	if (!obj->m_oracleObject->destroy())
 	{
-		NanThrowError(obj->m_oracleObject->getOracleError().what().c_str());
+		Nan::ThrowError(obj->m_oracleObject->getOracleError().what().c_str());
 	}
 
-	NanReturnUndefined();
+	//NanReturnUndefined();
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -296,49 +296,49 @@ NAN_METHOD(OracleBindings::executeSync)
 		std::cout << "OracleBindings::executeSync" << std::endl << std::flush;
 	}
 
-	NanScope();
+	Nan::HandleScope scope;
 
-	OracleBindings* obj = getObject(args);
+	OracleBindings* obj = getObject(info);
 
 	// Check the number and types of arguments
-	if (args.Length() != 3)
+	if (info.Length() != 3)
 	{
-		NanThrowError("The function executeSync requires exactly 3 arguments!");
-		NanReturnUndefined();
+		Nan::ThrowError("The function executeSync requires exactly 3 arguments!");
+		//NanReturnUndefined();
 	}
 
 	// Get the username
 	std::string username;
-	if (!nodeUtilities::getArgString(args, 0, &username) || username.empty())
+	if (!nodeUtilities::getArgString(info, 0, &username) || username.empty())
 	{
-		NanThrowError("The parameter username must be a non-empty string!");
-		NanReturnUndefined();
+		Nan::ThrowError("The parameter username must be a non-empty string!");
+		//NanReturnUndefined();
 	}
 
 	// Get the password
 	std::string password;
-	if (!nodeUtilities::getArgString(args, 1, &password))
+	if (!nodeUtilities::getArgString(info, 1, &password))
 	{
-		NanThrowError("The parameter password must be a string!");
-		NanReturnUndefined();
+		Nan::ThrowError("The parameter password must be a string!");
+		//NanReturnUndefined();
 	}
 
 	// Get the sql statement
 	std::string sql;
-	if (!nodeUtilities::getArgString(args, 2, &sql) || sql.empty())
+	if (!nodeUtilities::getArgString(info, 2, &sql) || sql.empty())
 	{
-		NanThrowError("The parameter sql must be a non-empty string!");
-		NanReturnUndefined();
+		Nan::ThrowError("The parameter sql must be a non-empty string!");
+		//NanReturnUndefined();
 	}
 
 	// Execute the sql statement
 	if (!obj->m_oracleObject->execute(username, password, sql))
 	{
-		NanThrowError(obj->m_oracleObject->getOracleError().what().c_str());
-		NanReturnUndefined();
+		Nan::ThrowError(obj->m_oracleObject->getOracleError().what().c_str());
+		//NanReturnUndefined();
 	}
 
-	NanReturnUndefined();
+	//NanReturnUndefined();
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -349,9 +349,9 @@ NAN_METHOD(OracleBindings::request)
 		std::cout << "OracleBindings::request" << std::endl << std::flush;
 	}
 
-	NanScope();
+	Nan::HandleScope scope;
 
-	OracleBindings* obj = getObject(args);
+	OracleBindings* obj = getObject(info);
 
 	// Parse the arguments
 	std::string				username;
@@ -363,70 +363,70 @@ NAN_METHOD(OracleBindings::request)
 	std::string				doctablename;
 
 	// Check the number and types of arguments
-	if (args.Length() != 8)
+	if (info.Length() != 8)
 	{
-		NanThrowError("This function requires exactly 8 arguments! (username, password, procedure, args, cgi, files, doctablename, callback)");
-		NanReturnUndefined();
+		Nan::ThrowError("This function requires exactly 8 arguments! (username, password, procedure, info, cgi, files, doctablename, callback)");
+		//NanReturnUndefined();
 	}
 
 	// 1. Get username
-	if (!nodeUtilities::getArgString(args, 0, &username))
+	if (!nodeUtilities::getArgString(info, 0, &username))
 	{
-		NanThrowError("Argument 1 must be the username!");
-		NanReturnUndefined();
+		Nan::ThrowError("Argument 1 must be the username!");
+		//NanReturnUndefined();
 	}
 
 	// 2. Get password
-	if (!nodeUtilities::getArgString(args, 1, &password))
+	if (!nodeUtilities::getArgString(info, 1, &password))
 	{
-		NanThrowError("Argument 2 must be the password!");
-		NanReturnUndefined();
+		Nan::ThrowError("Argument 2 must be the password!");
+		//NanReturnUndefined();
 	}
 
 	// 3. Get procedure name
-	if (!nodeUtilities::getArgString(args, 2, &procedure) || procedure.empty())
+	if (!nodeUtilities::getArgString(info, 2, &procedure) || procedure.empty())
 	{
-		NanThrowError("Argument 3 must be a non-empty procedure!");
-		NanReturnUndefined();
+		Nan::ThrowError("Argument 3 must be a non-empty procedure!");
+		//NanReturnUndefined();
 	}
 
 	// 4. Get the parameters of the procedure
 	v8::Local<v8::Object> parametersObject;
-	if (!nodeUtilities::getArgObject(args, 3, &parametersObject))
+	if (!nodeUtilities::getArgObject(info, 3, &parametersObject))
 	{
-		NanThrowError("Argument 4 must be an object with the parameters of the procedure procedure!");
-		NanReturnUndefined();
+		Nan::ThrowError("Argument 4 must be an object with the parameters of the procedure procedure!");
+		//NanReturnUndefined();
 	}
 	if (!nodeUtilities::objectAsParameterList(parametersObject, &parameters))
 	{
-		NanThrowError("Argument 4 must be an object with all properties of type string!");
-		NanReturnUndefined();
+		Nan::ThrowError("Argument 4 must be an object with all properties of type string!");
+		//NanReturnUndefined();
 	}
 
 	// 5. Get the CGI environment
 	v8::Local<v8::Object> cgiObject;
-	if (!nodeUtilities::getArgObject(args, 4, &cgiObject))
+	if (!nodeUtilities::getArgObject(info, 4, &cgiObject))
 	{
-		NanThrowError("Argument 5 must be an object with the CGI environment!");
-		NanReturnUndefined();
+		Nan::ThrowError("Argument 5 must be an object with the CGI environment!");
+		//NanReturnUndefined();
 	}
 	if (!nodeUtilities::objectAsStringLists(cgiObject, &cgi))
 	{
-		NanThrowError("Argument 5 must be an object with all properties of type string!");
-		NanReturnUndefined();
+		Nan::ThrowError("Argument 5 must be an object with all properties of type string!");
+		//NanReturnUndefined();
 	}
 	if (cgi.size() < 1)
 	{
-		NanThrowError("Argument 5 must be an object with at least one property!");
-		NanReturnUndefined();
+		Nan::ThrowError("Argument 5 must be an object with at least one property!");
+		//NanReturnUndefined();
 	}
 
 	// 6. The array of files to upload
 	v8::Local<v8::Array> fileArray;
-	if (!nodeUtilities::getArgArray(args, 5, &fileArray))
+	if (!nodeUtilities::getArgArray(info, 5, &fileArray))
 	{
-		NanThrowError("Argument 6 must be an array with the files to be uploaded!");
-		NanReturnUndefined();
+		Nan::ThrowError("Argument 6 must be an array with the files to be uploaded!");
+		//NanReturnUndefined();
 	}
 	// Get the number of array entries
 	uint32_t length = fileArray->Length();
@@ -437,8 +437,8 @@ NAN_METHOD(OracleBindings::request)
 		v8::Local<v8::Value> value = fileArray->Get(i);
 		if (!value->IsObject())
 		{
-			NanThrowError("Argument 6 must only contain objects!");
-			NanReturnUndefined();
+			Nan::ThrowError("Argument 6 must only contain objects!");
+			//NanReturnUndefined();
 		}
 
 		// Cast the value to an object
@@ -450,40 +450,40 @@ NAN_METHOD(OracleBindings::request)
 		std::string fieldValue;
 		if (!nodeUtilities::getObjString(object, "fieldValue", &fieldValue) || fieldValue.empty())
 		{
-			NanThrowError("Argument 6 must contain objects with a non-empty string property \"fieldValue\"!");
-			NanReturnUndefined();
+			Nan::ThrowError("Argument 6 must contain objects with a non-empty string property \"fieldValue\"!");
+			//NanReturnUndefined();
 		}
 
 		// "filename"
 		std::string filename;
 		if (!nodeUtilities::getObjString(object, "filename", &filename) || filename.empty())
 		{
-			NanThrowError("Argument 6 must contain objects with a non-empty string property \"filename\"!");
-			NanReturnUndefined();
+			Nan::ThrowError("Argument 6 must contain objects with a non-empty string property \"filename\"!");
+			//NanReturnUndefined();
 		}
 
 		// "physicalFilename"
 		std::string physicalFilename;
 		if (!nodeUtilities::getObjString(object, "physicalFilename", &physicalFilename) || physicalFilename.empty())
 		{
-			NanThrowError("Argument 6 must contain objects with a non-empty string property \"physicalFilename\"!");
-			NanReturnUndefined();
+			Nan::ThrowError("Argument 6 must contain objects with a non-empty string property \"physicalFilename\"!");
+			//NanReturnUndefined();
 		}
 
 		// "encoding"
 		std::string encoding;
 		if (!nodeUtilities::getObjString(object, "encoding", &encoding))
 		{
-			NanThrowError("Argument 6 must contain objects with a string property \"encoding\"!");
-			NanReturnUndefined();
+			Nan::ThrowError("Argument 6 must contain objects with a string property \"encoding\"!");
+			//NanReturnUndefined();
 		}
 
 		// "mimetype"
 		std::string mimetype;
 		if (!nodeUtilities::getObjString(object, "mimetype", &mimetype))
 		{
-			NanThrowError("Argument 6 must contain objects with a string property \"mimetype\"!");
-			NanReturnUndefined();
+			Nan::ThrowError("Argument 6 must contain objects with a string property \"mimetype\"!");
+			//NanReturnUndefined();
 		}
 
 		// Add the new file entry
@@ -492,28 +492,28 @@ NAN_METHOD(OracleBindings::request)
 	}
 
 	// 7. Get the table name
-	if (!nodeUtilities::getArgString(args, 6, &doctablename) || doctablename.empty())
+	if (!nodeUtilities::getArgString(info, 6, &doctablename) || doctablename.empty())
 	{
-		NanThrowError("Argument must be a non-empty document table name!");
-		NanReturnUndefined();
+		Nan::ThrowError("Argument must be a non-empty document table name!");
+		//NanReturnUndefined();
 	}
 
 	// 8. The callback function
-	if (!args[7]->IsFunction())
+	if (!info[7]->IsFunction())
 	{
-		NanThrowError("Argument 8 must be the callback function!");
-		NanReturnUndefined();
+		Nan::ThrowError("Argument 8 must be the callback function!");
+		//NanReturnUndefined();
 	}
-	NanCallback* callback = new NanCallback(args[7].As<v8::Function>());
+	Nan::Callback* callback = new Nan::Callback(info[7].As<v8::Function>());
 
 	// Invoke async worker
-	NanAsyncQueueWorker(new RequestWorker(callback, obj->m_oracleObject, username, password, procedure, parameters, cgi, files, doctablename));
+	Nan::AsyncQueueWorker(new RequestWorker(callback, obj->m_oracleObject, username, password, procedure, parameters, cgi, files, doctablename));
 	
-	NanReturnUndefined();
+	//NanReturnUndefined();
 }
 
 ///////////////////////////////////////////////////////////////////////////
-std::string OracleBindings::getConfig(_NAN_METHOD_ARGS_TYPE args, Config* config)
+std::string OracleBindings::getConfig(Nan::NAN_METHOD_ARGS_TYPE args, Config* config)
 {
 	bool retCode;
 
@@ -559,7 +559,7 @@ std::string OracleBindings::getConfig(_NAN_METHOD_ARGS_TYPE args, Config* config
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline OracleBindings* OracleBindings::getObject(_NAN_METHOD_ARGS_TYPE args)
+inline OracleBindings* OracleBindings::getObject(Nan::NAN_METHOD_ARGS_TYPE args)
 {
 	return ObjectWrap::Unwrap<OracleBindings>(args.This());
 }

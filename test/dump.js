@@ -3,6 +3,8 @@
  * @author doberkofler
  */
 
+'use strict';
+
 
 /* global describe: false, it:false */
 
@@ -29,8 +31,6 @@ var dump = require('../lib/dump');
 * Tests.
 */
 describe('dump', function () {
-	'use strict';
-
 	describe('when calling dump.divider()', function () {
 		it('should work with defaults', function () {
 			assert.strictEqual(dump.divider(), '----------------------------------------------------------------------');

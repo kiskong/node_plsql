@@ -3,6 +3,8 @@
  * @author doberkofler
  */
 
+'use strict';
+
 
 /* global describe: false, it:false */
 
@@ -29,8 +31,6 @@ var statistics = require('../lib/statistics');
 */
 
 describe('statistics', function () {
-	'use strict';
-
 	describe('setStartup', function () {
 		it('should initialize the object and set the startup time', function () {
 

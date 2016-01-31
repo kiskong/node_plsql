@@ -3,6 +3,7 @@
  * @author doberkofler
  */
 
+'use strict';
 
 /* global describe: false, it:false */
 
@@ -33,8 +34,6 @@ var fs = require('fs');
 * Tests.
 */
 describe('absoluteFilename', function () {
-	'use strict';
-
 	describe('when getting the absolute filename', function () {
 		var FILENAME = '../test.file';
 
@@ -46,8 +45,6 @@ describe('absoluteFilename', function () {
 });
 
 describe('fileCopy', function () {
-	'use strict';
-
 	describe('when copying an existing file', function () {
 		var SRC = 'temp/test.old',
 			DST = 'temp/test.new';

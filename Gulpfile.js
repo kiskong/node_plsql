@@ -68,9 +68,9 @@ function numberOfFiles(message) {
 //
 
 //
-//	The task "jslint" will lint the js files
+//	The task "eslint" will lint the js files
 //
-gulp.task('jslint', function () {
+gulp.task('eslint', function () {
 	return gulp.src(JS_SRC_FILES)
 		.pipe(eslint())
 		.pipe(eslint.formatEach())
@@ -122,7 +122,7 @@ gulp.task('coveralls', function (/*callback*/) {
 // Meta tasks
 //
 gulp.task('lint', function (callback) {
-	runSequence('jslint',
+	runSequence('eslint',
 				'jsonlint',
 				callback
 				);

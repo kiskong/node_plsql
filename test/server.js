@@ -3,6 +3,7 @@
  * @author doberkofler
  */
 
+'use strict';
 
 /* global describe: false, it:false */
 
@@ -38,8 +39,6 @@ var server = require('../lib/server');
 * @api private
 */
 function validateCGI(cgi) {
-	'use strict';
-
 	var SERVER_PORT = '8999',
 		ROUTE = 'sampleRoute',
 		DOCUMENT_TABLE_NAME = 'sampleDoctable';
@@ -54,8 +53,8 @@ function validateCGI(cgi) {
 	assert.strictEqual(cgi.PATH_INFO, 'cgi');
 	assert.strictEqual(cgi.SCRIPT_NAME, ROUTE);
 //	assert.strictEqual(cgi.REMOTE_ADDR, REMOTE_ADDRESS);
-	assert.strictEqual(cgi.SERVER_PROTOCOL, 'http/1.1');
-	assert.strictEqual(cgi.REQUEST_PROTOCOL, 'http');
+	assert.strictEqual(cgi.SERVER_PROTOCOL, 'HTTP/1.1');
+	assert.strictEqual(cgi.REQUEST_PROTOCOL, 'HTTP');
 	assert.strictEqual(cgi.REMOTE_USER, '');
 //	assert.strictEqual(cgi.HTTP_USER_AGENT, 'USER-AGENT');
 //	assert.strictEqual(cgi.HTTP_HOST, 'HOST');
@@ -81,8 +80,6 @@ function validateCGI(cgi) {
 * @api private
 */
 function databaseConnect(/*config*/) {
-	'use strict';
-
 	debug('databaseConnect: \n' + util.inspect(arguments, {showHidden: false, depth: null, colors: true}) + '\"');
 }
 
@@ -95,8 +92,6 @@ function databaseConnect(/*config*/) {
 * @api private
 */
 function getPage(body, header) {
-	'use strict';
-
 	var text = '',
 		name;
 
@@ -128,48 +123,46 @@ function getPage(body, header) {
 * @api private
 */
 function databaseInvoke(databaseHandle, username, password, procedure, args, cgi, files, doctablename, callback) {
-	'use strict';
-
 	var proc = procedure.toLowerCase();
 
 	debug('databaseInvoke: \n' + util.inspect(arguments, {showHidden: false, depth: null, colors: true}) + '\"');
 
 	switch (proc) {
-	case 'emptypage':
-		callback(null, '', {});
-		break;
-	case 'samplepage':
-		callback(null, getPage('sample page'), {'Content-Type': 'text/html'});
-		break;
-	case 'completepage':
-		callback(null, getPage('complete page', {'Content-Type': 'text/html', 'Set-Cookie': 'C1=V1'}));
-		break;
-	case 'arraypage':
-		callback(null, getPage('array page\n' + util.inspect(args), {'Content-Type': 'text/html'}));
-		break;
-	case 'redirect':
-		callback(null, getPage('', {'Location': 'www.google.com'}));
-		break;
-	case 'json':
-		callback(null, getPage('{"name":"johndoe"}', {'Content-Type': 'application/json'}));
-		break;
-	case 'form_urlencoded':
-		callback(null, getPage('{"name":"johndoe"}', {'Content-Type': 'text/html'}));
-		break;
-	case 'multipart_form_data':
-		callback(null, getPage('foo.txt', {'Content-Type': 'text/html'}));
-		break;
-	case 'cgi':
-		validateCGI(cgi);
-		callback(null, getPage('cgi'), {'Content-Type': 'text/html'});
-		break;
-	case 'invalidpage':
-		callback('procedure not found');
-		break;
-	case 'internalerror':
-		throw new Error('internal error');
-	default:
-		break;
+		case 'emptypage':
+			callback(null, '', {});
+			break;
+		case 'samplepage':
+			callback(null, getPage('sample page'), {'Content-Type': 'text/html'});
+			break;
+		case 'completepage':
+			callback(null, getPage('complete page', {'Content-Type': 'text/html', 'Set-Cookie': 'C1=V1'}));
+			break;
+		case 'arraypage':
+			callback(null, getPage('array page\n' + util.inspect(args), {'Content-Type': 'text/html'}));
+			break;
+		case 'redirect':
+			callback(null, getPage('', {'Location': 'www.google.com'}));
+			break;
+		case 'json':
+			callback(null, getPage('{"name":"johndoe"}', {'Content-Type': 'application/json'}));
+			break;
+		case 'form_urlencoded':
+			callback(null, getPage('{"name":"johndoe"}', {'Content-Type': 'text/html'}));
+			break;
+		case 'multipart_form_data':
+			callback(null, getPage('foo.txt', {'Content-Type': 'text/html'}));
+			break;
+		case 'cgi':
+			validateCGI(cgi);
+			callback(null, getPage('cgi'), {'Content-Type': 'text/html'});
+			break;
+		case 'invalidpage':
+			callback('procedure not found');
+			break;
+		case 'internalerror':
+			throw new Error('internal error');
+		default:
+			break;
 	}
 }
 
@@ -180,16 +173,13 @@ function databaseInvoke(databaseHandle, username, password, procedure, args, cgi
 * @api private
 */
 function startServer() {
-	'use strict';
-
 	var config = {
 		server: {
 			port: 8999,
 			static: [{
 				mountPath: '/',
 				physicalDirectory: './'
-			},
-			{
+			}, {
 				mountPath: '/temp/',
 				physicalDirectory: './temp'
 			}],
@@ -205,8 +195,7 @@ function startServer() {
 			databasePassword: 'samplePassword',
 			databaseConnectString: 'sampleConnectString',
 			documentTableName: 'sampleDoctable'
-		},
-		{
+		}, {
 			route: 'secondRoute',
 			databaseUsername: 'secondUsername',
 			databasePassword: 'secondPassword',
@@ -233,8 +222,6 @@ function startServer() {
 */
 
 describe('start server', function () {
-	'use strict';
-
 	describe('with an valid configuration', function () {
 		var app;
 
@@ -257,8 +244,6 @@ describe('start server', function () {
 });
 
 describe('GET static resources', function () {
-	'use strict';
-
 	var app = startServer();
 
 	describe('GET /test/server.js', function () {
@@ -282,15 +267,13 @@ describe('GET static resources', function () {
 });
 
 describe('GET default page', function () {
-	'use strict';
-
 	var app = startServer();
 
 	describe('GET /sampleRoute', function () {
 		it('should return the default page', function (done) {
 			var test = request(app).get('/sampleRoute');
 
-			test.expect(302, 'Moved Temporarily. Redirecting to /sampleRoute/samplePage', done);
+			test.expect(302, 'Found. Redirecting to /sampleRoute/samplePage', done);
 		});
 	});
 
@@ -299,8 +282,6 @@ describe('GET default page', function () {
 });
 
 describe('GET', function () {
-	'use strict';
-
 	var app = startServer();
 
 	describe('GET /sampleRoute/emptyPage', function () {
@@ -352,8 +333,6 @@ describe('GET', function () {
 });
 
 describe('GET status', function () {
-	'use strict';
-
 	var app = startServer();
 
 	describe('GET /status', function () {
@@ -369,8 +348,6 @@ describe('GET status', function () {
 });
 
 describe('GET errors', function () {
-	'use strict';
-
 	var app = startServer();
 
 	describe('GET /invalidRoute', function () {
@@ -402,8 +379,6 @@ describe('GET errors', function () {
 });
 
 describe('POST', function () {
-	'use strict';
-
 	var app = startServer();
 
 	describe('POST /sampleRoute/form_urlencoded', function () {
@@ -439,8 +414,6 @@ describe('POST', function () {
 });
 
 describe('CGI', function () {
-	'use strict';
-
 	var app = startServer();
 
 	describe('GET /sampleRoute/cgi', function () {

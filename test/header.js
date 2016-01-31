@@ -3,6 +3,7 @@
  * @author doberkofler
  */
 
+'use strict';
 
 /* global describe: false, it:false */
 
@@ -20,8 +21,6 @@ var header = require('../lib/header');
 // Tests
 // ------------------------------------------------------------------------------
 describe('header', function () {
-	'use strict';
-
 	describe('when calling tough-cookie.parse()', function () {
 		it('the cookie string should return an object', function () {
 			var cookie = {};
@@ -34,16 +33,13 @@ describe('header', function () {
 			assert.strictEqual(cookie.key, 'c1');
 			assert.strictEqual(cookie.value, 'v1');
 
-			cookie = tough.Cookie.parse('c1="this is the value"', true);
-			assert.isUndefined(cookie);
-
 			cookie = tough.Cookie.parse('c1=this is the value', false);
 			assert.strictEqual(cookie.key, 'c1');
 			assert.strictEqual(cookie.value, 'this is the value');
 
 			cookie = tough.Cookie.parse('c1="this is the value"', false);
 			assert.strictEqual(cookie.key, 'c1');
-			assert.strictEqual(cookie.value, 'this is the value');
+			assert.strictEqual(cookie.value, '"this is the value"');
 		});
 	});
 
@@ -84,27 +80,27 @@ describe('header', function () {
 	describe('when calling getHeaderAndBody()', function () {
 		it('the header and the body should be split', function () {
 			var testData = [{
-				text: 'Content-type: text/html\n\n<html>',
-				header: 'Content-type: text/html\n\n',
-				body: '<html>'
-			},
-			{
-				text: 'Content-type: text/html',
-				header: 'Content-type: text/html',
-				body: ''
-			},
-			{
-				text: '<html>',
-				header: '',
-				body: '<html>'
-			},
-			{
-				text: '',
-				header: '',
-				body: ''
-			}],
-			i,
-			result;
+					text: 'Content-type: text/html\n\n<html>',
+					header: 'Content-type: text/html\n\n',
+					body: '<html>'
+				},
+				{
+					text: 'Content-type: text/html',
+					header: 'Content-type: text/html',
+					body: ''
+				},
+				{
+					text: '<html>',
+					header: '',
+					body: '<html>'
+				},
+				{
+					text: '',
+					header: '',
+					body: ''
+				}],
+				i,
+				result;
 
 			for (i = 0; i < testData.length; i++) {
 				result = header.getHeaderAndBody(testData[i].text);
@@ -126,20 +122,17 @@ describe('header', function () {
 				header: {},
 				other: {},
 				cookie: []
-			},
-			{
+			}, {
 				text: '\n\n',
 				header: {},
 				other: {},
 				cookie: []
-			},
-			{
+			}, {
 				text: 'this is not a header line because the is no colon',
 				header: {},
 				other: {},
 				cookie: []
-			},
-			{
+			}, {
 				text: 'Location: index.html\nContent-type: text/html',
 				header: {
 					'contentType': 'text/html',
@@ -147,16 +140,14 @@ describe('header', function () {
 				},
 				other: {},
 				cookie: []
-			},
-			{
+			}, {
 				text: '\nContent-type: text/html\n',
 				header: {
 					'contentType': 'text/html'
 				},
 				other: {},
 				cookie: []
-			},
-			{
+			}, {
 				text: 'Status: 400 error status\nContent-type: text/html\nX-DB-Content-length: 4711',
 				header: {
 					'statusCode': 400,
@@ -166,27 +157,23 @@ describe('header', function () {
 				},
 				other: {},
 				cookie: []
-			},
-			{
+			}, {
 				text: 'Set-Cookie: c1=v1\nSet-Cookie: c2=another value',
 				header: {},
 				other: {},
 				cookie: [{
 					'key': 'c1',
 					'value': 'v1'
-				},
-				{
+				}, {
 					'key': 'c2',
 					'value': 'another value'
 				}]
-			},
-			{
+			}, {
 				text: 'Set-Cookie: =v1\nSet-Cookie: c2:another value',
 				header: {},
 				other: {},
 				cookie: []
-			},
-			{
+			}, {
 				text: 'Status: 400 error status\nContent-type: text/html\nX-DB-Content-length: 4711\nSet-Cookie: c1=v1\nSet-Cookie: c2=another value\nsome attribute: some value',
 				header: {
 					'statusCode': 400,
@@ -200,21 +187,18 @@ describe('header', function () {
 				cookie: [{
 					'key': 'c1',
 					'value': 'v1'
-				},
-				{
+				}, {
 					'key': 'c2',
 					'value': 'another value'
 				}]
-			},
-			{
+			}, {
 				text: '\nSet-Cookie: correctKey=correctValue\nSet-Cookie: illegalKey = illigalValue\nSet-Cookie: key=value\n',
 				header: {},
 				other: {},
 				cookie: [{
 					'key': 'correctKey',
 					'value': 'correctValue'
-				},
-				{
+				}, {
 					'key': 'key',
 					'value': 'value'
 				}]

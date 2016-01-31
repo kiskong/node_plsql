@@ -179,3 +179,8 @@ v0.6.3 - April 20, 2015
 * 0.6.3 (Dieter Oberkofler)
 * Fixed a problem when converting strings in the Linux build. (Dieter Oberkofler)
 * Removed unused binaries from npm package. (Dieter Oberkofler)
+
+v0.7.0 - January 31, 2016
+* 0.7.0 (Dieter Oberkofler)
+* Updated to support NodeJS 4.2.4 or later. (Dieter Oberkofler)
+* Updated all dependencies to latest release. (Dieter Oberkofler)

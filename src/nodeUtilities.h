@@ -17,31 +17,31 @@ namespace nodeUtilities
 {
 
 ///////////////////////////////////////////////////////////////////////////
-inline bool isArgString(_NAN_METHOD_ARGS_TYPE args, int index)
+inline bool isArgString(Nan::NAN_METHOD_ARGS_TYPE args, int index)
 {
 	return (index >= 0 && index < args.Length() && args[index]->IsString());
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline bool isArgBoolean(_NAN_METHOD_ARGS_TYPE args, int index)
+inline bool isArgBoolean(Nan::NAN_METHOD_ARGS_TYPE args, int index)
 {
 	return (index >= 0 && index < args.Length() && args[index]->IsBoolean());
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline bool isArgInt32(_NAN_METHOD_ARGS_TYPE args, int index)
+inline bool isArgInt32(Nan::NAN_METHOD_ARGS_TYPE args, int index)
 {
 	return (index >= 0 && index < args.Length() && args[index]->IsInt32());
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline bool isArgObject(_NAN_METHOD_ARGS_TYPE args, int index)
+inline bool isArgObject(Nan::NAN_METHOD_ARGS_TYPE args, int index)
 {
 	return (index >= 0 && index < args.Length() && args[index]->IsObject());
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline bool getArgString(_NAN_METHOD_ARGS_TYPE args, int index, std::string* result)
+inline bool getArgString(Nan::NAN_METHOD_ARGS_TYPE args, int index, std::string* result)
 {
 	assert(result);
 
@@ -58,7 +58,7 @@ inline bool getArgString(_NAN_METHOD_ARGS_TYPE args, int index, std::string* res
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline bool getArgBoolean(_NAN_METHOD_ARGS_TYPE args, int index, bool* result)
+inline bool getArgBoolean(Nan::NAN_METHOD_ARGS_TYPE args, int index, bool* result)
 {
 	assert(result);
 
@@ -74,7 +74,7 @@ inline bool getArgBoolean(_NAN_METHOD_ARGS_TYPE args, int index, bool* result)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline bool getArgInteger(_NAN_METHOD_ARGS_TYPE args, int index, long* result)
+inline bool getArgInteger(Nan::NAN_METHOD_ARGS_TYPE args, int index, long* result)
 {
 	assert(result);
 
@@ -90,7 +90,7 @@ inline bool getArgInteger(_NAN_METHOD_ARGS_TYPE args, int index, long* result)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline bool getArgInteger(_NAN_METHOD_ARGS_TYPE args, int index, double* result)
+inline bool getArgInteger(Nan::NAN_METHOD_ARGS_TYPE args, int index, double* result)
 {
 	assert(result);
 
@@ -106,7 +106,7 @@ inline bool getArgInteger(_NAN_METHOD_ARGS_TYPE args, int index, double* result)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline bool getArgObject(_NAN_METHOD_ARGS_TYPE args, int index, v8::Local<v8::Object>* object)
+inline bool getArgObject(Nan::NAN_METHOD_ARGS_TYPE args, int index, v8::Local<v8::Object>* object)
 {
 	if (index >= 0 && index < args.Length() && args[index]->IsObject())
 	{
@@ -121,13 +121,13 @@ inline bool getArgObject(_NAN_METHOD_ARGS_TYPE args, int index, v8::Local<v8::Ob
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline bool isArgArray(_NAN_METHOD_ARGS_TYPE args, int index)
+inline bool isArgArray(Nan::NAN_METHOD_ARGS_TYPE args, int index)
 {
 	return (index >= 0 && index < args.Length() && args[index]->IsArray());
 }
 
 ///////////////////////////////////////////////////////////////////////////
-inline bool getArgArray(_NAN_METHOD_ARGS_TYPE args, int index, v8::Local<v8::Array>* array)
+inline bool getArgArray(Nan::NAN_METHOD_ARGS_TYPE args, int index, v8::Local<v8::Array>* array)
 {
 	if (index >= 0 && index < args.Length() && args[index]->IsArray())
 	{
@@ -142,31 +142,33 @@ inline bool getArgArray(_NAN_METHOD_ARGS_TYPE args, int index, v8::Local<v8::Arr
 }
 
 ///////////////////////////////////////////////////////////////////////////
+inline v8::Local<v8::Value> objGet(const v8::Local<v8::Object>& object, const std::string& key)
+{
+	return object->Get(Nan::New(key).ToLocalChecked());
+}
+
+///////////////////////////////////////////////////////////////////////////
 inline bool isObjString(const v8::Local<v8::Object>& object, const std::string& key)
 {
-	v8::Local<v8::Value> value = object->Get(NanNew<v8::String>(key.c_str()));
-	return value->IsString();
+	return objGet(object, key)->IsString();
 }
 
 ///////////////////////////////////////////////////////////////////////////
 inline bool isObjBoolean(const v8::Local<v8::Object>& object, const std::string& key)
 {
-	v8::Local<v8::Value> value = object->Get(NanNew<v8::String>(key.c_str()));
-	return value->IsBoolean();
+	return objGet(object, key)->IsBoolean();
 }
 
 ///////////////////////////////////////////////////////////////////////////
 inline bool isObjInteger(const v8::Local<v8::Object>& object, const std::string& key)
 {
-	v8::Local<v8::Value> value = object->Get(NanNew<v8::String>(key.c_str()));
-	return value->IsNumber();
+	return objGet(object, key)->IsNumber();
 }
 
 ///////////////////////////////////////////////////////////////////////////
 inline bool isObjNumber(const v8::Local<v8::Object>& object, const std::string& key)
 {
-	v8::Local<v8::Value> value = object->Get(NanNew<v8::String>(key.c_str()));
-	return value->IsNumber();
+	return objGet(object, key)->IsNumber();
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -174,7 +176,7 @@ inline bool getObjString(const v8::Local<v8::Object>& object, const std::string&
 {
 	assert(result);
 
-	v8::Local<v8::Value> value = object->Get(NanNew<v8::String>(key.c_str()));
+	v8::Local<v8::Value> value = objGet(object, key);
 	if (!value->IsString())
 	{
 		return false;
@@ -191,7 +193,7 @@ inline bool getObjBoolean(const v8::Local<v8::Object>& object, const std::string
 {
 	assert(result);
 
-	v8::Local<v8::Value> value = object->Get(NanNew<v8::String>(key.c_str()));
+	v8::Local<v8::Value> value = objGet(object, key);
 	if (!value->IsBoolean())
 	{
 		return false;
@@ -207,7 +209,7 @@ inline int getObjInteger(const v8::Local<v8::Object>& object, const std::string&
 {
 	assert(result);
 
-	v8::Local<v8::Value> value = object->Get(NanNew<v8::String>(key.c_str()));
+	v8::Local<v8::Value> value = objGet(object, key);
 	if (!value->IsNumber())
 	{
 		return false;
@@ -223,7 +225,7 @@ inline double getObjNumber(const v8::Local<v8::Object>& object, const std::strin
 {
 	assert(result);
 
-	v8::Local<v8::Value> value = object->Get(NanNew<v8::String>(key.c_str()));
+	v8::Local<v8::Value> value = objGet(object, key);
 	if (!value->IsNumber())
 	{
 		return false;

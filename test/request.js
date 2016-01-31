@@ -3,6 +3,8 @@
  * @author doberkofler
  */
 
+'use strict';
+
 
 /* global describe: false, it:false */
 
@@ -32,16 +34,13 @@ var request = require('../lib/request');
 */
 
 describe('request', function () {
-	'use strict';
-
 	var config = {
 		server: {
 			port: 8999,
 			static: [{
 				mountPath: '/',
 				physicalDirectory: './'
-			},
-			{
+			}, {
 				mountPath: '/temp/',
 				physicalDirectory: './temp'
 			}],
@@ -64,27 +63,27 @@ describe('request', function () {
 			callbacks: {
 				databaseInvoke: function (databaseHandle, username, password, procedure, args/*, cgi, files, doctablename, callback*/) {
 					switch (procedure) {
-					case 'no_para':
-						assert.strictEqual(Object.keys(args).length, 0);
-						break;
-					case 'scalar_para':
-						assert.strictEqual(Object.keys(args).length, 1);
-						assert.strictEqual(args.p1, 'v1');
-						assert.strictEqual(args.p2, 'v2');
-						break;
-					case 'array_arguments':
-						assert.strictEqual(Object.keys(args).length, 2);
-						assert.strictEqual(args.p1, 'v1');
-						assert.strictEqual(args.p2, 'v2');
-						assert.strictEqual(args.a1.length, 2);
-						assert.strictEqual(args.a1[0], 'v1');
-						assert.strictEqual(args.a1[1], 'v2');
-						break;
-					case 'invalid_arguments':
-						assert.strictEqual(Object.keys(args).length, 0);
-						break;
-					default:
-						break;
+						case 'no_para':
+							assert.strictEqual(Object.keys(args).length, 0);
+							break;
+						case 'scalar_para':
+							assert.strictEqual(Object.keys(args).length, 1);
+							assert.strictEqual(args.p1, 'v1');
+							assert.strictEqual(args.p2, 'v2');
+							break;
+						case 'array_arguments':
+							assert.strictEqual(Object.keys(args).length, 2);
+							assert.strictEqual(args.p1, 'v1');
+							assert.strictEqual(args.p2, 'v2');
+							assert.strictEqual(args.a1.length, 2);
+							assert.strictEqual(args.a1[0], 'v1');
+							assert.strictEqual(args.a1[1], 'v2');
+							break;
+						case 'invalid_arguments':
+							assert.strictEqual(Object.keys(args).length, 0);
+							break;
+						default:
+							break;
 					}
 				}
 			}

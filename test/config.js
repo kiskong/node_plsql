@@ -3,6 +3,8 @@
  * @author doberkofler
  */
 
+'use strict';
+
 
 /* global describe: false, it:false */
 
@@ -34,8 +36,6 @@ var TEST_CONFIGURATION_FILENAME = '_mocha.json';
 * Return a valid configuration object
 */
 function getValidConf() {
-	'use strict';
-
 	return {
 		server: {
 			port: 8999,
@@ -76,8 +76,6 @@ function getValidConf() {
 * Tests.
 */
 describe('config', function () {
-	'use strict';
-
 	describe('when validating a configuration', function () {
 		it('is a valid configuration', function () {
 			var conf = getValidConf(),

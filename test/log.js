@@ -3,6 +3,8 @@
  * @author doberkofler
  */
 
+'use strict';
+
 
 /* global describe: false, it:false */
 
@@ -30,8 +32,6 @@ var log = require('../lib/log');
 * Tests.
 */
 describe('log', function () {
-	'use strict';
-
 	describe('enabled', function () {
 		it('does enable', function () {
 			var original = log.enabled(),

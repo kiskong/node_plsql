@@ -3,6 +3,7 @@
  * @author doberkofler
  */
 
+'use strict';
 
 /* global describe: false, it:false */
 
@@ -32,8 +33,6 @@ var fs = require('fs');
 * Tests.
 */
 describe('version', function () {
-	'use strict';
-
 	describe('when calling version.get()', function () {
 		it('we get a string with the version', function () {
 			assert.typeOf(version.get(), 'string');

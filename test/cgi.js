@@ -3,6 +3,7 @@
  * @author doberkofler
  */
 
+'use strict';
 
 /* global describe: false, it:false */
 
@@ -20,8 +21,6 @@ var os = require('os');
 // Tests
 // ------------------------------------------------------------------------------
 describe('cgi', function () {
-	'use strict';
-
 	describe('when calling createCGI()', function () {
 		it('with an empty configuration object or request', function () {
 			assert.throws(function () {
@@ -40,35 +39,35 @@ describe('cgi', function () {
 				REMOTE_ADDRESS = '';
 
 			var serverConfig = {
-				port: 4711
-			},
-			req = {
-				protocol: 'http',
-				method: 'GET',
-				params: {
-					name: 'index.html'
+					port: 4711
 				},
-				httpVersion: '1.1',
-				headers: {
-					'user-agent': 'USER-AGENT',
-					host: 'HOST',
-					accept: 'ACCEPT',
-					'accept-encoding': 'ACCEPT-ENCODING',
-					'accept-language': 'ACCEPT-LANGUAGE'
+				req = {
+					protocol: 'http',
+					method: 'GET',
+					params: {
+						name: 'index.html'
+					},
+					httpVersion: '1.1',
+					headers: {
+						'user-agent': 'USER-AGENT',
+						'host': 'HOST',
+						'accept': 'ACCEPT',
+						'accept-encoding': 'ACCEPT-ENCODING',
+						'accept-language': 'ACCEPT-LANGUAGE'
+					},
+					cookies: {
+						cookie1: 'value1',
+						cookie2: 'value2'
+					},
+					connection: {
+						remoteAddress: REMOTE_ADDRESS
+					}
 				},
-				cookies: {
-					cookie1: 'value1',
-					cookie2: 'value2'
+				service = {
+					route: ROUTE,
+					documentTableName: DOCUMENT_TABLE_NAME
 				},
-				connection: {
-					remoteAddress: REMOTE_ADDRESS
-				}
-			},
-			service = {
-				route: ROUTE,
-				documentTableName: DOCUMENT_TABLE_NAME
-			},
-			cgi;
+				cgi;
 
 			cgi = createCGI(serverConfig, req, service);
 			assert.strictEqual(28, Object.keys(cgi).length);
@@ -83,8 +82,8 @@ describe('cgi', function () {
 				'PATH_INFO': 'index.html',
 				'SCRIPT_NAME': ROUTE,
 				'REMOTE_ADDR': REMOTE_ADDRESS,
-				'SERVER_PROTOCOL': 'http/1.1',
-				'REQUEST_PROTOCOL': 'http',
+				'SERVER_PROTOCOL': 'HTTP/1.1',
+				'REQUEST_PROTOCOL': 'HTTP',
 				'REMOTE_USER': '',
 				'HTTP_USER_AGENT': 'USER-AGENT',
 				'HTTP_HOST': 'HOST',

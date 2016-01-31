@@ -4,6 +4,9 @@
  */
 
 
+'use strict';
+
+
 /* global describe: false, it:false */
 
 
@@ -29,8 +32,6 @@ var databaseShim = require('../lib/database_shim');
 * Tests.
 */
 describe('databaseShim', function () {
-	'use strict';
-
 	describe('callbacks', function () {
 
 		it('invokes callback when available', function () {
