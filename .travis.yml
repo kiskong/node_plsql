@@ -12,7 +12,11 @@ addons:
 #  - osx
 
 node_js:
+  - "4.0"
+  - "4.1"
   - "4.2"
+  - "5"
+  - "iojs"
 
 env:
   global:
