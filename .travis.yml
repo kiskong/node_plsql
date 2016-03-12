@@ -1,17 +1,13 @@
 language: node_js
 
-#os:
-#  - linux
-#  - osx
-
 node_js:
-  - "0.10"
-# - "0.11"
-  - "0.12"
-  - "iojs"
+  - "4.0"
+  - "4.2"
+  - "5"
 
 env:
-  - USE_ORACLE_DUMMY=1
+  global:
+    - USE_ORACLE_DUMMY=1
 
 before_script:
   - npm install -g gulp
@@ -19,11 +15,11 @@ before_script:
 script:
   - "gulp lint"
   - "gulp test"
-  - "gulp coveralls"
+  - "gulp coverage"
 
 install:
   - npm install
 
 notifications:
   email:
-    - doberkofler.github@gmail.com
+    - dieter.oberkofler@gmail.com

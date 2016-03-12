@@ -2,10 +2,7 @@ build
 temp
 uploads
 coverage
-coverage.html
 node_modules
-*.exe
-*.obj
 *.bak
 *.log
 *.tgz

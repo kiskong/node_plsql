@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * @fileoverview Test for the module "dump.js"
  * @author doberkofler
@@ -28,8 +30,8 @@ var dump = require('../lib/dump');
 /**
 * Tests.
 */
-describe('dump', function () {
-	'use strict';
+
+describe('dump.js', function () {
 
 	describe('when calling dump.divider()', function () {
 		it('should work with defaults', function () {

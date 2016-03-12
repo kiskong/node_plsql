@@ -69,16 +69,13 @@ See the [installation guide](https://github.com/doberkofler/node_plsql/blob/mast
 
 ```json
 {
-  "server": {
-    "port": 8999,
-    "static": [{
-        "mountPath": "/",
-        "physicalDirectory": "./static"
-      }
-    ],
-    "requestLogging": true,
-    "oracleConnectionPool": true,
-    "oracleDebug": false
+  "port": 8999,
+  "static": [{
+      "mountPath": "/",
+      "physicalDirectory": "./static"
+    }
+  ],
+  "requestLogging": true,
   },
   "services": [{
     "route": "sample",

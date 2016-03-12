@@ -1,29 +1,26 @@
 {
-    // Server configuration (used for the entire server)
-    "server": {
-        // The server port to listen at
-        "port": 8999,
+	// The server configuration
+	server: {
+	    // The server port to listen at
+	    "port": 8999,
 
-        // The mapping for servicing static files
-        "static": [
-            {
-                "mountPath": "/",
-                "physicalDirectory": "./static"
-            }
-        ],
+	    // The mapping for servicing static files
+	    "static": [
+	        {
+	            "mountPath": "/",
+	            "physicalDirectory": "./static"
+	        }
+	    ],
 
-        // Suppress any console output
-        "suppressOutput": false,
+	    // Suppress any console output
+	    "suppressOutput": false,
 
-        // Enable http request logging
-        "requestLogging": true,
+	    // Enable http request logging
+	    "requestLogging": true,
 
-        // Use an Oracle connection pool
-        "oracleConnectionPool": true,
-
-        // Enable debugging the low-level Oracle interface
-        "oracleDebug": false
-    },
+	    // Enable tracing
+	    "requestTracing": false
+	},
     // Service configuration (used for each individual connection)
     "services": [{
             // The route to be intercepted for this service

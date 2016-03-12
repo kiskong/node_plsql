@@ -1,4 +1,3 @@
-/*eslint-env node*/
 /*eslint strict:[2, "global"]*/
 
 'use strict';
@@ -6,8 +5,8 @@
 //
 //	Requirements
 //
-var // gdebug = require('gulp-debug'),
-	gulp = require('gulp'),
+var gulp = require('gulp'),
+	glob = require('glob'),
 	coveralls = require('gulp-coveralls'),
 	gutil = require('gulp-util'),
 	istanbul = require('gulp-istanbul'),
@@ -68,9 +67,9 @@ function numberOfFiles(message) {
 //
 
 //
-//	The task "jslint" will lint the js files
+//	The task "eslint" will lint the js files
 //
-gulp.task('jslint', function () {
+gulp.task('eslint', function () {
 	return gulp.src(JS_SRC_FILES)
 		.pipe(eslint())
 		.pipe(eslint.formatEach())
@@ -88,17 +87,29 @@ gulp.task('jsonlint', function (/*callback*/) {
 });
 
 //
-//	The tasks "unittest" will run all unit tests in the mocha test runner
+//	The tasks "test" will run all unit tests (no database is needed) in the mocha test runner
 //
-gulp.task('test:unit', function (/*callback*/) {
-	return gulp.src(['test/**/*.js'], {read: false})
+glob.sync('test/*.js', {}).forEach(function (file) {
+	var task = file.toLowerCase();
+
+	task = task.replace(/test\//gi, 'test:');
+	task = task.replace(/\.js/gi, '');
+	task = task.replace(/\//gi, ':');
+
+	gulp.task(task, function (/*callback*/) {
+		return gulp.src(file, {read: false})
+			.pipe(mocha(MOCHA_OPTIONS));
+	});
+});
+gulp.task('test', function (/*callback*/) {
+	return gulp.src(['test/*.js'], {read: false})
 		.pipe(mocha(MOCHA_OPTIONS));
 });
 
 //
 //	The tasks "coverage" will analyze the coverage of the unit tests
 //
-gulp.task('test:coverage', function (callback) {
+gulp.task('coverage', function (callback) {
 	gulp.src(['lib/**/*.js'])
 		.pipe(istanbul())				// Covering files
 		.pipe(istanbul.hookRequire())	// Force 'require' to return covered files
@@ -122,20 +133,15 @@ gulp.task('coveralls', function (/*callback*/) {
 // Meta tasks
 //
 gulp.task('lint', function (callback) {
-	runSequence('jslint',
+	runSequence('eslint',
 				'jsonlint',
-				callback
-				);
-});
-gulp.task('test', function (callback) {
-	runSequence('test:unit',
-				'test:coverage',
 				callback
 				);
 });
 gulp.task('default', function (callback) {
 	runSequence('lint',
 				'test',
+				'coverage',
 				callback
 				);
 });

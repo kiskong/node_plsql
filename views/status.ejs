@@ -1,21 +1,93 @@
-<% include header %>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <style>
+      body {
+        padding: 10px;
+        font: 10px Helvetica, Arial, sans-serif;
+      }
+      .error {
+          color: red
+      }
+      .success {
+          color: green;
+      }
+      h1 {
+        font-size: 30px;
+        font-weight: bold;
+      }
+      th {
+        text-align: left;
+        font-weight: 300;
+      }
+      td {
+        text-align: left;
+        font-weight: normal;
+      }
+    </style>
+  </head>
+  <body>
+    <h1><%= title %></h1>
 
-<table class="status">
-  <tr>
-  	<th>Server startup time:</th><td><%= stats.startup %></td>
-  </tr>
-  <tr>
-  	<th>Server has been running for:</th><td><%= stats.running %></td>
-  </tr>
-  <tr>
-  	<th>Number of requests:</th><td><%= stats.requestStartedCount %></td>
-  </tr>
-  <tr>
-    <th>Number of active requests:</th><td><%= stats.activeRequestCount %></td>
-  </tr>
-  <tr>
-  	<th>Average duration of requests:</th><td><%= stats.averageRequestTime %></td>
-  </tr>
-</table>
+    <h2>Statistics:</h2>
+    <table class="status">
+      <tr>
+        <th>Current time:</th>
+        <td><%= stats.currentTime %></td>
+      </tr>
+      <tr>
+      	<th>Server startup time:</th>
+        <td><%= stats.serverStartupTime %></td>
+      </tr>
+      <tr>
+      	<th>Server has been running for:</th>
+        <td><%= stats.running %></td>
+      </tr>
+      <tr>
+      	<th>Number of requests:</th>
+        <td><%= stats.requestStartedCount %></td>
+      </tr>
+      <tr>
+        <th>Number of active requests:</th>
+        <td><%= stats.activeRequestCount %></td>
+      </tr>
+      <tr>
+      	<th>Average duration of requests:</th>
+        <td><%= stats.averageRequestTime %></td>
+      </tr>
+    </table>
 
-<% include footer %>
+    <h2>Server configuration settings:</h2>
+    <table class="status">
+      <tr>
+        <th>Oracle node driver version:</th>
+        <td><%= stats.oracleDbVersion %></td>
+      </tr>
+      <tr>
+        <th>Oracle client version:</th>
+        <td><%= stats.oracleClientVersion %></td>
+      </tr>
+    </table>
+
+    <% for (var serviceIndex = 0; serviceIndex < stats.services.length; serviceIndex++) {%>
+
+      <h2>Service <%= (serviceIndex + 1).toString() %> - <a href="<%= stats.services[serviceIndex].url %>"><%= stats.services[serviceIndex].title %></a>:</h2>
+
+      <table class="status">
+
+        <% for (var statIndex = 0; statIndex < stats.services[serviceIndex].stats.length; statIndex++) {%>
+
+          <tr>
+            <th><%= stats.services[serviceIndex].stats[statIndex].name %>:</th>
+            <td><%= stats.services[serviceIndex].stats[statIndex].value %></td>
+          </tr>
+
+        <% } %>
+
+      </table>
+
+    <% } %>
+
+  </body>
+</html>

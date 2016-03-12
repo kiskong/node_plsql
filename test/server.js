@@ -1,102 +1,362 @@
+'use strict';
+
 /**
  * @fileoverview Test for the module "server.js"
  * @author doberkofler
  */
 
-
-/* global describe: false, it:false */
-
+/* global describe: false, it:false, before: false, after: false */
 
 /**
 * Module dependencies.
 */
 
-var debug = require('debug')('test/server');
+var debug = require('debug')('node_plsql:server:test');
 var assert = require('chai').assert;
 var request = require('supertest');
 var util = require('util');
+/*
 var fs = require('fs');
-var os = require('os');
 var mkdirp = require('mkdirp');
+*/
+var os = require('os');
 var server = require('../lib/server');
-
 
 /**
 * Module constants.
 */
 
-
 /**
 * Module variables.
 */
 
-
 /**
-* Validate the CGI
-*
-* @param {Array} cgi Array of cgi variables to send for the PL/SQL code.
-* @api private
+* Tests.
 */
-function validateCGI(cgi) {
-	'use strict';
 
-	var SERVER_PORT = '8999',
-		ROUTE = 'sampleRoute',
-		DOCUMENT_TABLE_NAME = 'sampleDoctable';
+describe('server.js', function () {
+	var application;
 
-	assert.strictEqual(cgi.PLSQL_GATEWAY, 'node-plsql_server');
-	assert.strictEqual(cgi.GATEWAY_IVERSION, '2');
-	assert.strictEqual(cgi.SERVER_SOFTWARE, 'node.js');
-	assert.strictEqual(cgi.GATEWAY_INTERFACE, 'CGI/1.1');
-	assert.strictEqual(cgi.SERVER_PORT, SERVER_PORT);
-	assert.strictEqual(cgi.SERVER_NAME, os.hostname());
-	assert.strictEqual(cgi.REQUEST_METHOD, 'GET');
-	assert.strictEqual(cgi.PATH_INFO, 'cgi');
-	assert.strictEqual(cgi.SCRIPT_NAME, ROUTE);
-//	assert.strictEqual(cgi.REMOTE_ADDR, REMOTE_ADDRESS);
-	assert.strictEqual(cgi.SERVER_PROTOCOL, 'http/1.1');
-	assert.strictEqual(cgi.REQUEST_PROTOCOL, 'http');
-	assert.strictEqual(cgi.REMOTE_USER, '');
-//	assert.strictEqual(cgi.HTTP_USER_AGENT, 'USER-AGENT');
-//	assert.strictEqual(cgi.HTTP_HOST, 'HOST');
-//	assert.strictEqual(cgi.HTTP_ACCEPT, 'ACCEPT');
-//	assert.strictEqual(cgi.HTTP_ACCEPT_ENCODING, 'ACCEPT-ENCODING');
-//	assert.strictEqual(cgi.HTTP_ACCEPT_LANGUAGE, 'ACCEPT-LANGUAGE');
-	assert.strictEqual(cgi.HTTP_REFERER, '');
-	assert.strictEqual(cgi.WEB_AUTHENT_PREFIX, '');
-	assert.strictEqual(cgi.DAD_NAME, ROUTE);
-	assert.strictEqual(cgi.DOC_ACCESS_PATH, '');
-	assert.strictEqual(cgi.DOCUMENT_TABLE, DOCUMENT_TABLE_NAME);
-	assert.strictEqual(cgi.PATH_ALIAS, '');
-	assert.strictEqual(cgi.REQUEST_CHARSET, 'UTF8');
-	assert.strictEqual(cgi.REQUEST_IANA_CHARSET, 'UTF-8');
-	assert.strictEqual(cgi.SCRIPT_PREFIX, '');
-	assert.isUndefined(cgi.HTTP_COOKIE);
+	before('Start the server', function (done) {
+		_startServer().then(function (app) {
+			application = app;
+			done();
+		});
+	});
+
+	after('Stop the server', function (done) {
+		server.stop(application, function () {
+			application = null;
+			done();
+		});
+	});
+
+	describe('GET static resources (GET /test/server.js)', function () {
+		it('should return the static file /test/server.js', function (done) {
+			var test = request(application.expressApplication).get('/test/server.js');
+
+			test.expect(200, new RegExp('.*should return the static file /test/server.js.*'), done);
+		});
+	});
+
+	describe('static resources (GET /fileDoesNotExist)', function () {
+		it('should report a 404 error', function (done) {
+			var test = request(application.expressApplication).get('/fileDoesNotExist');
+
+			test.expect(404, done);
+		});
+	});
+
+	describe('default page (GET /sampleRoute)', function () {
+		it('should return the default page', function (done) {
+			var test = request(application.expressApplication).get('/sampleRoute');
+
+			test.expect(302, 'Found. Redirecting to /sampleRoute/samplePage', done);
+		});
+	});
+
+	describe('GET /sampleRoute/emptyPage', function () {
+		it('GET /sampleRoute/emptyPage should return an empty page', function (done) {
+			request(application.expressApplication).get('/sampleRoute/emptyPage')
+				.expect(200, '', done);
+		});
+	});
+
+	describe('GET /sampleRoute/samplePage', function () {
+		it('GET /sampleRoute/samplePage should return the sample page', function (done) {
+			request(application.expressApplication).get('/sampleRoute/samplePage')
+				.expect(200, 'sample page', done);
+		});
+	});
+
+	describe('GET /sampleRoute/completePage', function () {
+		it('should return the complete page', function (done) {
+			request(application.expressApplication).get('/sampleRoute/completePage?para=value')
+				.expect(200, 'complete page', done);
+		});
+	});
+
+	describe('GET /sampleRoute/arrayPage', function () {
+		var args = {para: ['value1', 'value2']};
+
+		it('should return the array page', function (done) {
+			request(application.expressApplication).get('/sampleRoute/arrayPage?para=value1&para=value2')
+				.expect(200, 'array page\n' + util.inspect(args), done);
+		});
+	});
+
+	describe('GET /sampleRoute/redirect', function () {
+		it('should redirect to another page', function (done) {
+			request(application.expressApplication).get('/sampleRoute/redirect')
+				.expect(302, done);
+		});
+	});
+
+	describe('GET /sampleRoute/json', function () {
+		it('should parse JSON', function (done) {
+			request(application.expressApplication).get('/sampleRoute/json')
+				.expect(200, '{"name":"johndoe"}', done);
+		});
+	});
+
+	describe('GET /status', function () {
+		it('should show the status page', function (done) {
+			/*
+			var test = request(application.expressApplication).get('/status');
+
+			test.expect(200, done);
+			*/
+			request(application.expressApplication)
+				.get('/status')
+				.expect(200)
+				.end(function (err/*, res*/) {
+					if (err) {
+						return done(err);
+					}
+					return done();
+				});
+		});
+	});
+
+	describe('GET /invalidRoute', function () {
+		it('should respond with 404', function (done) {
+			var test = request(application.expressApplication).get('/invalidRoute');
+
+			test.expect(404, new RegExp('.*404 Not Found.*'), done);
+		});
+	});
+
+	describe('GET /sampleRoute/invalidPage', function () {
+		it('should respond with 404', function (done) {
+			var test = request(application.expressApplication).get('/sampleRoute/invalidPage');
+
+			test.expect(404, new RegExp('.*Failed to parse target procedure.*'), done);
+		});
+	});
+
+	describe('GET /sampleRoute/internalError', function () {
+		it('should respond with 500', function (done) {
+			var test = request(application.expressApplication).get('/sampleRoute/internalError');
+
+			test.expect(500, done);
+		});
+	});
+
+	describe('POST /sampleRoute/form_urlencoded', function () {
+		it('should return a form with fields', function (done) {
+			var test = request(application.expressApplication).post('/sampleRoute/form_urlencoded');
+
+			test.set('Content-Type', 'application/x-www-form-urlencoded');
+			test.send('name=johndoe');
+
+			test.expect(200, '{"name":"johndoe"}', done);
+		});
+	});
+
+	describe('POST /sampleRoute/multipart_form_data', function () {
+		it('should return a multipart form with files', function (done) {
+			var test = request(application.expressApplication).post('/sampleRoute/multipart_form_data');
+
+			test.set('Content-Type', 'multipart/form-data; boundary=foo');
+			test.write('--foo\r\n');
+			test.write('Content-Disposition: form-data; name="user_name"\r\n');
+			test.write('\r\n');
+			test.write('Tobi');
+			test.write('\r\n--foo\r\n');
+			test.write('Content-Disposition: form-data; name="text"; filename="test/server.js"\r\n');
+			test.write('\r\n');
+			test.write('some text here');
+			test.write('\r\n--foo--');
+
+			test.expect(200, 'server.js', done);
+		});
+	});
+
+	/*
+	describe('Upload files (POST /sampleRoute/fileUpload)', function () {
+		it('should upload files', function (done) {
+			const FILENAME = 'temp/index.html';
+			const CONTENT = 'content of index.html';
+			var test;
+
+			// create a static file
+			mkdirp.sync('temp');
+			fs.writeFileSync(FILENAME, CONTENT);
+
+			// test the upload
+			test = request(application.expressApplication).post('/sampleRoute/fileUpload');
+			test.attach('file', FILENAME);
+			test.expect(200, done);
+		});
+	});
+	*/
+
+	describe('GET /sampleRoute/cgi', function () {
+		it('GET /sampleRoute/cgi should validate the cgi', function (done) {
+			request(application.expressApplication).get('/sampleRoute/cgi')
+				.expect(200, 'cgi', done);
+		});
+	});
+
+});
+
+describe('start server with no routes', function () {
+	var application;
+
+	it('does start', function (done) {
+		var OPTIONS = {
+			server: {
+				port: 8999,
+				suppressOutput: true,
+				requestLogging: true
+			}
+		};
+
+		server.start(OPTIONS).then(function (app) {
+			application = app;
+			assert.ok(true);
+			done();
+		});
+	});
+
+	it('does stop', function (done) {
+		server.stop(application, function () {
+			application = null;
+			assert.ok(true);
+			done();
+		});
+	});
+});
+
+describe('start server with invalid options', function () {
+	it('does not start', function (done) {
+		server.start().then(function () {
+		}, function (err) {
+			assert.strictEqual(err, 'Configuration object must be an object');
+			done();
+		});
+	});
+});
+
+/*
+ * Start server
+ */
+function _startServer() {
+	const OPTIONS = {
+		server: {
+			port: 8999,
+			static: [
+				{
+					mountPath: '/',
+					physicalDirectory: './'
+				},
+				{
+					mountPath: '/temp/',
+					physicalDirectory: './temp'
+				}
+			],
+			suppressOutput: true,
+			requestLogging: true,
+			requestTracing: true
+		},
+		services: [
+			{
+				route: 'sampleRoute',
+				defaultPage: 'samplePage',
+				databaseUsername: 'sampleUsername',
+				databasePassword: 'samplePassword',
+				databaseConnectString: 'sampleConnectString',
+				documentTableName: 'sampleDoctable',
+				invokeCallback: _invokeCallback
+			},
+			{
+				route: 'secondRoute',
+				databaseUsername: 'secondUsername',
+				databasePassword: 'secondPassword',
+				databaseConnectString: 'sampleConnectString',
+				documentTableName: 'secondDoctable',
+				invokeCallback: _invokeCallback
+			}
+		]
+	};
+
+	// Start server
+	return server.start(OPTIONS);
 }
 
-/**
-* Database callback when connecting to the database
-*
-* @param {Object} config Server configuration.
-* @api private
-*/
-function databaseConnect(/*config*/) {
-	'use strict';
+/*
+ * Database callback when invoking a page
+ */
+function _invokeCallback(database, procedure, args, cgi, files, doctablename, callback) {
+	debug('_invokeCallback: \n' + util.inspect(arguments, {showHidden: false, depth: null, colors: true}) + '\"');
 
-	debug('databaseConnect: \n' + util.inspect(arguments, {showHidden: false, depth: null, colors: true}) + '\"');
+	switch (procedure.toLowerCase()) {
+		case 'emptypage':
+			callback(null, _getPage(''));
+			break;
+		case 'samplepage':
+			callback(null, _getPage('sample page'));
+			break;
+		case 'completepage':
+			callback(null, _getPage('complete page', {'Content-Type': 'text/html', 'Set-Cookie': 'C1=V1'}));
+			break;
+		case 'arraypage':
+			callback(null, _getPage('array page\n' + util.inspect(args), {'Content-Type': 'text/html'}));
+			break;
+		case 'redirect':
+			callback(null, _getPage('', {'Location': 'www.google.com'}));
+			break;
+		case 'json':
+			callback(null, _getPage('{"name":"johndoe"}', {'Content-Type': 'application/json'}));
+			break;
+		case 'form_urlencoded':
+			callback(null, _getPage('{"name":"johndoe"}', {'Content-Type': 'text/html'}));
+			break;
+		case 'multipart_form_data':
+			callback(null, _getPage('server.js', {'Content-Type': 'text/html'}));
+			break;
+		case 'fileUpload':
+			debug('fileUpload: \n' + util.inspect(arguments, {showHidden: false, depth: null, colors: true}) + '\"');
+			callback(null, _getPage('File "server.js" has been uploaded', {'Content-Type': 'text/html'}));
+			break;
+		case 'cgi':
+			_validateCGI(cgi);
+			callback(null, _getPage('cgi'), {'Content-Type': 'text/html'});
+			break;
+		case 'invalidpage':
+			callback('procedure not found');
+			break;
+		case 'internalerror':
+			throw new Error('internal error');
+		default:
+			break;
+	}
 }
 
-/**
-* Get database page
-*
-* @param {String} body Page body.
-* @param {Object} header Header object where the properties are the header names.
-* @return {String} Text returned by database engine.
-* @api private
-*/
-function getPage(body, header) {
-	'use strict';
-
+/*
+ * Get database page
+ */
+function _getPage(body, header) {
 	var text = '',
 		name;
 
@@ -113,343 +373,39 @@ function getPage(body, header) {
 	return text;
 }
 
-/**
-* Database callback when invoking a page
-*
-* @param {Object} databaseHandle Database handle object.
-* @param {String} username Oracle username.
-* @param {String} password Oracle password.
-* @param {String} procedure PL/SQL procedure to execute.
-* @param {Object} args Object with the arguments for the PL/SQL procedure as properties.
-* @param {Array} cgi Array of cgi variables to send for the PL/SQL code.
-* @param {Array} files Array of files to upload.
-* @param {String} doctablename Document table name.
-* @param {Function} callback Callback function (function cb(err, page)) to invoke when done.
-* @api private
-*/
-function databaseInvoke(databaseHandle, username, password, procedure, args, cgi, files, doctablename, callback) {
-	'use strict';
+/*
+ * Validate the CGI
+ */
+function _validateCGI(cgi) {
+	var SERVER_PORT = '8999',
+		ROUTE = 'sampleRoute';
 
-	var proc = procedure.toLowerCase();
-
-	debug('databaseInvoke: \n' + util.inspect(arguments, {showHidden: false, depth: null, colors: true}) + '\"');
-
-	switch (proc) {
-	case 'emptypage':
-		callback(null, '', {});
-		break;
-	case 'samplepage':
-		callback(null, getPage('sample page'), {'Content-Type': 'text/html'});
-		break;
-	case 'completepage':
-		callback(null, getPage('complete page', {'Content-Type': 'text/html', 'Set-Cookie': 'C1=V1'}));
-		break;
-	case 'arraypage':
-		callback(null, getPage('array page\n' + util.inspect(args), {'Content-Type': 'text/html'}));
-		break;
-	case 'redirect':
-		callback(null, getPage('', {'Location': 'www.google.com'}));
-		break;
-	case 'json':
-		callback(null, getPage('{"name":"johndoe"}', {'Content-Type': 'application/json'}));
-		break;
-	case 'form_urlencoded':
-		callback(null, getPage('{"name":"johndoe"}', {'Content-Type': 'text/html'}));
-		break;
-	case 'multipart_form_data':
-		callback(null, getPage('foo.txt', {'Content-Type': 'text/html'}));
-		break;
-	case 'cgi':
-		validateCGI(cgi);
-		callback(null, getPage('cgi'), {'Content-Type': 'text/html'});
-		break;
-	case 'invalidpage':
-		callback('procedure not found');
-		break;
-	case 'internalerror':
-		throw new Error('internal error');
-	default:
-		break;
-	}
+	assert.strictEqual(cgi.PLSQL_GATEWAY, 'WebDb');
+	assert.strictEqual(cgi.GATEWAY_IVERSION, '2');
+	assert.strictEqual(cgi.SERVER_SOFTWARE, 'NodeJS-PL/SQL-Gateway');
+	assert.strictEqual(cgi.GATEWAY_INTERFACE, 'CGI/1.1');
+	assert.strictEqual(cgi.SERVER_PORT, SERVER_PORT);
+	assert.strictEqual(cgi.SERVER_NAME, os.hostname());
+	assert.strictEqual(cgi.REQUEST_METHOD, 'GET');
+	assert.strictEqual(cgi.PATH_INFO, 'cgi');
+	assert.strictEqual(cgi.SCRIPT_NAME, ROUTE);
+//	assert.strictEqual(cgi.REMOTE_ADDR, REMOTE_ADDRESS);
+	assert.strictEqual(cgi.SERVER_PROTOCOL, 'HTTP/1.1');
+	assert.strictEqual(cgi.REQUEST_PROTOCOL, 'HTTP');
+//	assert.strictEqual(cgi.REMOTE_USER, '');
+//	assert.strictEqual(cgi.HTTP_USER_AGENT, 'USER-AGENT');
+//	assert.strictEqual(cgi.HTTP_HOST, 'HOST');
+//	assert.strictEqual(cgi.HTTP_ACCEPT, 'ACCEPT');
+//	assert.strictEqual(cgi.HTTP_ACCEPT_ENCODING, 'ACCEPT-ENCODING');
+//	assert.strictEqual(cgi.HTTP_ACCEPT_LANGUAGE, 'ACCEPT-LANGUAGE');
+//	assert.strictEqual(cgi.HTTP_REFERER, '');
+	assert.strictEqual(cgi.WEB_AUTHENT_PREFIX, '');
+	assert.strictEqual(cgi.DAD_NAME, ROUTE);
+	assert.strictEqual(cgi.DOC_ACCESS_PATH, 'doc');
+	assert.strictEqual(cgi.DOCUMENT_TABLE, 'sampleDoctable');
+	assert.strictEqual(cgi.PATH_ALIAS, '');
+	assert.strictEqual(cgi.REQUEST_CHARSET, 'UTF8');
+	assert.strictEqual(cgi.REQUEST_IANA_CHARSET, 'UTF-8');
+	assert.strictEqual(cgi.SCRIPT_PREFIX, '/');
+	assert.isUndefined(cgi.HTTP_COOKIE);
 }
-
-/**
-* Start server
-*
-* @return {Object} Express application.
-* @api private
-*/
-function startServer() {
-	'use strict';
-
-	var config = {
-		server: {
-			port: 8999,
-			static: [{
-				mountPath: '/',
-				physicalDirectory: './'
-			},
-			{
-				mountPath: '/temp/',
-				physicalDirectory: './temp'
-			}],
-			suppressOutput: true,
-			requestLogging: true,
-			oracleConnectionPool: true,
-			oracleDebug: false
-		},
-		services: [{
-			route: 'sampleRoute',
-			defaultPage: 'samplePage',
-			databaseUsername: 'sampleUsername',
-			databasePassword: 'samplePassword',
-			databaseConnectString: 'sampleConnectString',
-			documentTableName: 'sampleDoctable'
-		},
-		{
-			route: 'secondRoute',
-			databaseUsername: 'secondUsername',
-			databasePassword: 'secondPassword',
-			databaseConnectString: 'sampleConnectString',
-			documentTableName: 'secondDoctable'
-		}],
-		callbacks: {
-			databaseConnect: databaseConnect,
-			databaseInvoke: databaseInvoke
-		}
-	};
-
-	// create a static file
-	mkdirp.sync('temp');
-	fs.writeFileSync('temp/index.html', 'content of index.html');
-
-	// Start server
-	return server.start(config);
-}
-
-
-/**
-* Tests.
-*/
-
-describe('start server', function () {
-	'use strict';
-
-	describe('with an valid configuration', function () {
-		var app;
-
-		it('does start', function () {
-			app = startServer();
-		});
-
-		it('does stop', function () {
-			app.server.close();
-		});
-	});
-
-	describe('with an invalid configuration', function () {
-		it('throws an exception', function () {
-			assert.throws(function () {
-				server.start({});
-			});
-		});
-	});
-});
-
-describe('GET static resources', function () {
-	'use strict';
-
-	var app = startServer();
-
-	describe('GET /test/server.js', function () {
-		it('should return the static file /test/server.js', function (done) {
-			var test = request(app).get('/test/server.js');
-
-			test.expect(200, done);
-		});
-	});
-
-	describe('GET /temp/index.html', function () {
-		it('should return the static file /temp/index.html', function (done) {
-			var test = request(app).get('/temp/index.html');
-
-			test.expect(200, 'content of index.html', done);
-		});
-	});
-
-	// Stop the server
-	app.server.close();
-});
-
-describe('GET default page', function () {
-	'use strict';
-
-	var app = startServer();
-
-	describe('GET /sampleRoute', function () {
-		it('should return the default page', function (done) {
-			var test = request(app).get('/sampleRoute');
-
-			test.expect(302, 'Moved Temporarily. Redirecting to /sampleRoute/samplePage', done);
-		});
-	});
-
-	// Stop the server
-	app.server.close();
-});
-
-describe('GET', function () {
-	'use strict';
-
-	var app = startServer();
-
-	describe('GET /sampleRoute/emptyPage', function () {
-		it('GET /sampleRoute/emptyPage should return an empty page', function (done) {
-			request(app).get('/sampleRoute/emptyPage')
-				.expect(200, '', done);
-		});
-	});
-
-	describe('GET /sampleRoute/samplePage', function () {
-		it('GET /sampleRoute/samplePage should return the sample page', function (done) {
-			request(app).get('/sampleRoute/samplePage')
-				.expect(200, 'sample page', done);
-		});
-	});
-
-	describe('GET /sampleRoute/completePage', function () {
-		it('should return the complete page', function (done) {
-			request(app).get('/sampleRoute/completePage?para=value')
-				.expect(200, 'complete page', done);
-		});
-	});
-
-	describe('GET /sampleRoute/arrayPage', function () {
-		var args = {para: ['value1', 'value2']};
-
-		it('should return the array page', function (done) {
-			request(app).get('/sampleRoute/arrayPage?para=value1&para=value2')
-				.expect(200, 'array page\n' + util.inspect(args), done);
-		});
-	});
-
-	describe('GET /sampleRoute/redirect', function () {
-		it('should redirect to another page', function (done) {
-			request(app).get('/sampleRoute/redirect')
-				.expect(302, done);
-		});
-	});
-
-	describe('GET /sampleRoute/json', function () {
-		it('should parse JSON', function (done) {
-			request(app).get('/sampleRoute/json')
-				.expect(200, '{"name":"johndoe"}', done);
-		});
-	});
-
-	// Stop the server
-	app.server.close();
-});
-
-describe('GET status', function () {
-	'use strict';
-
-	var app = startServer();
-
-	describe('GET /status', function () {
-		it('should show the status page', function (done) {
-			var test = request(app).get('/status');
-
-			test.expect(200, done);
-		});
-	});
-
-	// Stop the server
-	app.server.close();
-});
-
-describe('GET errors', function () {
-	'use strict';
-
-	var app = startServer();
-
-	describe('GET /invalidRoute', function () {
-		it('should respond with 404', function (done) {
-			var test = request(app).get('/invalidRoute');
-
-			test.expect(404, '<html><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL /invalidRoute was not found.</p></body></html>', done);
-		});
-	});
-
-	describe('GET /sampleRoute/invalidPage', function () {
-		it('should respond with 404', function (done) {
-			var test = request(app).get('/sampleRoute/invalidPage');
-
-			test.expect(404, '<html><head><title>Failed to parse target procedure</title></head><body><h1>Failed to parse target procedure</h1>\n<p>\nprocedure not found<br/>\n</p>\n</body></html>', done);
-		});
-	});
-
-	describe('GET /sampleRoute/internalError', function () {
-		it('should respond with 500', function (done) {
-			var test = request(app).get('/sampleRoute/internalError');
-
-			test.expect(500, /Error: internal error.*/, done);
-		});
-	});
-
-	// Stop the server
-	app.server.close();
-});
-
-describe('POST', function () {
-	'use strict';
-
-	var app = startServer();
-
-	describe('POST /sampleRoute/form_urlencoded', function () {
-		it('should return a form with fields', function (done) {
-			var test = request(app).post('/sampleRoute/form_urlencoded');
-
-			test.set('Content-Type', 'application/x-www-form-urlencoded');
-			test.send('name=johndoe');
-			test.expect(200, '{"name":"johndoe"}', done);
-		});
-	});
-
-	describe('POST /sampleRoute/multipart_form_data', function () {
-		it('should return a multipart form with files', function (done) {
-			var test = request(app).post('/sampleRoute/multipart_form_data');
-
-			test.set('Content-Type', 'multipart/form-data; boundary=foo');
-			test.write('--foo\r\n');
-			test.write('Content-Disposition: form-data; name="user_name"\r\n');
-			test.write('\r\n');
-			test.write('Tobi');
-			test.write('\r\n--foo\r\n');
-			test.write('Content-Disposition: form-data; name="text"; filename="foo.txt"\r\n');
-			test.write('\r\n');
-			test.write('some text here');
-			test.write('\r\n--foo--');
-			test.expect(200, 'foo.txt', done);
-		});
-	});
-
-	// Stop the server
-	app.server.close();
-});
-
-describe('CGI', function () {
-	'use strict';
-
-	var app = startServer();
-
-	describe('GET /sampleRoute/cgi', function () {
-		it('GET /sampleRoute/cgi should validate the cgi', function (done) {
-			request(app).get('/sampleRoute/cgi')
-				.expect(200, 'cgi', done);
-		});
-	});
-
-	// Stop the server
-	app.server.close();
-});

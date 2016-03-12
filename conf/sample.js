@@ -1,18 +1,18 @@
-/* jshint node: true */
+'use strict';
 
-var node_plsql = require('../lib/node_plsql');
+var server = require('../lib/node_plsql');
+var path = require('path');
 
 var config = {
 	server: {
 		port: 8999,
 		static: [{
 			mountPath: '/',
-			physicalDirectory: __dirname + '/static'
+			physicalDirectory: path.join(__dirname, '/static')
 		}],
 		suppressOutput: false,
 		requestLogging: true,
-		oracleConnectionPool: true,
-		oracleDebug: false
+		requestTracing: false
 	},
 	services: [{
 		route: 'sample',
@@ -25,4 +25,4 @@ var config = {
 };
 
 // Start the NODE.JS PL/SQL Server
-node_plsql.start(config);
+server.start(config);

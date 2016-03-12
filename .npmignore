@@ -1,9 +1,7 @@
 temp
+build
 uploads
 coverage
-coverage.html
-*.exe
-*.obj
 *.bak
 *.log
 *.tgz

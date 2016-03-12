@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * @fileoverview Test for the module "config.js"
  * @author doberkofler
@@ -22,7 +24,7 @@ var config = require('../lib/config');
 * Module constants.
 */
 
-var TEST_CONFIGURATION_FILENAME = '_mocha.json';
+const TEST_CONFIGURATION_FILENAME = '_mocha.json';
 
 
 /**
@@ -34,8 +36,6 @@ var TEST_CONFIGURATION_FILENAME = '_mocha.json';
 * Return a valid configuration object
 */
 function getValidConf() {
-	'use strict';
-
 	return {
 		server: {
 			port: 8999,
@@ -44,9 +44,7 @@ function getValidConf() {
 				physicalDirectory: path.join(__dirname, 'static')
 			}],
 			suppressOutput: true,
-			requestLogging: true,
-			oracleConnectionPool: true,
-			oracleDebug: false
+			requestLogging: true
 		},
 		services: [{
 			route: 'sampleRoute',
@@ -63,11 +61,7 @@ function getValidConf() {
 			databasePassword: 'secondPassword',
 			databaseConnectString: 'sampleConnectString',
 			documentTableName: 'secondDoctable'
-		}],
-		callbacks: {
-			databaseConnect: function () {},
-			databaseInvoke: function () {}
-		}
+		}]
 	};
 }
 
@@ -75,15 +69,21 @@ function getValidConf() {
 /**
 * Tests.
 */
-describe('config', function () {
-	'use strict';
+
+describe('config.js', function () {
 
 	describe('when validating a configuration', function () {
-		it('is a valid configuration', function () {
-			var conf = getValidConf(),
-				Undefined;
 
-			assert.strictEqual(config.validate(conf), Undefined);
+		it('is a valid configuration', function () {
+			assert.isUndefined(config.validate(getValidConf()));
+		});
+
+		it('is not an object', function () {
+			assert.strictEqual(config.validate('options'), 'Configuration object must be an object');
+		});
+
+		it('has no server object', function () {
+			assert.strictEqual(config.validate({}), 'Configuration object must contain an object "server"');
 		});
 
 		it('is an invalid configuration because of the missing port', function () {
@@ -107,18 +107,46 @@ describe('config', function () {
 			assert.strictEqual(config.validate(conf), 'Configuration object property "server.suppressOutput" must be a boolean');
 		});
 
-		it('is an invalid configuration because we miss a documentTableName', function () {
+		it('is an invalid "route"', function () {
 			var conf = getValidConf();
 
-			conf.services[0].documentTableName = '';
-			assert.strictEqual(config.validate(conf), 'Configuration object must contain a "documentTableName" for each service!');
+			conf.services[0].route = '';
+			assert.strictEqual(config.validate(conf), 'Configuration object property "services[0].route" must be a non-empty string');
 		});
 
-		it('is an invalid configuration because not all services have the same databaseConnectString', function () {
+		it('is an invalid "databaseConnectString"', function () {
 			var conf = getValidConf();
 
-			conf.services[0].databaseConnectString = 'abc';
-			assert.strictEqual(config.validate(conf), 'Configuration object is only allowed to containt a single database!');
+			conf.services[0].databaseConnectString = 0;
+			assert.strictEqual(config.validate(conf), 'Configuration object property "services[0].databaseConnectString" must be a string');
+		});
+
+		it('is an invalid "databaseUsername"', function () {
+			var conf = getValidConf();
+
+			conf.services[0].databaseUsername = 0;
+			assert.strictEqual(config.validate(conf), 'Configuration object property "services[0].databaseUsername" must be a string');
+		});
+
+		it('is an invalid "databasePassword"', function () {
+			var conf = getValidConf();
+
+			conf.services[0].databasePassword = 0;
+			assert.strictEqual(config.validate(conf), 'Configuration object property "services[0].databasePassword" must be a string');
+		});
+
+		it('is an invalid "defaultPage"', function () {
+			var conf = getValidConf();
+
+			conf.services[0].defaultPage = 0;
+			assert.strictEqual(config.validate(conf), 'Configuration object property "services[0].defaultPage" must be a string');
+		});
+
+		it('is an invalid "documentTableName"', function () {
+			var conf = getValidConf();
+
+			conf.services[0].documentTableName = 0;
+			assert.strictEqual(config.validate(conf), 'Configuration object property "services[0].documentTableName" must be a string');
 		});
 	});
 
@@ -137,7 +165,7 @@ describe('config', function () {
 		it('should throw an error when trying to load an invalid configuration file', function () {
 			utilities.fileDelete(TEST_CONFIGURATION_FILENAME);
 
-			fs.writeFileSync(TEST_CONFIGURATION_FILENAME, '[this is no valid jason or yaml file}');
+			fs.writeFileSync(TEST_CONFIGURATION_FILENAME, '[this is no valid json or yaml file}');
 
 			assert.throws(function () {
 				config.load(TEST_CONFIGURATION_FILENAME);

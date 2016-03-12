@@ -1,60 +1,77 @@
+'use strict';
+
 /**
  * @fileoverview Test for the module "cgi.js"
  * @author doberkofler
  */
 
-
 /* global describe: false, it:false */
-
 
 // ------------------------------------------------------------------------------
 // Requirements
 // ------------------------------------------------------------------------------
 
 var assert = require('chai').assert;
-var createCGI = require('../lib/cgi').createCGI;
-
+var cgi = require('../lib/cgi');
 var os = require('os');
 
 // ------------------------------------------------------------------------------
 // Tests
 // ------------------------------------------------------------------------------
-describe('cgi', function () {
-	'use strict';
+
+describe('cgi.js', function () {
 
 	describe('when calling createCGI()', function () {
+
 		it('with an empty configuration object or request', function () {
 			assert.throws(function () {
-				createCGI({}, {});
+				cgi.createCGI({}, {});
 			});
 			assert.throws(function () {
-				createCGI({a: 0}, {});
+				cgi.createCGI({a: 0}, {});
 			});
 			assert.throws(function () {
-				createCGI({}, {a: 0});
+				cgi.createCGI({}, {a: 0});
 			});
 		});
+
 		it('with a proper configuration object and request', function () {
 			var ROUTE = 'route',
 				DOCUMENT_TABLE_NAME = 'doc-table',
-				REMOTE_ADDRESS = '';
+				REMOTE_ADDRESS = '127.0.0.1';
 
-			var serverConfig = {
-				port: 4711
-			},
-			req = {
+			const serverConfig = {
+				server: {
+					port: 4711
+				}
+			};
+
+			const req = {
 				protocol: 'http',
 				method: 'GET',
 				params: {
 					name: 'index.html'
 				},
 				httpVersion: '1.1',
-				headers: {
-					'user-agent': 'USER-AGENT',
-					host: 'HOST',
-					accept: 'ACCEPT',
-					'accept-encoding': 'ACCEPT-ENCODING',
-					'accept-language': 'ACCEPT-LANGUAGE'
+				ip: REMOTE_ADDRESS,
+				get: function (name) {
+					switch (name.toLowerCase())	{
+						case 'user-agent':
+							return 'USER-AGENT';
+						case 'host':
+							return 'HOST';
+						case 'accept':
+							return 'ACCEPT';
+						case 'accept-encoding':
+							return 'ACCEPT-ENCODING';
+						case 'accept-language':
+							return 'ACCEPT-LANGUAGE';
+						case 'referer':
+						case 'referrer':
+							return 'HTTP-REFERER';
+						default:
+							return null;
+					}
 				},
 				cookies: {
 					cookie1: 'value1',
@@ -63,19 +80,20 @@ describe('cgi', function () {
 				connection: {
 					remoteAddress: REMOTE_ADDRESS
 				}
-			},
-			service = {
+			};
+
+			const service = {
 				route: ROUTE,
 				documentTableName: DOCUMENT_TABLE_NAME
-			},
-			cgi;
+			};
 
-			cgi = createCGI(serverConfig, req, service);
-			assert.strictEqual(28, Object.keys(cgi).length);
-			assert.deepEqual(cgi, {
-				'PLSQL_GATEWAY': 'node-plsql_server',
+			var cgiObject = cgi.createCGI(serverConfig, req, service);
+
+			assert.strictEqual(28, Object.keys(cgiObject).length);
+			assert.deepEqual(cgiObject, {
+				'PLSQL_GATEWAY': 'WebDb',
 				'GATEWAY_IVERSION': '2',
-				'SERVER_SOFTWARE': 'node.js',
+				'SERVER_SOFTWARE': 'NodeJS-PL/SQL-Gateway',
 				'GATEWAY_INTERFACE': 'CGI/1.1',
 				'SERVER_PORT': '4711',
 				'SERVER_NAME': os.hostname(),
@@ -83,29 +101,29 @@ describe('cgi', function () {
 				'PATH_INFO': 'index.html',
 				'SCRIPT_NAME': ROUTE,
 				'REMOTE_ADDR': REMOTE_ADDRESS,
-				'SERVER_PROTOCOL': 'http/1.1',
-				'REQUEST_PROTOCOL': 'http',
+				'SERVER_PROTOCOL': 'HTTP/1.1',
+				'REQUEST_PROTOCOL': 'HTTP',
 				'REMOTE_USER': '',
 				'HTTP_USER_AGENT': 'USER-AGENT',
 				'HTTP_HOST': 'HOST',
 				'HTTP_ACCEPT': 'ACCEPT',
 				'HTTP_ACCEPT_ENCODING': 'ACCEPT-ENCODING',
 				'HTTP_ACCEPT_LANGUAGE': 'ACCEPT-LANGUAGE',
-				'HTTP_REFERER': '',
+				'HTTP_REFERER': 'HTTP-REFERER',
 				'WEB_AUTHENT_PREFIX': '',
 				'DAD_NAME': ROUTE,
-				'DOC_ACCESS_PATH': '',
+				'DOC_ACCESS_PATH': 'doc',
 				'DOCUMENT_TABLE': DOCUMENT_TABLE_NAME,
 				'PATH_ALIAS': '',
 				'REQUEST_CHARSET': 'UTF8',
 				'REQUEST_IANA_CHARSET': 'UTF-8',
-				'SCRIPT_PREFIX': '',
+				'SCRIPT_PREFIX': '/',
 				'HTTP_COOKIE': 'cookie1=value1;cookie2=value2;'
 			});
 
 			service.documentTableName = '';
-			cgi = createCGI(serverConfig, req, service);
-			assert.strictEqual(cgi.DOCUMENT_TABLE, '');
+			cgiObject = cgi.createCGI(serverConfig, req, service);
+			assert.strictEqual(cgiObject.DOCUMENT_TABLE, '');
 
 		});
 	});

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <style>
+      body {
+        padding: 10px;
+        font: 10px Helvetica, Arial, sans-serif;
+      }
+      .error {
+          color: red
+      }
+      .success {
+          color: green;
+      }
+      h1 {
+        font-size: 30px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <h1><%= title %></h1>
+
+    <h2>Error:</h2>
+	<p><%= error %></p>
+
+    <h2>URL:</h2>
+	<p><%= url %></p>
+
+    <h2>Stack:</h2>
+	<p><%= stack %></p>
+  </body>
+</html>
