@@ -92,7 +92,7 @@ See the [installation guide](https://github.com/doberkofler/node_plsql/blob/mast
 This README and the [release goals](https://github.com/doberkofler/node_plsql/blob/master/RELEASE-GOALS.md) are currently the only available documentation.
 
 # Release History
-See the [history](https://github.com/doberkofler/node_plsql/blob/master/HISTORY.md).
+See the [changelog](https://github.com/doberkofler/node_plsql/blob/master/CHANGELOG.md).
 
 [downloads-image]: http://img.shields.io/npm/dm/node_plsql.svg
 [npm-url]: https://npmjs.org/package/node_plsql
