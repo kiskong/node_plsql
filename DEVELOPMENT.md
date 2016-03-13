@@ -3,7 +3,7 @@
 ## Create a new version
 
 ## Create new npm package
-* Use `npm pack` to create a tarball from a package (WARNING: make sure that the package.sjon file is updated)
+* Use `npm pack` to create a tarball from a package (WARNING: make sure that the package.json file is updated)
 
 ## Install package from tarball
 * Create a new temporary directory and change to it

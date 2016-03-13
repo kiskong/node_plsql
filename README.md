@@ -10,21 +10,12 @@ Please feel free to try and suggest any improvements. Your thoughts and ideas ar
 
 # Installation
 
-IMPORTANT: Make sure that you read the [installation guide](https://github.com/doberkofler/node_plsql/blob/master/INSTALL.md) before trying to install!
+## Prerequisites
 
-Prerequisites:
-* Node.js
-* Python 2.7 (not v3.x), needed by node-gyp
-* C++ Compiler toolchain (GCC, Visual Studio or similar)
-* Oracle Instant Client and SDK
-* Special environment variables
-* Special symlinks and libaio on Linux
+There are several prerequisites needed to both compile and run the Oracle database driver.
+Please visit the [node-oracledb INSTALL.md](https://github.com/oracle/node-oracledb/blob/master/INSTALL.md) page for more information.
 
-See the [installation guide](https://github.com/doberkofler/node_plsql/blob/master/INSTALL.md) on how to install this package.
-
-# Example
-
-## Basic example (when installing node_plsql locally)
+## Installing node_plsql locally
 * Prepare and install the prerequisites (Python, C++ compiler, Oracle, ...)
 * Setup the environment (set the needed environment variables)
 * Create and move to a new directory
@@ -32,11 +23,11 @@ See the [installation guide](https://github.com/doberkofler/node_plsql/blob/mast
 * The node_plsql client can be run using `node_modules/.bin/node_plsql` on MacOS/Linux or `node_modules\.bin\node_plsql` on Windows
 * Run node_plsql `node_modules/.bin/node_plsql --init=sample.json` to create a new sample configuration file.
 * Change the sample JSON configuration file (sample.json) as needed and especially make sure that the Oracle configuration information is correct.
-* Install the PL/SQL examples using SQL*Plus and running `install.sql` in the `./node_modules/node_plsql/sql` directory while connected as a user with administrative privileges.
+* Install the PL/SQL examples using SQL*Plus and running `install.sql` in the `./node_modules/node_plsql/demo` directory while connected as a user with administrative privileges.
 * Run `node_modules/.bin/node_plsql --config=sample.json` to start the server.
 * Invoke a browser and open the page `http://localhost:8999/demo/demo.pageIndex`.
 
-## Basic example (when installing node_plsql globally)
+## Installing node_plsql globally
 * Prepare and install the prerequisites (Python, C++ compiler, Oracle, ...)
 * Setup the environment (set the needed environment variables)
 * Create and move to a new directory
@@ -48,6 +39,8 @@ See the [installation guide](https://github.com/doberkofler/node_plsql/blob/mast
 * Install the PL/SQL examples using SQL*Plus and running `install.sql` from the sql directory (in the node_plsql module of the global npm repository) as user sys.
 * Run `node_plsql --config=sample.json` to start the server.
 * Invoke a browser and open the page `http://localhost:8999/demo/demo.pageIndex`.
+
+# Configuration
 
 ## How does a mod_plsql DAD configuration compare to the node_plsql configuration file
 
@@ -89,7 +82,7 @@ See the [installation guide](https://github.com/doberkofler/node_plsql/blob/mast
 ```
 
 # Documentation
-This README and the [release goals](https://github.com/doberkofler/node_plsql/blob/master/RELEASE-GOALS.md) are currently the only available documentation.
+This README is currently the only available documentation.
 
 # Release History
 See the [changelog](https://github.com/doberkofler/node_plsql/blob/master/CHANGELOG.md).
