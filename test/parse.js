@@ -158,7 +158,7 @@ describe('parse.js', function () {
 				title: 'all supported cookie options',
 				raw: 'Set-Cookie: c=v; domain=d; secure=s; httponly; path=/p; expires=' + NOW.toGMTString(),
 				cookies: [
-					{name: 'c', value: 'v', domain: 'd', secure: 's', httpOnly: true, path: '/p', expires: NOW.toGMTString()}
+					{name: 'c', value: 'v', domain: 'd', secure: 's', httpOnly: true, path: '/p', expires: NOW}
 				],
 				redirectLocation: null,
 				contentType: null,
@@ -282,7 +282,16 @@ function _testCookies(resultCookies, expectedCookies) {
 
 		_.each(expectedCookie, function (value, key) {
 			assert.property(resultCookie, key, 'find property "' + key + '"');
-			assert.strictEqual(resultCookie[key], value, 'compare value of property "' + key + '"');
+			if (key === 'expires') {
+				assert.strictEqual(resultCookie[key].getFullYear(), value.getFullYear(), 'compare value of property "' + key + '"');
+				assert.strictEqual(resultCookie[key].getMonth(), value.getMonth(), 'compare value of property "' + key + '"');
+				assert.strictEqual(resultCookie[key].getDate(), value.getDate(), 'compare value of property "' + key + '"');
+				assert.strictEqual(resultCookie[key].getHours(), value.getHours(), 'compare value of property "' + key + '"');
+				assert.strictEqual(resultCookie[key].getMinutes(), value.getMinutes(), 'compare value of property "' + key + '"');
+				assert.strictEqual(resultCookie[key].getSeconds(), value.getSeconds(), 'compare value of property "' + key + '"');
+			} else {
+				assert.strictEqual(resultCookie[key], value, 'compare value of property "' + key + '"');
+			}
 		});
 	});
 }

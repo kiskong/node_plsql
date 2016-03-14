@@ -272,9 +272,9 @@ describe('server.js', function () {
 			});
 		});
 
-		describe('GET /sampleRoute/invalidPage', function () {
+		describe('GET /sampleRoute/errorInPLSQL', function () {
 			it('should respond with 404', function (done) {
-				let test = request(application.expressApplication).get('/sampleRoute/invalidPage');
+				let test = request(application.expressApplication).get('/sampleRoute/errorInPLSQL');
 
 				test.expect(404, new RegExp('.*Failed to parse target procedure.*'), done);
 			});
@@ -382,7 +382,7 @@ function _startServer() {
  * Database callback when invoking a page
  */
 function _invokeCallback(database, procedure, args, cgi, files, doctablename, callback) {
-	debug('_invokeCallback: \n' + util.inspect(arguments, {showHidden: false, depth: null, colors: true}) + '\"');
+	debug('_invokeCallback: START\n' + util.inspect(arguments, {showHidden: false, depth: null, colors: true}) + '\"');
 
 	switch (procedure.toLowerCase()) {
 		case 'emptypage':
@@ -416,14 +416,17 @@ function _invokeCallback(database, procedure, args, cgi, files, doctablename, ca
 		case 'fileupload':
 			callback(null, _getPage('File "server.js" has been uploaded', {'Content-Type': 'text/html'}));
 			break;
-		case 'invalidpage':
+		case 'errorinplsql':
 			callback(new Error('procedure not found'));
 			break;
 		case 'internalerror':
 			throw new Error('internal error');
 		default:
+			console.log('==========> FATAL ERROR IN server.js: _invokeCallback received an invalid procedure=' + procedure);
 			break;
 	}
+
+	debug('_invokeCallback: END');
 }
 
 /*
