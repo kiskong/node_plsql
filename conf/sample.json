@@ -1,6 +1,6 @@
 {
 	// The server configuration
-	server: {
+	"server": {
 	    // The server port to listen at
 	    "port": 8999,
 
