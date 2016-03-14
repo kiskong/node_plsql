@@ -13,12 +13,12 @@
 * Module dependencies.
 */
 
-var assert = require('chai').assert;
-var utilities = require('../lib/utilities');
+const assert = require('chai').assert;
+const utilities = require('../lib/utilities');
 
-var mkdirp = require('mkdirp');
-var path = require('path');
-var fs = require('fs');
+const mkdirp = require('mkdirp');
+const path = require('path');
+const fs = require('fs');
 
 
 /**

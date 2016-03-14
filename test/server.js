@@ -11,15 +11,15 @@
 * Module dependencies.
 */
 
-var debug = require('debug')('node_plsql:server:test');
-var assert = require('chai').assert;
-var request = require('supertest');
-var util = require('util');
-var fs = require('fs');
-var mkdirp = require('mkdirp');
-var os = require('os');
-var server = require('../lib/server');
-var log = require('../lib/log');
+const debug = require('debug')('node_plsql:server:test');
+const assert = require('chai').assert;
+const request = require('supertest');
+const util = require('util');
+const fs = require('fs');
+const mkdirp = require('mkdirp');
+const os = require('os');
+const server = require('../lib/server');
+const log = require('../lib/log');
 
 /**
 * Module constants.

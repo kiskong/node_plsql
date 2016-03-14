@@ -5,7 +5,7 @@
 //
 //	Requirements
 //
-var gulp = require('gulp'),
+const gulp = require('gulp'),
 	glob = require('glob'),
 	coveralls = require('gulp-coveralls'),
 	gutil = require('gulp-util'),

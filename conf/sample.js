@@ -1,7 +1,7 @@
 'use strict';
 
-var server = require('../lib/node_plsql');
-var path = require('path');
+const server = require('../lib/node_plsql');
+const path = require('path');
 
 var config = {
 	server: {

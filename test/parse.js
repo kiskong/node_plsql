@@ -12,9 +12,9 @@
 // Requirements
 // ------------------------------------------------------------------------------
 
-var assert = require('chai').assert;
-var _ = require('underscore');
-var parse = require('../lib/parse');
+const assert = require('chai').assert;
+const _ = require('underscore');
+const parse = require('../lib/parse');
 
 // ------------------------------------------------------------------------------
 // Tests
@@ -229,9 +229,6 @@ describe('parse.js', function () {
 		_.each(TEST_DATA, function (test) {
 			it(test.title + ': _parseHeader should return the following objects', function () {
 				var message = parse.parseContent(test.raw);
-
-				//console.log(test.title + ': message.cookies: ' + JSON.stringify(message.cookies));
-				//console.log(test.title + ': test.cookies:    ' + JSON.stringify(test.cookies));
 
 				// cookies
 				assert.strictEqual(message.cookies.length, test.cookies.length, 'same number of cookies');

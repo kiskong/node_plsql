@@ -11,9 +11,9 @@
 // Requirements
 // ------------------------------------------------------------------------------
 
-var assert = require('chai').assert;
-var cgi = require('../lib/cgi');
-var os = require('os');
+const assert = require('chai').assert;
+const cgi = require('../lib/cgi');
+const os = require('os');
 
 // ------------------------------------------------------------------------------
 // Tests

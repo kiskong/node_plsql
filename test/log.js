@@ -13,9 +13,9 @@
 * Module dependencies.
 */
 
-var assert = require('chai').assert;
-var fs = require('fs');
-var log = require('../lib/log');
+const assert = require('chai').assert;
+const fs = require('fs');
+const log = require('../lib/log');
 
 
 /**

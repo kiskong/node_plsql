@@ -13,12 +13,12 @@
 * Module dependencies.
 */
 
-//var debug = require('debug')('node_plsql:request:test');
-var assert = require('chai').assert;
-var _ = require('underscore');
-var db = require('../lib/database');
-var statistics = require('../lib/statistics');
-var request = require('../lib/request');
+//const debug = require('debug')('node_plsql:request:test');
+const assert = require('chai').assert;
+const _ = require('underscore');
+const db = require('../lib/database');
+const statistics = require('../lib/statistics');
+const request = require('../lib/request');
 
 
 /**

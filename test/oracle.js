@@ -13,10 +13,10 @@
 * Module dependencies.
 */
 
-//var debug = require('debug')('node_plsql:oracle:test');
-var assert = require('chai').assert;
-var _ = require('underscore');
-var oracle = require('../lib/oracle');
+//const debug = require('debug')('node_plsql:oracle:test');
+const assert = require('chai').assert;
+const _ = require('underscore');
+const oracle = require('../lib/oracle');
 
 
 /**

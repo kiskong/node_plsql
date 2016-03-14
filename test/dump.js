@@ -13,8 +13,8 @@
 * Module dependencies.
 */
 
-var assert = require('chai').assert;
-var dump = require('../lib/dump');
+const assert = require('chai').assert;
+const dump = require('../lib/dump');
 
 
 /**

@@ -13,8 +13,8 @@
 * Module dependencies.
 */
 
-var assert = require('chai').assert;
-var version = require('../lib/version');
+const assert = require('chai').assert;
+const version = require('../lib/version');
 
 
 /**

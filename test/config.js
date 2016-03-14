@@ -11,11 +11,11 @@
 * Module dependencies.
 */
 
-var fs = require('fs');
-var path = require('path');
-var assert = require('chai').assert;
-var utilities = require('../lib/utilities');
-var config = require('../lib/config');
+const fs = require('fs');
+const path = require('path');
+const assert = require('chai').assert;
+const utilities = require('../lib/utilities');
+const config = require('../lib/config');
 
 /**
 * Module constants.

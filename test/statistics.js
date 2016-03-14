@@ -13,9 +13,9 @@
 * Module dependencies.
 */
 
-var assert = require('chai').assert;
-var _ = require('underscore');
-var statistics = require('../lib/statistics');
+const assert = require('chai').assert;
+const _ = require('underscore');
+const statistics = require('../lib/statistics');
 
 
 /**
@@ -86,8 +86,6 @@ describe('statistics.js', function () {
 			var application = {},
 				req,
 				s;
-
-			//console.log(require('util').inspect(s, {showHidden: false, depth: null, colors: true}));
 
 			// even the application parameter is missing but we still get some results
 			s = statistics.get();

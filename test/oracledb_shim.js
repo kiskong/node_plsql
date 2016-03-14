@@ -13,11 +13,11 @@
 * Module dependencies.
 */
 
-//var debug = require('debug')('node_plsql:oracledb_shim:test');
+//const debug = require('debug')('node_plsql:oracledb_shim:test');
 /*eslint-disable no-unused-vars, camelcase */
-var assert = require('chai').assert;
-var _ = require('underscore');
-var oracledb = require('../lib/oracledb_shim');
+const assert = require('chai').assert;
+const _ = require('underscore');
+const oracledb = require('../lib/oracledb_shim');
 /*eslint-enable no-unused-vars, camelcase */
 
 
