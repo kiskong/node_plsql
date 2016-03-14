@@ -36,7 +36,7 @@ describe('cgi.js', function () {
 		});
 
 		it('with a proper configuration object and request', function () {
-			var ROUTE = 'route',
+			const ROUTE = 'route',
 				DOCUMENT_TABLE_NAME = 'doc-table',
 				REMOTE_ADDRESS = '127.0.0.1';
 
@@ -87,7 +87,7 @@ describe('cgi.js', function () {
 				documentTableName: DOCUMENT_TABLE_NAME
 			};
 
-			var cgiObject = cgi.createCGI(serverConfig, req, service);
+			let cgiObject = cgi.createCGI(serverConfig, req, service);
 
 			assert.strictEqual(28, Object.keys(cgiObject).length);
 			assert.deepEqual(cgiObject, {

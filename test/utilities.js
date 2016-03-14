@@ -48,7 +48,7 @@ describe('utilities.js', function () {
 
 	describe('fileCopy', function () {
 		describe('when copying an existing file', function () {
-			var SRC = 'temp/test.old',
+			const SRC = 'temp/test.old',
 				DST = 'temp/test.new';
 
 			mkdirp.sync('temp');

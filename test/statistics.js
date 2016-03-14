@@ -35,7 +35,7 @@ describe('statistics.js', function () {
 
 	describe('setStartup', function () {
 		it('thows an exception if the statistics have not yet been initialized', function () {
-			var application = {};
+			let application = {};
 
 			assert.throws(function () {
 				statistics.requestStarted(application);
@@ -50,7 +50,7 @@ describe('statistics.js', function () {
 
 		it('should initialize the object and set the startup time', function () {
 			const START = new Date();
-			var application = {};
+			let application = {};
 
 			statistics.setStartup(application);
 			assert.isTrue(_.isDate(application.statistics.serverStartupTime));
@@ -64,7 +64,7 @@ describe('statistics.js', function () {
 
 	describe('addRequest', function () {
 		it('should initialize the object and add the timing for a request', function () {
-			var application = {},
+			let application = {},
 				req;
 
 			statistics.setStartup(application);
@@ -83,7 +83,7 @@ describe('statistics.js', function () {
 
 	describe('get', function () {
 		it('should get the statistics object', function () {
-			var application = {},
+			let application = {},
 				req,
 				s;
 

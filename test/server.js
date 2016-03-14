@@ -36,7 +36,7 @@ const log = require('../lib/log');
 describe('server.js', function () {
 
 	describe('static resources', function () {
-		var application;
+		let application;
 
 		before('Start the server', function (done) {
 			_startServer().then(function (app) {
@@ -54,7 +54,7 @@ describe('server.js', function () {
 
 		describe('GET static resources (GET /test/server.js)', function () {
 			it('should return the static file /test/server.js', function (done) {
-				var test = request(application.expressApplication).get('/test/server.js');
+				let test = request(application.expressApplication).get('/test/server.js');
 
 				test.expect(200, new RegExp('.*should return the static file /test/server.js.*'), done);
 			});
@@ -62,7 +62,7 @@ describe('server.js', function () {
 
 		describe('static resources (GET /fileDoesNotExist)', function () {
 			it('should report a 404 error', function (done) {
-				var test = request(application.expressApplication).get('/fileDoesNotExist');
+				let test = request(application.expressApplication).get('/fileDoesNotExist');
 
 				test.expect(404, done);
 			});
@@ -71,7 +71,7 @@ describe('server.js', function () {
 	});
 
 	describe('routes', function () {
-		var application;
+		let application;
 
 		before('Start the server', function (done) {
 			_startServer().then(function (app) {
@@ -89,7 +89,7 @@ describe('server.js', function () {
 
 		describe('default page (GET /sampleRoute)', function () {
 			it('should return the default page', function (done) {
-				var test = request(application.expressApplication).get('/sampleRoute');
+				let test = request(application.expressApplication).get('/sampleRoute');
 
 				test.expect(302, 'Found. Redirecting to /sampleRoute/samplePage', done);
 			});
@@ -117,7 +117,7 @@ describe('server.js', function () {
 		});
 
 		describe('GET /sampleRoute/arrayPage', function () {
-			var args = {para: ['value1', 'value2']};
+			let args = {para: ['value1', 'value2']};
 
 			it('should return the array page', function (done) {
 				request(application.expressApplication).get('/sampleRoute/arrayPage?para=value1&para=value2')
@@ -141,7 +141,7 @@ describe('server.js', function () {
 
 		describe('POST /sampleRoute/form_urlencoded', function () {
 			it('should return a form with fields', function (done) {
-				var test = request(application.expressApplication).post('/sampleRoute/form_urlencoded');
+				let test = request(application.expressApplication).post('/sampleRoute/form_urlencoded');
 
 				test.set('Content-Type', 'application/x-www-form-urlencoded');
 				test.send('name=johndoe');
@@ -152,7 +152,7 @@ describe('server.js', function () {
 
 		describe('POST /sampleRoute/multipart_form_data', function () {
 			it('should return a multipart form with files', function (done) {
-				var test = request(application.expressApplication).post('/sampleRoute/multipart_form_data');
+				let test = request(application.expressApplication).post('/sampleRoute/multipart_form_data');
 
 				test.set('Content-Type', 'multipart/form-data; boundary=foo');
 				test.write('--foo\r\n');
@@ -179,7 +179,7 @@ describe('server.js', function () {
 	});
 
 	describe('file upload', function () {
-		var application;
+		let application;
 
 		before('Start the server', function (done) {
 			_startServer().then(function (app) {
@@ -199,7 +199,7 @@ describe('server.js', function () {
 			it('should upload files', function (done) {
 				const FILENAME = 'temp/index.html';
 				const CONTENT = 'content of index.html';
-				var test;
+				let test;
 
 				// create a static file
 				mkdirp.sync('temp');
@@ -215,7 +215,7 @@ describe('server.js', function () {
 	});
 
 	describe('status page', function () {
-		var application;
+		let application;
 
 		before('Start the server', function (done) {
 			_startServer().then(function (app) {
@@ -248,7 +248,7 @@ describe('server.js', function () {
 	});
 
 	describe('errors', function () {
-		var application;
+		let application;
 
 		before('Start the server', function (done) {
 			_startServer().then(function (app) {
@@ -266,7 +266,7 @@ describe('server.js', function () {
 
 		describe('GET /invalidRoute', function () {
 			it('should respond with 404', function (done) {
-				var test = request(application.expressApplication).get('/invalidRoute');
+				let test = request(application.expressApplication).get('/invalidRoute');
 
 				test.expect(404, new RegExp('.*404 Not Found.*'), done);
 			});
@@ -274,7 +274,7 @@ describe('server.js', function () {
 
 		describe('GET /sampleRoute/invalidPage', function () {
 			it('should respond with 404', function (done) {
-				var test = request(application.expressApplication).get('/sampleRoute/invalidPage');
+				let test = request(application.expressApplication).get('/sampleRoute/invalidPage');
 
 				test.expect(404, new RegExp('.*Failed to parse target procedure.*'), done);
 			});
@@ -282,7 +282,7 @@ describe('server.js', function () {
 
 		describe('GET /sampleRoute/internalError', function () {
 			it('should respond with 500', function (done) {
-				var test = request(application.expressApplication).get('/sampleRoute/internalError');
+				let test = request(application.expressApplication).get('/sampleRoute/internalError');
 
 				test.expect(500, done);
 			});
@@ -291,10 +291,10 @@ describe('server.js', function () {
 	});
 
 	describe('start server with no routes', function () {
-		var application;
+		let application;
 
 		it('does start', function (done) {
-			var OPTIONS = {
+			let OPTIONS = {
 				server: {
 					port: 8999,
 					suppressOutput: true,
@@ -430,7 +430,7 @@ function _invokeCallback(database, procedure, args, cgi, files, doctablename, ca
  * Get database page
  */
 function _getPage(body, header) {
-	var text = '',
+	let text = '',
 		name;
 
 	if (header) {
@@ -450,7 +450,7 @@ function _getPage(body, header) {
  * Validate the CGI
  */
 function _validateCGI(cgi) {
-	var SERVER_PORT = '8999',
+	const SERVER_PORT = '8999',
 		ROUTE = 'sampleRoute';
 
 	assert.strictEqual(cgi.PLSQL_GATEWAY, 'WebDb');

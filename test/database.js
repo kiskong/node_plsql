@@ -36,7 +36,7 @@ const OTHER = 'O';
 * Module variables.
 */
 
-var oracleExecuteHistory = [];
+let oracleExecuteHistory = [];
 
 
 /**
@@ -46,7 +46,7 @@ var oracleExecuteHistory = [];
 describe('database.js', function () {
 
 	describe('invoke', function () {
-		var application;
+		let application;
 
 		before('Start the server', function (done) {
 			_startServer().then(function (app) {
@@ -96,7 +96,7 @@ describe('database.js', function () {
 	});
 
 	describe('invoke throws an exception', function () {
-		var application;
+		let application;
 
 		before('Start the server', function (done) {
 			_startServer().then(function (app) {
@@ -121,7 +121,7 @@ describe('database.js', function () {
 	});
 
 	describe('get default page', function () {
-		var application;
+		let application;
 
 		before('Start the server', function (done) {
 			_startServer().then(function (app) {
@@ -139,7 +139,7 @@ describe('database.js', function () {
 
 		describe('GET /sampleRoute/fixedArguments?x=a&y=1&y=1', function () {
 			it('should invoke a page with fixed arguments', function (done) {
-				var test = request(application.expressApplication).get('/sampleRoute/fixedArguments?x=a&y=1&y=1');
+				let test = request(application.expressApplication).get('/sampleRoute/fixedArguments?x=a&y=1&y=1');
 
 				test.expect(200, 'page with fixed arguments', done);
 			});
@@ -147,7 +147,7 @@ describe('database.js', function () {
 
 		describe('GET /sampleRoute/!variableArguments?x=a&y=1&y=1', function () {
 			it('should invoke a page with variable arguments', function (done) {
-				var test = request(application.expressApplication).get('/sampleRoute/!variableArguments?x=a&y=1&y=1');
+				let test = request(application.expressApplication).get('/sampleRoute/!variableArguments?x=a&y=1&y=1');
 
 				test.expect(200, 'page with variable arguments', done);
 			});
@@ -186,7 +186,7 @@ function _startServer() {
  * node-oracledb execute shim callback
  */
 function _oracleExecuteCallback(sql, binds, result) {
-	var operation = _getOperation(sql),
+	let operation = _getOperation(sql),
 		lastOperation = (oracleExecuteHistory.length > 0) ? oracleExecuteHistory[oracleExecuteHistory.length - 1] : null;
 
 	// save the history
@@ -206,7 +206,7 @@ function _oracleExecuteCallback(sql, binds, result) {
  * Get the operation (GETARGS, FIXED, VARIABLE, OTHER) we are interested in
  */
 function _getOperation(sql) {
-	var operation = OTHER;
+	let operation = OTHER;
 
 	// The sql command "dbms_utility.name_resolve" indicates that we are processing a request with fixed arguments
 	//	and are retrieving the definition of a procedure

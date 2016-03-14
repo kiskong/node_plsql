@@ -64,7 +64,7 @@ describe('oracle_shim.js', function () {
 	});
 
 	describe('getConnection', function () {
-		var connectionPool;
+		let connectionPool;
 
 		before('Create a connection pool', function (done) {
 			oracledb.createPool({user: 'user', password: 'password', connectString: 'connectString'}, function (err, pool) {
@@ -108,7 +108,7 @@ describe('oracle_shim.js', function () {
 	});
 
 	describe('execute', function () {
-		var connectionPool,
+		let connectionPool,
 			connection;
 
 		before('Create a connection', function (done) {
@@ -148,7 +148,7 @@ describe('oracle_shim.js', function () {
 	});
 
 	describe('registerExecuteCallback', function () {
-		var connectionPool,
+		let connectionPool,
 			connection;
 
 		before('Create a connection', function (done) {

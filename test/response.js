@@ -35,11 +35,11 @@ const response = require('../lib/response');
 
 describe('response.js', function () {
 	it('body', function () {
-		var result = {
+		let result = {
 			headers: {},
 			body: null
 		};
-		var message = {
+		let message = {
 			redirectLocation: null,
 			contentType: null,
 			contentLength: null,

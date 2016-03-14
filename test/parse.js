@@ -228,7 +228,7 @@ describe('parse.js', function () {
 
 		_.each(TEST_DATA, function (test) {
 			it(test.title + ': _parseHeader should return the following objects', function () {
-				var message = parse.parseContent(test.raw);
+				let message = parse.parseContent(test.raw);
 
 				// cookies
 				assert.strictEqual(message.cookies.length, test.cookies.length, 'same number of cookies');
@@ -274,7 +274,7 @@ function _testCookies(resultCookies, expectedCookies) {
 	// process the list of excepted cookies
 	_.each(expectedCookies, function (expectedCookie) {
 		// find the expected cookie in the list of cookies
-		var resultCookie = _.find(resultCookies, function (cookie) {
+		let resultCookie = _.find(resultCookies, function (cookie) {
 			return cookie.name === expectedCookie.name;
 		});
 

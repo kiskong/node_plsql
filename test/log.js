@@ -44,7 +44,7 @@ describe('log.js', function () {
 		});
 
 		it('enable/disable', function () {
-			var ok;
+			let ok;
 
 			assert.strictEqual(process.env.NODE_PLSQL_TRACE, '0');
 
@@ -64,7 +64,7 @@ describe('log.js', function () {
 
 		it('trace', function () {
 			const TAG = 'TAG#' + log.getTimestamp();
-			var data;
+			let data;
 
 			log.tracing(true);
 			log.trace(TAG, {object: 'object'}, ['array']);
@@ -80,7 +80,7 @@ describe('log.js', function () {
 		it('does log an error', function () {
 			const CONSOLE_LOG = console.log;
 			const TIMESTAMP = 'timestamp:' + log.getTimestamp();
-			var data;
+			let data;
 
 			console.log = function () {};
 			log.error();
@@ -94,7 +94,7 @@ describe('log.js', function () {
 		it('log an Error instance', function () {
 			const CONSOLE_LOG = console.log;
 			const TIMESTAMP = 'timestamp:' + log.getTimestamp();
-			var data;
+			let data;
 
 			console.log = function () {};
 			log.error(new Error(TIMESTAMP));
@@ -107,7 +107,7 @@ describe('log.js', function () {
 		it('log a string', function () {
 			const CONSOLE_LOG = console.log;
 			const TIMESTAMP = 'timestamp:' + log.getTimestamp();
-			var data;
+			let data;
 
 			console.log = function () {};
 			log.error(TIMESTAMP);
@@ -120,7 +120,7 @@ describe('log.js', function () {
 		it('log something else', function () {
 			const CONSOLE_LOG = console.log;
 			const TIMESTAMP = 'timestamp:' + log.getTimestamp();
-			var data;
+			let data;
 
 			console.log = function () {};
 			log.error({text: TIMESTAMP});
@@ -133,7 +133,7 @@ describe('log.js', function () {
 
 	describe('enabled', function () {
 		it('does enable', function () {
-			var original = log.enabled(),
+			let original = log.enabled(),
 				Undefined;
 
 			log.enable(true);
@@ -151,7 +151,7 @@ describe('log.js', function () {
 
 	describe('log', function () {
 		it('does log', function () {
-			var original = log.enabled();
+			let original = log.enabled();
 
 			log.enable(true);
 			log.log();

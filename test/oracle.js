@@ -48,7 +48,7 @@ function _executeCallback(sql, bind, result) {
 describe('oracle.js', function () {
 
 	describe('Connection pool', function () {
-		var connectionPool;
+		let connectionPool;
 
 		before('Create a connection pool', function (done) {
 			oracle.createConnectionPool('user', 'password', 'connectString').then(function (pool) {
@@ -77,7 +77,7 @@ describe('oracle.js', function () {
 	});
 
 	describe('Connection', function () {
-		var connectionPool,
+		let connectionPool,
 			connection;
 
 		before('Create a connection', function (done) {
@@ -113,7 +113,7 @@ describe('oracle.js', function () {
 	});
 
 	describe('Execute', function () {
-		var connectionPool,
+		let connectionPool,
 			connection;
 
 		before('Create a connection', function (done) {
@@ -168,7 +168,7 @@ describe('oracle.js', function () {
 		];
 
 		it('should return correct string', function () {
-			var i;
+			let i;
 
 			for (i = 0; i < TESTS.length; i++) {
 				assert.strictEqual(oracle.versionAsString(TESTS[i].version), TESTS[i].result, 'test #' + i);

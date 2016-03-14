@@ -19,12 +19,12 @@ const gulp = require('gulp'),
 //
 //	Constants
 //
-var JS_SRC_FILES = [
+const JS_SRC_FILES = [
 	'Gulpfile.js',
 	'lib/**/*.js',
 	'test/**/*.js'
 ];
-var MOCHA_OPTIONS = {
+const MOCHA_OPTIONS = {
 	require: 'test/support/env',
 	reporter: 'spec'
 };
@@ -47,7 +47,7 @@ process.env.NODE_ENV = 'test';
  * @example		gulp.src(*.js').numberOfFiles(' files processed.')
  */
 function numberOfFiles(message) {
-	var count = 0;
+	let count = 0;
 
 	function countFiles(/*file*/) {
 		count++;
@@ -90,7 +90,7 @@ gulp.task('jsonlint', function (/*callback*/) {
 //	The tasks "test" will run all unit tests (no database is needed) in the mocha test runner
 //
 glob.sync('test/*.js', {}).forEach(function (file) {
-	var task = file.toLowerCase();
+	let task = file.toLowerCase();
 
 	task = task.replace(/test\//gi, 'test:');
 	task = task.replace(/\.js/gi, '');

@@ -54,7 +54,7 @@ describe('dump.js', function () {
 	describe('when calling dump.debug()', function () {
 		it('it should at least be there and not break', function () {
 			// Emulate the debug module
-			var debug = function () {};
+			let debug = function () {};
 
 			debug.enable = function () {};
 			debug.disable = function () {};

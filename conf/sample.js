@@ -3,7 +3,7 @@
 const server = require('../lib/node_plsql');
 const path = require('path');
 
-var config = {
+const config = {
 	server: {
 		port: 8999,
 		static: [{

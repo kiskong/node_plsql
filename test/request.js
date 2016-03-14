@@ -37,7 +37,7 @@ const request = require('../lib/request');
 
 describe('request.js', function () {
 
-	var application = {
+	let application = {
 		options: {
 			server: {
 				port: 8999,
@@ -72,7 +72,7 @@ describe('request.js', function () {
 	db.createConnectionPools(application);
 
 	it('no_para', function () {
-		var req = {
+		let req = {
 			protocol: 'http',
 			get: function () {
 				return '';
@@ -84,13 +84,13 @@ describe('request.js', function () {
 			body: {},
 			query: {}
 		};
-		var res = {};
+		let res = {};
 
 		request.process(application, application.options.services[0], req, res);
 	});
 
 	it('scalar_para', function () {
-		var req = {
+		let req = {
 			protocol: 'http',
 			get: function () {
 				return '';
@@ -105,13 +105,13 @@ describe('request.js', function () {
 				p2: 'v2'
 			}
 		};
-		var res = {};
+		let res = {};
 
 		request.process(application, application.options.services[0], req, res);
 	});
 
 	it('array_arguments', function () {
-		var req = {
+		let req = {
 			protocol: 'http',
 			get: function () {
 				return '';
@@ -128,7 +128,7 @@ describe('request.js', function () {
 				p2: 'v2'
 			}
 		};
-		var res = {};
+		let res = {};
 
 		request.process(application, application.options.services[0], req, res);
 	});
@@ -141,7 +141,7 @@ describe('request.js', function () {
 
 	it('invalid types of arguments', function () {
 		const CONSOLE_LOG = console.log;
-		var req = {
+		let req = {
 			protocol: 'http',
 			get: function () {
 				return '';
@@ -157,7 +157,7 @@ describe('request.js', function () {
 				a4: [1, 2]
 			}
 		};
-		var res = {};
+		let res = {};
 
 		console.log = function () {};
 		request.process(application, application.options.services[0], req, res);
