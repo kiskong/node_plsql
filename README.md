@@ -2,7 +2,7 @@
 
 # The Node.js PL/SQL Gateway for Oracle
 The Node.js PL/SQL Server is a bridge between an Oracle database and a Node.js web server.
-It is an open-source alternative to mod_plsql, the Embedded PL/SQL Gateway and the APEX Listener,
+It is an open-source alternative to mod_plsql, the Embedded PL/SQL Gateway and ORDS,
 allowing you to develop PL/SQL web applications using the PL/SQL Web Toolkit (OWA) and Oracle Application Express (Apex),
 and serve the content using a Node.js HTTP Server (express).
 
@@ -11,7 +11,6 @@ Please feel free to try and suggest any improvements. Your thoughts and ideas ar
 # Installation
 
 ## Prerequisites
-
 There are several prerequisites needed to both compile and run the Oracle database driver.
 Please visit the [node-oracledb INSTALL.md](https://github.com/oracle/node-oracledb/blob/master/INSTALL.md) page for more information.
 
@@ -83,6 +82,59 @@ Please visit the [node-oracledb INSTALL.md](https://github.com/oracle/node-oracl
 
 # Documentation
 This README is currently the only available documentation.
+
+# Missing features
+
+## Features in mod_plsql that are not yet available in node_plsql:
+- Support for APEX 5.
+- Default exclusion list.
+- Basic and custom authentication methods, based on the OWA_SEC package and custom packages.
+- Caching of PL/SQL-generated web pages, based on the OWA_CACHE package.
+- Override CGI environment variables in DAD configuration file.
+
+## Support matrix of mod_plsql configuration options:
+PlsqlDMSEnable -> no
+PlsqlLogEnable -> no
+PlsqlLogDirectory -> no
+PlsqlIdleSessionCleanupInterval -> no
+
+PlsqlAfterProcedure -> no
+PlsqlAlwaysDescribeProcedure -> no
+PlsqlAuthenticationMode -> not yet
+PlsqlBeforeProcedure -> no
+PlsqlBindBucketLengths -> no
+PlsqlBindBucketWidths -> no
+PlsqlCGIEnvironmentList -> no
+PlsqlCompatibilityMode -> no
+PlsqlConnectionTimeout -> no
+PlsqlConnectionValidation -> no
+PlsqlDatabaseConnectString -> yes
+PlsqlDatabasePassword -> yes
+PlsqlDatabaseUserName -> yes
+PlsqlDefaultPage -> yes
+PlsqlDocumentPath -> not yet
+PlsqlDocumentProcedure -> not yet
+PlsqlDocumentTablename -> yes
+PlsqlErrorStyle -> no
+PlsqlExclusionList -> not yet
+PlsqlFetchBufferSize -> no
+PlsqlInfoLogging -> no
+PlsqlMaxRequestsPerSession -> no
+PlsqlNLSLanguage -> not yet
+PlsqlPathAlias -> not yet
+PlsqlPathAliasProcedure -> not yet
+PlsqlRequestValidationFunction -> not yet
+PlsqlSessionCookieName -> no
+PlsqlSessionStateManagement -> no
+PlsqlTransferMode -> no
+PlsqlUploadAsLongRaw -> no
+
+PlsqlCacheCleanupTime -> no
+PlsqlCacheDirectory -> no
+PlsqlCacheEnable -> no
+PlsqlCacheMaxAge -> no
+PlsqlCacheMaxSize -> no
+PlsqlCacheTotalSize -> no
 
 # Release History
 See the [changelog](https://github.com/doberkofler/node_plsql/blob/master/CHANGELOG.md).
