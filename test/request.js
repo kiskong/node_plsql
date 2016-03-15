@@ -5,9 +5,7 @@
  * @author doberkofler
  */
 
-
 /* global describe: false, it:false */
-
 
 /**
 * Module dependencies.
@@ -20,22 +18,39 @@ const db = require('../lib/database');
 const statistics = require('../lib/statistics');
 const request = require('../lib/request');
 
-
 /**
 * Module constants.
 */
 
-
 /**
 * Module variables.
 */
-
 
 /**
 * Tests.
 */
 
 describe('request.js', function () {
+
+	let res = {
+		set: function () {
+			return res;
+		},
+		status: function (status) {
+			this.values.status = status;
+			return res;
+		},
+		send: function () {
+			return res;
+		},
+		cookie: function () {
+			return res;
+		},
+
+		values: {
+			status: null
+		}
+	};
 
 	let application = {
 		options: {
@@ -84,7 +99,6 @@ describe('request.js', function () {
 			body: {},
 			query: {}
 		};
-		let res = {};
 
 		request.process(application, application.options.services[0], req, res);
 	});
@@ -97,7 +111,7 @@ describe('request.js', function () {
 			},
 			connection: {},
 			params: {
-				name: 'single_para'
+				name: 'scalar_para'
 			},
 			body: {},
 			query: {
@@ -105,12 +119,11 @@ describe('request.js', function () {
 				p2: 'v2'
 			}
 		};
-		let res = {};
 
 		request.process(application, application.options.services[0], req, res);
 	});
 
-	it('array_arguments', function () {
+	it('array_para', function () {
 		let req = {
 			protocol: 'http',
 			get: function () {
@@ -128,7 +141,6 @@ describe('request.js', function () {
 				p2: 'v2'
 			}
 		};
-		let res = {};
 
 		request.process(application, application.options.services[0], req, res);
 	});
@@ -140,7 +152,6 @@ describe('request.js', function () {
 	});
 
 	it('invalid types of arguments', function () {
-		const CONSOLE_LOG = console.log;
 		let req = {
 			protocol: 'http',
 			get: function () {
@@ -157,46 +168,122 @@ describe('request.js', function () {
 				a4: [1, 2]
 			}
 		};
-		let res = {};
 
-		console.log = function () {};
 		request.process(application, application.options.services[0], req, res);
-		console.log = CONSOLE_LOG;
 	});
-});
 
-function invokeCallback(database, procedure, args, cgi, files, doctablename, callback) {
-	assert.ok(	arguments.length === 7 &&
-				_.isObject(database) &&
-				_.isString(procedure) &&
-				_.isObject(args) &&
-				_.isObject(cgi) &&
-				_.isArray(files) &&
-				(_.isUndefined(doctablename) || _.isString(doctablename)) &&
-				_.isFunction(callback)
-				);
+	it('error in PL/SQL', function () {
+		let req = {
+			protocol: 'http',
+			get: function () {
+				return '';
+			},
+			connection: {},
+			params: {
+				name: 'error_in_plsql'
+			},
+			body: {}
+		};
 
-	switch (procedure) {
-		case 'no_para':
-			assert.strictEqual(Object.keys(args).length, 0);
-			break;
-		case 'scalar_para':
-			assert.strictEqual(Object.keys(args).length, 1);
-			assert.strictEqual(args.p1, 'v1');
-			assert.strictEqual(args.p2, 'v2');
-			break;
-		case 'array_arguments':
-			assert.strictEqual(Object.keys(args).length, 2);
-			assert.strictEqual(args.p1, 'v1');
-			assert.strictEqual(args.p2, 'v2');
-			assert.strictEqual(args.a1.length, 2);
-			assert.strictEqual(args.a1[0], 'v1');
-			assert.strictEqual(args.a1[1], 'v2');
-			break;
-		case 'invalid_arguments':
-			assert.strictEqual(Object.keys(args).length, 0);
-			break;
-		default:
-			break;
+		initRes();
+		request.process(application, application.options.services[0], req, res);
+	});
+
+	it('parse exception', function () {
+		let req = {
+			protocol: 'http',
+			get: function () {
+				return '';
+			},
+			connection: {},
+			params: {
+				name: 'parse_exception'
+			},
+			body: {}
+		};
+
+		initRes();
+		request.process(application, application.options.services[0], req, res);
+	});
+
+	it('send exception', function () {
+		let req = {
+			protocol: 'http',
+			get: function () {
+				return '';
+			},
+			connection: {},
+			params: {
+				name: 'send_exception'
+			},
+			body: {}
+		};
+
+
+		initRes();
+		request.process(application, application.options.services[0], req, res);
+	});
+
+	function initRes() {
+		res.values.status = null;
 	}
-}
+
+	function invokeCallback(database, procedure, args, cgi, files, doctablename, callback) {
+		assert.ok(	arguments.length === 7 &&
+					_.isObject(database) &&
+					_.isString(procedure) &&
+					_.isObject(args) &&
+					_.isObject(cgi) &&
+					_.isArray(files) &&
+					(_.isUndefined(doctablename) || _.isString(doctablename)) &&
+					_.isFunction(callback)
+					);
+
+		switch (procedure) {
+			case 'no_para':
+				assert.strictEqual(Object.keys(args).length, 0);
+				callback(null, 'page');
+				break;
+
+			case 'scalar_para':
+				assert.strictEqual(Object.keys(args).length, 2);
+				assert.strictEqual(args.p1, 'v1');
+				assert.strictEqual(args.p2, 'v2');
+				callback(null, 'page');
+				break;
+
+			case 'array_para':
+				assert.strictEqual(Object.keys(args).length, 3);
+				assert.strictEqual(args.p1, 'v1');
+				assert.strictEqual(args.p2, 'v2');
+				assert.strictEqual(args.a1.length, 2);
+				assert.strictEqual(args.a1[0], 'v1');
+				assert.strictEqual(args.a1[1], 'v2');
+				callback(null, 'page');
+				break;
+
+			case 'invalid_arguments':
+				assert.strictEqual(Object.keys(args).length, 0);
+				break;
+
+			case 'error_in_plsql':
+				callback(new Error('PL/SQL caused an error'), null);
+				assert.strictEqual(res.values.status, 404);
+				break;
+
+			case 'parse_exception':
+				callback(null); // missing page causes a parse exception!
+				assert.strictEqual(res.values.status, 404);
+				break;
+
+			case 'send_exception':
+				callback(null, 'Location: somewhere'); // using a location header will force the use of res.redirect and therefore cause an exception!
+				assert.strictEqual(res.values.status, 404);
+				break;
+
+			default:
+				throw new Error('Invalid procedure: ' + procedure);
+		}
+	}
+
+});
