@@ -3,4 +3,5 @@
 'use strict';
 
 const cli = require('../lib/cli');
+
 cli.execute(process.argv);
