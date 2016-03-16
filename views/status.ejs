@@ -1,93 +1,82 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title><%= title %></title>
-    <style>
-      body {
-        padding: 10px;
-        font: 10px Helvetica, Arial, sans-serif;
-      }
-      .error {
-          color: red
-      }
-      .success {
-          color: green;
-      }
-      h1 {
-        font-size: 30px;
-        font-weight: bold;
-      }
-      th {
-        text-align: left;
-        font-weight: 300;
-      }
-      td {
-        text-align: left;
-        font-weight: normal;
-      }
-    </style>
-  </head>
-  <body>
-    <h1><%= title %></h1>
 
-    <h2>Statistics:</h2>
-    <table class="status">
-      <tr>
-        <th>Current time:</th>
-        <td><%= stats.currentTime %></td>
-      </tr>
-      <tr>
-      	<th>Server startup time:</th>
-        <td><%= stats.serverStartupTime %></td>
-      </tr>
-      <tr>
-      	<th>Server has been running for:</th>
-        <td><%= stats.running %></td>
-      </tr>
-      <tr>
-      	<th>Number of requests:</th>
-        <td><%= stats.requestStartedCount %></td>
-      </tr>
-      <tr>
-        <th>Number of active requests:</th>
-        <td><%= stats.activeRequestCount %></td>
-      </tr>
-      <tr>
-      	<th>Average duration of requests:</th>
-        <td><%= stats.averageRequestTime %></td>
-      </tr>
-    </table>
+	<head>
+		<title>node_plsql - Gateway status</title>
+		<link href="css/main.css" rel="stylesheet" type="text/css">
+	</head>
 
-    <h2>Server configuration settings:</h2>
-    <table class="status">
-      <tr>
-        <th>Oracle node driver version:</th>
-        <td><%= stats.oracleDbVersion %></td>
-      </tr>
-      <tr>
-        <th>Oracle client version:</th>
-        <td><%= stats.oracleClientVersion %></td>
-      </tr>
-    </table>
+	<body>
 
-    <% for (var serviceIndex = 0; serviceIndex < stats.services.length; serviceIndex++) {%>
+		<section class="section">
+			<div class="header">
+				<h1>node_plsql - Gateway status</h1>
+			</div>
+			<div class="content">
+				<table>
+					<tr>
+						<td style="width: 70%">
+						    <table class="status">
+								<tr>
+									<th>Current time:</th>
+									<td><%= stats.currentTime %></td>
+								</tr>
+								<tr>
+									<th>Server startup time:</th>
+									<td><%= stats.serverStartupTime %></td>
+								</tr>
+								<tr>
+									<th>Server has been running for:</th>
+									<td><%= stats.running %></td>
+								</tr>
+								<tr>
+									<th>Number of requests:</th>
+									<td><%= stats.requestStartedCount %></td>
+								</tr>
+								<tr>
+									<th>Number of active requests:</th>
+									<td><%= stats.activeRequestCount %></td>
+								</tr>
+								<tr>
+									<th>Average duration of requests:</th>
+									<td><%= stats.averageRequestTime %></td>
+								</tr>
+								<tr>
+									<th>Oracle node driver version:</th>
+									<td><%= stats.oracleDbVersion %></td>
+								</tr>
+								<tr>
+									<th>Oracle client version:</th>
+									<td><%= stats.oracleClientVersion %></td>
+								</tr>
+							</table>
+						</td>
+						<td style="width: 30%">
+							<button class="button" style="width: 100%; margin: 4px;" onClick="javascript: window.location.reload();">Refresh</button>
+							<button class="button" style="width: 100%; margin: 4px;" onClick="javascript: location.href='shutdown';">Shutdown</button>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</section>
 
-      <h2>Service <%= (serviceIndex + 1).toString() %> - <a href="<%= stats.services[serviceIndex].url %>"><%= stats.services[serviceIndex].title %></a>:</h2>
+    	<% for (var serviceIndex = 0; serviceIndex < stats.services.length; serviceIndex++) {%>
+			<section class="section">
+				<div class="header">
+					<h1>Service <%= (serviceIndex + 1).toString() %> - <a href="<%= stats.services[serviceIndex].url %>"><%= stats.services[serviceIndex].title %></a></h1>
+				</div>
+				<div class="content">
+					<table class="status">
+						<% for (var statIndex = 0; statIndex < stats.services[serviceIndex].stats.length; statIndex++) {%>
+							<tr>
+								<th><%= stats.services[serviceIndex].stats[statIndex].name %>:</th>
+								<td><%= stats.services[serviceIndex].stats[statIndex].value %></td>
+							</tr>
+						<% } %>
+					</table>
+			</section>
+	    <% } %>
 
-      <table class="status">
+	</body>
 
-        <% for (var statIndex = 0; statIndex < stats.services[serviceIndex].stats.length; statIndex++) {%>
-
-          <tr>
-            <th><%= stats.services[serviceIndex].stats[statIndex].name %>:</th>
-            <td><%= stats.services[serviceIndex].stats[statIndex].value %></td>
-          </tr>
-
-        <% } %>
-
-      </table>
-
-    <% } %>
-
-  </body>
 </html>

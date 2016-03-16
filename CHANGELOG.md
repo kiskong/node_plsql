@@ -1,9 +1,10 @@
-v0.8.0 - March 12, 2016
+v0.8.0 - March 16, 2016
 * 0.8.0 (Dieter Oberkofler)
 * Migrated from custom to the new official Oracle NodeJS driver. (Dieter Oberkofler)
 * Complete source refactoring and now entirely written in JavaScript. (Dieter Oberkofler)
 * Support for multiple databases in one configuration file. (Dieter Oberkofler)
 * Command line option --init now allows to interactively create a configuration file. (Dieter Oberkofler)
+* Improved the status page and added an option to shutdown the server from the browser. (Dieter Oberkofler)
 * Support for APEX up to version 4. (Dieter Oberkofler)
 * Improved error messages and error logging in error.log. (Dieter Oberkofler)
 * Improved logging facilities. (Dieter Oberkofler)
