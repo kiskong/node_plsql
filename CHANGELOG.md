@@ -1,3 +1,7 @@
+v0.8.1 - March 16, 2016
+* 0.8.1 (Dieter Oberkofler)
+* Fixed a problem with a missing dependency. (Dieter Oberkofler)
+
 v0.8.0 - March 16, 2016
 * 0.8.0 (Dieter Oberkofler)
 * Migrated from custom to the new official Oracle NodeJS driver. (Dieter Oberkofler)
