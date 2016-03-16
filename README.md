@@ -93,48 +93,48 @@ This README is currently the only available documentation.
 - Override CGI environment variables in DAD configuration file.
 
 ## Support matrix of mod_plsql configuration options:
-PlsqlDMSEnable -> no
-PlsqlLogEnable -> no
-PlsqlLogDirectory -> no
-PlsqlIdleSessionCleanupInterval -> no
+- PlsqlDMSEnable -> no
+- PlsqlLogEnable -> no
+- PlsqlLogDirectory -> no
+- PlsqlIdleSessionCleanupInterval -> no
 
-PlsqlAfterProcedure -> no
-PlsqlAlwaysDescribeProcedure -> no
-PlsqlAuthenticationMode -> not yet
-PlsqlBeforeProcedure -> no
-PlsqlBindBucketLengths -> no
-PlsqlBindBucketWidths -> no
-PlsqlCGIEnvironmentList -> no
-PlsqlCompatibilityMode -> no
-PlsqlConnectionTimeout -> no
-PlsqlConnectionValidation -> no
-PlsqlDatabaseConnectString -> yes
-PlsqlDatabasePassword -> yes
-PlsqlDatabaseUserName -> yes
-PlsqlDefaultPage -> yes
-PlsqlDocumentPath -> not yet
-PlsqlDocumentProcedure -> not yet
-PlsqlDocumentTablename -> yes
-PlsqlErrorStyle -> no
-PlsqlExclusionList -> not yet
-PlsqlFetchBufferSize -> no
-PlsqlInfoLogging -> no
-PlsqlMaxRequestsPerSession -> no
-PlsqlNLSLanguage -> not yet
-PlsqlPathAlias -> not yet
-PlsqlPathAliasProcedure -> not yet
-PlsqlRequestValidationFunction -> not yet
-PlsqlSessionCookieName -> no
-PlsqlSessionStateManagement -> no
-PlsqlTransferMode -> no
-PlsqlUploadAsLongRaw -> no
+- PlsqlAfterProcedure -> no
+- PlsqlAlwaysDescribeProcedure -> no
+- PlsqlAuthenticationMode -> not yet
+- PlsqlBeforeProcedure -> no
+- PlsqlBindBucketLengths -> no
+- PlsqlBindBucketWidths -> no
+- PlsqlCGIEnvironmentList -> no
+- PlsqlCompatibilityMode -> no
+- PlsqlConnectionTimeout -> no
+- PlsqlConnectionValidation -> no
+- PlsqlDatabaseConnectString -> yes
+- PlsqlDatabasePassword -> yes
+- PlsqlDatabaseUserName -> yes
+- PlsqlDefaultPage -> yes
+- PlsqlDocumentPath -> not yet
+- PlsqlDocumentProcedure -> not yet
+- PlsqlDocumentTablename -> yes
+- PlsqlErrorStyle -> no
+- PlsqlExclusionList -> not yet
+- PlsqlFetchBufferSize -> no
+- PlsqlInfoLogging -> no
+- PlsqlMaxRequestsPerSession -> no
+- PlsqlNLSLanguage -> not yet
+- PlsqlPathAlias -> not yet
+- PlsqlPathAliasProcedure -> not yet
+- PlsqlRequestValidationFunction -> not yet
+- PlsqlSessionCookieName -> no
+- PlsqlSessionStateManagement -> no
+- PlsqlTransferMode -> no
+- PlsqlUploadAsLongRaw -> no
 
-PlsqlCacheCleanupTime -> no
-PlsqlCacheDirectory -> no
-PlsqlCacheEnable -> no
-PlsqlCacheMaxAge -> no
-PlsqlCacheMaxSize -> no
-PlsqlCacheTotalSize -> no
+- PlsqlCacheCleanupTime -> no
+- PlsqlCacheDirectory -> no
+- PlsqlCacheEnable -> no
+- PlsqlCacheMaxAge -> no
+- PlsqlCacheMaxSize -> no
+- PlsqlCacheTotalSize -> no
 
 # Release History
 See the [changelog](https://github.com/doberkofler/node_plsql/blob/master/CHANGELOG.md).
