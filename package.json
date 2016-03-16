@@ -55,6 +55,9 @@
     "package.json",
     "README.md"
   ],
+  "optionalDependencies": {
+    "oracledb": "^1.7.1"
+  },
   "dependencies": {
     "async": "^1.5.2",
     "body-parser": "^1.15.0",
@@ -72,7 +75,6 @@
     "morgan": "^1.7.0",
     "ms": "^0.7.0",
     "nopt": "^3.0.1",
-    "oracledb": "^1.7.1",
     "serve-static": "^1.9.2",
     "strip-json-comments": "^2.0.1",
     "underscore": "^1.8.3"
