@@ -300,6 +300,8 @@ function _executeProcedureAndGetPage(operation, lastOperation, sql, binds, resul
 function _getArguments(operation, lastOperation, sql, binds) {
 	debug('_getArguments', sql);
 
+	let obj;
+
 	assert.strictEqual(operation, GETARGS, 'current operation must be "GETARGS"');
 	assert.isTrue(_.has(binds, 'name'), 'binds must have a "name" property');
 
@@ -308,11 +310,13 @@ function _getArguments(operation, lastOperation, sql, binds) {
 
 		assert.deepEqual(binds.name, {dir: oracle.BIND_IN, type: oracle.STRING, val: 'fixedTableArguments'}, 'binds must have a proper "name" property');
 
-		return {
+		obj = {
 			outBinds: {
 				names: ['x', 'y'],
 				types: ['VARCHAR2', 'PL/SQL TABLE']
 			}
 		};
 	}
+
+	return obj;
 }
