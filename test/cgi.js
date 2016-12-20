@@ -89,7 +89,7 @@ describe('cgi.js', function () {
 
 			let cgiObject = cgi.createCGI(serverConfig, req, service);
 
-			assert.strictEqual(28, Object.keys(cgiObject).length);
+			assert.strictEqual(Object.keys(cgiObject).length, 29);
 			assert.deepEqual(cgiObject, {
 				'PLSQL_GATEWAY': 'WebDb',
 				'GATEWAY_IVERSION': '2',
@@ -105,6 +105,7 @@ describe('cgi.js', function () {
 				'REQUEST_PROTOCOL': 'HTTP',
 				'REMOTE_USER': '',
 				'HTTP_USER_AGENT': 'USER-AGENT',
+				'HTTP_X_FORWARDED_FOR': '',
 				'HTTP_HOST': 'HOST',
 				'HTTP_ACCEPT': 'ACCEPT',
 				'HTTP_ACCEPT_ENCODING': 'ACCEPT-ENCODING',
