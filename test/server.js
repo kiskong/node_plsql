@@ -247,6 +247,39 @@ describe('server.js', function () {
 
 	});
 
+	describe('shutdown from status page', function () {
+		let application;
+
+		before('Start the server', function (done) {
+			_startServer().then(function (app) {
+				application = app;
+				done();
+			});
+		});
+
+		after('Stop the server', function (done) {
+			server.stop(application, function () {
+				application = null;
+				done();
+			});
+		});
+
+		describe('GET /shutdown', function () {
+			it('should show the shutdown page', function (done) {
+				request(application.expressApplication)
+					.get('/shutdown')
+					.expect(200)
+					.end(function (err) {
+						if (err) {
+							return done(err);
+						}
+						return done();
+					});
+			});
+		});
+
+	});
+
 	describe('errors', function () {
 		let application;
 
