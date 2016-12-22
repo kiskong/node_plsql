@@ -1,4 +1,4 @@
-v0.9.0 - December 20, 2016
+v0.9.0 - December 22, 2016
 * 0.9.0 (Dieter Oberkofler)
 * Added support for authentication mode "basic". (rioux.vincent@uqam.ca)
 * Added support for passing proxy client IP to Oracle using HTTP_X_FORWARDED_FOR. (rioux.vincent@uqam.ca)
