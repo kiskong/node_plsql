@@ -178,6 +178,42 @@ describe('server.js', function () {
 
 	});
 
+	describe('basic authorization', function () {
+		let application;
+
+		before('Start the server', function (done) {
+			_startServer().then(function (app) {
+				application = app;
+				done();
+			});
+		});
+
+		after('Stop the server', function (done) {
+			server.stop(application, function () {
+				application = null;
+				done();
+			});
+		});
+
+		describe('GET /basicRoute/basicPage unauthorized', function () {
+			it('GET /basicRoute/basicPage should generate a 401 error', function (done) {
+				request(application.expressApplication)
+					.get('/basicRoute/basicPage')
+					.expect(401, 'Access denied', done);
+			});
+		});
+
+		describe('GET /basicRoute/basicPage authorize', function () {
+			it('GET /basicRoute/basicPage should authorize', function (done) {
+				request(application.expressApplication)
+					.get('/basicRoute/basicPage')
+					.auth('myusername', 'mypassword')
+					.expect(200, done);
+			});
+		});
+
+	});
+
 	describe('file upload', function () {
 		let application;
 
@@ -395,9 +431,8 @@ function _startServer() {
 				invokeCallback: _invokeCallback
 			},
 			{
-				route: 'secondRoute',
-				databaseUsername: 'secondUsername',
-				databasePassword: 'secondPassword',
+				route: 'basicRoute',
+				authenticationMode: 'basic',
 				databaseConnectString: 'sampleConnectString',
 				documentTableName: 'secondDoctable',
 				invokeCallback: _invokeCallback
@@ -423,6 +458,9 @@ function _invokeCallback(database, procedure, args, cgi, files, doctablename, ca
 			break;
 		case 'samplepage':
 			callback(null, _getPage('sample page'));
+			break;
+		case 'basicpage':
+			callback(null, _getPage('basic page'));
 			break;
 		case 'completepage':
 			callback(null, _getPage('complete page', {'Content-Type': 'text/html', 'Set-Cookie': 'C1=V1'}));

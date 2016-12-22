@@ -72,6 +72,7 @@ Please visit the [node-oracledb INSTALL.md](https://github.com/oracle/node-oracl
   "services": [{
     "route": "sample",
     "defaultPage": "demo.pageindex",
+    "authenticationMode": "anonymous",
     "databaseUsername": "scott",
     "databasePassword": "tiger",
     "databaseConnectString": "ORCL",
@@ -93,14 +94,22 @@ This README is currently the only available documentation.
 - Override CGI environment variables in DAD configuration file.
 
 ## Support matrix of mod_plsql configuration options:
+
+### Supported:
+- PlsqlAuthenticationMode -> authenticationMode
+- PlsqlDatabaseConnectString -> databaseConnectString
+- PlsqlDatabaseUserName -> databaseUsername
+- PlsqlDatabasePassword -> databasePassword
+- PlsqlDefaultPage -> defaultPage
+- PlsqlDocumentTablename -> documentTableName
+
+### Unsupported:
 - PlsqlDMSEnable -> no
 - PlsqlLogEnable -> no
 - PlsqlLogDirectory -> no
 - PlsqlIdleSessionCleanupInterval -> no
-
 - PlsqlAfterProcedure -> no
 - PlsqlAlwaysDescribeProcedure -> no
-- PlsqlAuthenticationMode -> not yet
 - PlsqlBeforeProcedure -> no
 - PlsqlBindBucketLengths -> no
 - PlsqlBindBucketWidths -> no
@@ -108,13 +117,8 @@ This README is currently the only available documentation.
 - PlsqlCompatibilityMode -> no
 - PlsqlConnectionTimeout -> no
 - PlsqlConnectionValidation -> no
-- PlsqlDatabaseConnectString -> yes
-- PlsqlDatabasePassword -> yes
-- PlsqlDatabaseUserName -> yes
-- PlsqlDefaultPage -> yes
 - PlsqlDocumentPath -> not yet
 - PlsqlDocumentProcedure -> not yet
-- PlsqlDocumentTablename -> yes
 - PlsqlErrorStyle -> no
 - PlsqlExclusionList -> not yet
 - PlsqlFetchBufferSize -> no
@@ -128,7 +132,6 @@ This README is currently the only available documentation.
 - PlsqlSessionStateManagement -> no
 - PlsqlTransferMode -> no
 - PlsqlUploadAsLongRaw -> no
-
 - PlsqlCacheCleanupTime -> no
 - PlsqlCacheDirectory -> no
 - PlsqlCacheEnable -> no

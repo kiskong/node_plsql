@@ -36,6 +36,30 @@ const oracledb = require('../lib/oracledb_shim');
 
 describe('oracle_shim.js', function () {
 
+	describe('single connection', function () {
+		let connection;
+
+		it('getConnection throws an exception with invalid arguments', function () {
+			assert.throws(function () {
+				oracledb.getConnection({password: 'password', connectString: 'connectString'}, function () {});
+			});
+		});
+
+		it('getConnection', function (done) {
+			oracledb.getConnection({user: 'user', password: 'password', connectString: 'connectString'}, function (err, conn) {
+				connection = conn;
+				done(err);
+			});
+		});
+
+		it('closeConnection', function (done) {
+			connection.release(function (err) {
+				connection = null;
+				done(err);
+			});
+		});
+	});
+
 	describe('createPool', function () {
 		it('works with proper arguments', function (done) {
 			oracledb.createPool({user: 'user', password: 'password', connectString: 'connectString'}, function (err, pool) {

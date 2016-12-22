@@ -1,3 +1,12 @@
+v0.9.0 - December 20, 2016
+* 0.9.0 (Dieter Oberkofler)
+* Added support for authentication mode "basic". (rioux.vincent@uqam.ca)
+* Added support for passing proxy client IP to Oracle using HTTP_X_FORWARDED_FOR. (rioux.vincent@uqam.ca)
+* Desupport of NodeJS 4. (Dieter Oberkofler)
+* Support for NodeJS 6 and 7. (Dieter Oberkofler)
+* Fixed some eslint warnings. (Dieter Oberkofler)
+* Updated all dependencies to latest release. (Dieter Oberkofler)
+
 v0.8.1 - March 16, 2016
 * 0.8.1 (Dieter Oberkofler)
 * Fixed a problem with a missing dependency. (Dieter Oberkofler)
@@ -13,7 +22,6 @@ v0.8.0 - March 16, 2016
 * Improved error messages and error logging in error.log. (Dieter Oberkofler)
 * Improved logging facilities. (Dieter Oberkofler)
 * Improved debugging facilities. (Dieter Oberkofler)
-* Improved status page. (Dieter Oberkofler)
 * Improved performance. (Dieter Oberkofler)
 * Updated all dependencies to latest releases. (Dieter Oberkofler)
 

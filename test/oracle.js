@@ -47,6 +47,24 @@ function _executeCallback(sql, bind, result) {
 
 describe('oracle.js', function () {
 
+	describe('Connection', function () {
+		let connection;
+
+		it('openConnection', function (done) {
+			oracle.openConnection('user', 'password', 'connectString').then(function (conn) {
+				connection = conn;
+				done();
+			});
+		});
+
+		it('closeConnection', function (done) {
+			oracle.closeConnection(connection).then(function () {
+				connection = null;
+				done();
+			});
+		});
+	});
+
 	describe('Connection pool', function () {
 		let connectionPool;
 
@@ -67,7 +85,7 @@ describe('oracle.js', function () {
 		describe('Open connection', function () {
 			it('should return the new connection', function (done) {
 				assert.isTrue(_.isObject(connectionPool));
-				oracle.openConnection(connectionPool).then(function (conn) {
+				oracle.openPooledConnection(connectionPool).then(function (conn) {
 					assert.isTrue(_.isObject(conn));
 					oracle.closeConnection(conn);
 					done();
@@ -76,14 +94,14 @@ describe('oracle.js', function () {
 		});
 	});
 
-	describe('Connection', function () {
+	describe('Connection from pool', function () {
 		let connectionPool,
 			connection;
 
 		before('Create a connection', function (done) {
 			oracle.createConnectionPool('user', 'password', 'connectString').then(function (pool) {
 				connectionPool = pool;
-				oracle.openConnection(connectionPool).then(function (conn) {
+				oracle.openPooledConnection(connectionPool).then(function (conn) {
 					connection = conn;
 					done();
 				});
@@ -119,7 +137,7 @@ describe('oracle.js', function () {
 		before('Create a connection', function (done) {
 			oracle.createConnectionPool('user', 'password', 'connectString').then(function (pool) {
 				connectionPool = pool;
-				oracle.openConnection(connectionPool).then(function (conn) {
+				oracle.openPooledConnection(connectionPool).then(function (conn) {
 					connection = conn;
 					done();
 				});

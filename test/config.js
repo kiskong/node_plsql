@@ -74,11 +74,24 @@ describe('config.js', function () {
 			assert.strictEqual(config.validate(conf), 'Configuration object property "services[0].route" must be a non-empty string');
 		});
 
-		it('is an invalid "databaseConnectString"', function () {
+		it('is an invalid "authenticationMode"', function () {
 			let conf = getValidConf();
 
-			conf.services[0].databaseConnectString = 0;
-			assert.strictEqual(config.validate(conf), 'Configuration object property "services[0].databaseConnectString" must be a string');
+			conf.services[0].authenticationMode = 0;
+			assert.strictEqual(config.validate(conf), 'Configuration object property "services[0].authenticationMode" must be a string');
+
+			conf.services[0].authenticationMode = 'something';
+			assert.strictEqual(config.validate(conf), 'Configuration object property "services[0].authenticationMode" must be a "anonymous" or "basic"');
+		});
+
+		it('"databaseUsername" and "databasePassword" not needed with authenticationMode = "basic"', function () {
+			let conf = getValidConf();
+
+			conf.services[0].authenticationMode = 'basic';
+			conf.services[0].databaseUsername = 0;
+			conf.services[0].databasePassword = 0;
+
+			assert.strictEqual(config.validate(conf), undefined); //eslint-disable-line no-undefined
 		});
 
 		it('is an invalid "databaseUsername"', function () {
@@ -93,6 +106,13 @@ describe('config.js', function () {
 
 			conf.services[0].databasePassword = 0;
 			assert.strictEqual(config.validate(conf), 'Configuration object property "services[0].databasePassword" must be a string');
+		});
+
+		it('is an invalid "databaseConnectString"', function () {
+			let conf = getValidConf();
+
+			conf.services[0].databaseConnectString = 0;
+			assert.strictEqual(config.validate(conf), 'Configuration object property "services[0].databaseConnectString" must be a string');
 		});
 
 		it('is an invalid "defaultPage"', function () {
@@ -115,6 +135,7 @@ describe('config.js', function () {
 			port: 8999,
 			route: 'sample',
 			defaultPage: 'myPage',
+			authenticationMode: 'anonymous',
 			databaseUsername: 'scott',
 			databasePassword: 'tiger',
 			databaseConnectString: 'localhost:1521/ORCL',
